@@ -1,0 +1,9 @@
+.myeclipse
+.mymetadata
+.project
+.svn
+*.class
+*.apk
+*.DS_Store
+
+
