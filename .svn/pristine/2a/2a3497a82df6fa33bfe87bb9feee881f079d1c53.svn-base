@@ -1,0 +1,116 @@
+<%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
+<%
+	String path = request.getContextPath();
+	String basePath = request.getScheme() + "://"
+			+ request.getServerName() + ":" + request.getServerPort()
+			+ path + "/";
+%>
+<%
+	if (session.getAttribute("adminUserLoginSucessFlag") == null) {
+%>
+<jsp:forward page="index.jsp"></jsp:forward>
+<%
+	}
+%>
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+<meta charset="utf-8" />
+<title>通知</title>
+
+<link rel="stylesheet" href="css/layout.css" type="text/css"
+	media="screen" />
+<!--[if lt IE 9]>
+	<link rel="stylesheet" href="css/ie.css" type="text/css" media="screen" />
+	<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+<%--for kindeditor --%>
+<link rel="stylesheet" href="kindeditor/themes/default/default.css" />
+<link rel="stylesheet" href="kindeditor/plugins/code/prettify.css" />
+<script charset="utf-8" src="kindeditor/kindeditor.js"></script>
+<script charset="utf-8" src="kindeditor/lang/zh_CN.js"></script>
+<script charset="utf-8" src="kindeditor/plugins/code/prettify.js"></script>
+<%--for kindeditor end --%>
+<script src="js/jquery-1.5.2.min.js" type="text/javascript"></script>
+<script src="js/hideshow.js" type="text/javascript"></script>
+<script type="text/javascript" src="js/jquery.equalHeight.js"></script>
+<%--for kindeditor --%>
+<script>
+	KindEditor.ready(function(K) {
+		var editor1 = K.create('textarea[name="news_content"]', {
+			cssPath : 'kindeditor/plugins/code/prettify.css',
+			uploadJson : 'kindeditor/jsp/upload_json.jsp',
+			fileManagerJson : 'kindeditor/jsp/file_manager_json.jsp',
+			allowFileManager : true,
+			afterCreate : function() {
+				var self = this;
+				K.ctrl(document, 13, function() {
+					self.sync();
+					document.forms['example'].submit();
+				});
+				K.ctrl(self.edit.doc, 13, function() {
+					self.sync();
+					document.forms['example'].submit();
+				});
+			}
+		});
+		prettyPrint();
+	});
+</script>
+<%--for kindeditor --%>
+</head>
+<body>
+
+	<%@ include file="headerBarAdmin.jsp"%>
+
+	<div class="breadcrumbs_container">
+		<article class="breadcrumbs"> <a>系统管理员</a>
+		<div class="breadcrumb_divider"></div>
+		<a class="current">新建消息</a> </article>
+	</div>
+
+	<%@ include file="sideBarAdmin.jsp"%>
+
+	<section id="main" class="column"> <article
+		class="module width_full"> <header>
+	<h3>新建消息</h3>
+	</header>
+	<form action="Admin_NewNewsServlet" method="post">
+		<div class="module_content">
+			<table style="width:100%;float:left;">
+				<tr>
+					<td>
+						<fieldset style="width: 50%; float: left; margin-left: 2%;">
+							<label style="font-size:12px"> 标题 </label> <input type="text"
+								style="width: 96%;" name="news_title" id="news_title" />
+						</fieldset>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<fieldset style="width: 96%;  margin-left: 2%;">
+							<label style="font-size:12px">内容 </label>
+							<p></p>
+							<textarea rows="20" name="news_content" id="news_content"
+								style="font-size:12px">
+					</textarea>
+						</fieldset></td>
+				</tr>
+			</table>
+			<div class="clear"></div>
+		</div>
+		<footer>
+		<div class="submit_link">
+			<input type="submit" value="提交发送">
+		</div>
+		</footer>
+	</form>
+
+	</article> <!-- end of addproduct article -->
+	</section>
+</body>
+
+</html>

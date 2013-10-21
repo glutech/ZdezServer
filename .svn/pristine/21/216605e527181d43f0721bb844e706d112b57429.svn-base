@@ -1,0 +1,39 @@
+package cn.com.zdez.cache;
+
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+
+import redis.clients.jedis.Jedis;
+import cn.com.zdez.dao.RedisConnection;
+import cn.com.zdez.po.ZdezMsg;
+import cn.com.zdez.service.SchoolMsgService;
+
+public class ZdezMsgCache {
+
+	public void cacheZdezMsg(List<ZdezMsg> list) {
+		Jedis jedis = new RedisConnection().getConnection();
+		for (int i = 0, count = list.size(); i < count; i++) {
+			// 利用list控制缓存的信息为40条
+			jedis.rpush("idList:zdezMsg", Integer.toString(list.get(i).getId()));
+			if (jedis.llen("idList:zdezMsg") > 40) {
+				// delete some data
+				// 移除最早存储的数据
+				String zdezMsgId = jedis.lpop("idList:zdezMsg");
+				jedis.srem("zdezMsg:idList", zdezMsgId);
+				jedis.del("zdezMsg:" + zdezMsgId);
+			}
+
+			jedis.sadd("zdezMsg:idList", Integer.toString(list.get(i).getId()));
+			ConcurrentHashMap<String, String> map = new ConcurrentHashMap<String, String>();
+			map.put("id", Integer.toString(list.get(i).getId()));
+			map.put("title", list.get(i).getTitle());
+			// getConverPath方法通用
+			map.put("cover", new SchoolMsgService().getCoverPath(list.get(i)
+					.getContent()));
+
+			map.put("content", list.get(i).getContent());
+			map.put("date", list.get(i).getDate().toString());
+			jedis.hmset("zdezMsg:" + list.get(i).getId(), map);
+		}
+	}
+}

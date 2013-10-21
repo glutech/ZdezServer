@@ -1,0 +1,65 @@
+package cn.com.zdez.cache;
+
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+
+import redis.clients.jedis.Jedis;
+import cn.com.zdez.dao.RedisConnection;
+import cn.com.zdez.service.SchoolMsgService;
+import cn.com.zdez.vo.SchoolMsgVo;
+
+public class SchoolMsgCache {
+
+	public void cacheSchoolMsg(List<SchoolMsgVo> list,
+			String schoolAdminUsername) {
+		Jedis jedis = new RedisConnection().getConnection();
+		for (int i = 0, count = list.size(); i < count; i++) {
+			// 利用list控制每个发送帐号缓存的信息为40条
+			jedis.rpush("idList:" + schoolAdminUsername,
+					Integer.toString(list.get(i).getSchoolMsgId()));
+			if (jedis.llen("idList:" + schoolAdminUsername) > 40) {
+				// delete some data
+				// 移除最早存储的数据
+				String schoolMsgId = jedis
+						.lpop("idList:" + schoolAdminUsername);
+				jedis.srem("schoolMsg:idList", schoolMsgId);
+				jedis.del("schoolMsg:" + schoolMsgId);
+				jedis.del("destGrade:" + schoolMsgId);
+				jedis.del("destMajor:" + schoolMsgId);
+				jedis.del("destDepartment:" + schoolMsgId);
+			}
+
+			jedis.sadd("schoolMsg:idList",
+					Integer.toString(list.get(i).getSchoolMsgId()));
+			ConcurrentHashMap<String, String> map = new ConcurrentHashMap<String, String>();
+			map.put("id", Integer.toString(list.get(i).getSchoolMsgId()));
+			map.put("title", list.get(i).getTitle());
+			map.put("cover", new SchoolMsgService().getCoverPath(list.get(i)
+					.getContent()));
+			map.put("content", list.get(i).getContent());
+			map.put("date", list.get(i).getDate().toString());
+			map.put("schoolName", list.get(i).getSchoolName());
+			map.put("senderName", list.get(i).getSenderName());
+			map.put("destGrade", "destGrade:" + list.get(i).getSchoolMsgId());
+			map.put("destMajor", "destMajor:" + list.get(i).getSchoolMsgId());
+			map.put("destDepartment", "destDepartment:"
+					+ list.get(i).getSchoolMsgId());
+			jedis.hmset("schoolMsg:" + list.get(i).getSchoolMsgId(), map);
+
+			for (int n = 0, count2 = list.get(i).getDestGrade().size(); n < count2; n++) {
+				jedis.sadd("destGrade:" + list.get(i).getSchoolMsgId(), list
+						.get(i).getDestGrade().get(n));
+			}
+
+			for (int p = 0, count3 = list.get(i).getDestMajor().size(); p < count3; p++) {
+				jedis.sadd("destMajor:" + list.get(i).getSchoolMsgId(), list
+						.get(i).getDestMajor().get(p));
+			}
+
+			for (int q = 0, count4 = list.get(i).getDestDepartment().size(); q < count4; q++) {
+				jedis.sadd("destDepartment:" + list.get(i).getSchoolMsgId(),
+						list.get(i).getDestDepartment().get(q));
+			}
+		}
+	}
+}

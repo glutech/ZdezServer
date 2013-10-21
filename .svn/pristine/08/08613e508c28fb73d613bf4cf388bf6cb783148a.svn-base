@@ -1,0 +1,17 @@
+package cn.com.zdez.dao;
+
+import cn.com.zdez.po.Admin;
+
+public class AdminDao {
+	
+	private SQLExecution sqlE = new SQLExecution();
+	
+	public boolean newAdmin(Admin admin) {
+		boolean flag = false;
+		String sql = "insert into admin (username, password) values (?,?)";
+		Object[] params = { admin.getUsername(), admin.getPassword()};
+		flag = sqlE.execSqlWithoutRS(sql, params);
+		return flag;
+	}
+
+}

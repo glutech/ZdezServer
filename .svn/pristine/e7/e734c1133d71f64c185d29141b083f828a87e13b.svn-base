@@ -1,0 +1,53 @@
+package cn.com.zdez.service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import cn.com.zdez.cache.ZdezMsgCache;
+import cn.com.zdez.dao.ZdezMsgDao;
+import cn.com.zdez.po.ZdezMsg;
+import cn.com.zdez.vo.ZdezMsgVo;
+
+public class ZdezMsgService {
+
+	ZdezMsgDao dao = new ZdezMsgDao();
+
+	public synchronized boolean newZdezMsg(ZdezMsg zMsg, String[] grade,
+			String[] major, List<Integer> destUsers) {
+		boolean flag = false;
+		if (dao.newZdezMsg(zMsg)) {
+			int zdezMsgId = dao.getLatestZdezMsgId();
+			if (dao.newZdezMsg_Grade(zdezMsgId, grade)
+					&& dao.newZdezMsg_Major(zdezMsgId, major)
+					&& dao.newZdezMsg_Receivers(zdezMsgId, destUsers)) {
+				flag = true;
+
+				List<ZdezMsg> list = new ArrayList<ZdezMsg>();
+				List<Integer> zdezMsgIdList = new ArrayList<Integer>();
+				zdezMsgIdList.add(zdezMsgId);
+				list = dao.getZdezMsgAll(zdezMsgIdList);
+
+				// 给微软服务器发送
+
+				// 缓存
+				new ZdezMsgCache().cacheZdezMsg(list);
+			} else {
+				dao.roll_Back(zdezMsgId);
+			}
+		}
+		return flag;
+	}
+	
+	public synchronized List<ZdezMsgVo> getMsgToUpdate(int stuId) {
+		return dao.getMsgToUpdate(stuId);
+	}
+	
+	public void updateZdezMsgReceived(int stuId, String[] zdezMsgIdArray) {
+		List<Integer> zdezMsgIdList = new ArrayList<Integer>();
+		for (int i = 0, count = zdezMsgIdArray.length; i < count; i++) {
+			zdezMsgIdList.add(Integer.parseInt(zdezMsgIdArray[i]));
+		}
+		dao.updateZdezMsgReceived(stuId, zdezMsgIdList);
+	}
+
+}

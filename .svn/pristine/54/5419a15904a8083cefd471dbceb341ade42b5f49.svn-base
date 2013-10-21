@@ -1,0 +1,41 @@
+package cn.com.zdez.servlet;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import cn.com.zdez.service.NewsService;
+import cn.com.zdez.util.Statistics;
+import cn.com.zdez.vo.SchoolMsgVo;
+
+public class Test extends HttpServlet {
+
+	public void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+
+		NewsService nService = new NewsService();
+		List<SchoolMsgVo> list = nService.getNewsToUpdate(3);
+		for(SchoolMsgVo s : list) {
+			System.out.println(s.getSchoolMsgId());
+			System.out.println(s.getTitle());
+			System.out.println(s.getContent());
+			System.out.println(s.getDate());
+			System.out.println(s.getCoverPath("localhost:8080"));
+		}
+		
+	}
+
+	public void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+
+		this.doGet(request, response);
+	}
+
+}

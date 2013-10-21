@@ -1,0 +1,13 @@
+package cn.com.zdez.service;
+
+import cn.com.zdez.dao.SchoolDao;
+
+public class SchoolService {
+	
+	SchoolDao dao = new SchoolDao();
+	
+	public String getSchoolNameById(int schoolId) {
+		return dao.getSchoolNameById(schoolId);
+	}
+
+}

@@ -1,0 +1,149 @@
+package cn.com.zdez.util;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import redis.clients.jedis.Jedis;
+import cn.com.zdez.dao.RedisConnection;
+import cn.com.zdez.po.School;
+import cn.com.zdez.service.SchoolService;
+
+/**
+ * 对活动用户数进行统计 按照学校，分别统计各个学校日、周、月活动用户数 最后返回的结果是按照日、周、月分别存储的各个学校的在线人数
+ * 
+ * @author jokinryou
+ * 
+ */
+public class Statistics {
+
+	private Jedis jedis = new RedisConnection().getConnection();
+
+	/**
+	 * 向redis中写入统计数据
+	 * 
+	 * @param stuId
+	 */
+	public void setStatisticsDate(int stuId) {
+
+		String stuIdString = Integer.toString(stuId);
+		// 利用stuId和当前系统时间进行用户数的统计
+		// 获取当前时间
+		SimpleDateFormat sDateFormat = new SimpleDateFormat(
+				"yyyy-MM-dd HH:mm:ss");
+		String date = sDateFormat.format(new java.util.Date());
+		// 时间为域，学生id为值，写入redis
+		ConcurrentHashMap<String, String> map = new ConcurrentHashMap<String, String>();
+		map.put(stuIdString, date);
+		jedis.hmset("hashmap:statistics", map);
+	}
+
+	/**
+	 * 从reids中获取统计数据
+	 * 
+	 * @return
+	 */
+	public HashMap<String, HashMap<Integer, Integer>> getStatisticsData() {
+
+		Jedis jedis = new RedisConnection().getConnection();
+
+		HashMap<String, HashMap<Integer, Integer>> statisticsMap = new HashMap<String, HashMap<Integer, Integer>>();
+		// 获取当前系统时间
+		SimpleDateFormat sDateFormat = new SimpleDateFormat(
+				"yyyy-MM-dd HH:mm:ss");
+		String currentDate = sDateFormat.format(new java.util.Date());
+
+		DateConvert dc = new DateConvert();
+		String dayDate = dc.DayDateConvert(currentDate);
+		String weekDate = dc.WeekDateConvert(currentDate);
+		String monthDate = dc.MonthDateConvert(currentDate);
+
+		String[] names = { "dayDate", "weekDate", "monthDate" };
+		String[] dates = { dayDate, weekDate, monthDate };
+		Set<String> keys = jedis.hkeys("hashmap:statistics");
+		for (int i = 0, count = dates.length; i < count; i++) {
+			int schoolId = -1;
+			HashMap<Integer, Integer> currentStatisticsMap = new HashMap<Integer, Integer>();
+			for (Iterator<String> it = keys.iterator(); it.hasNext();) {
+				String stuId = it.next().toString();
+				if (jedis.hget("hashmap:stuId:schoolId", stuId) != null) {
+					schoolId = Integer.parseInt(jedis.hget(
+							"hashmap:stuId:schoolId", stuId));
+				}
+				try {
+					Date dt1 = sDateFormat.parse(dates[i]);
+					String date = jedis.hget("hashmap:statistics", stuId);
+					Date dt2 = sDateFormat.parse(date);
+					if (dt2.getTime() > dt1.getTime()) {
+						if (currentStatisticsMap.get(schoolId) != null) {
+							currentStatisticsMap.put(schoolId,
+									currentStatisticsMap.get(schoolId) + 1);
+						} else {
+							currentStatisticsMap.put(schoolId, 1);
+						}
+					}
+				} catch (ParseException e) {
+					e.printStackTrace();
+				}
+			}
+			if (currentStatisticsMap.get(schoolId) == null) {
+				currentStatisticsMap.put(schoolId, 0);
+			}
+			statisticsMap.put(names[i] + "StatisticsMap", currentStatisticsMap);
+		}
+
+		return statisticsMap;
+	}
+
+	/**
+	 * 为了能在网页端显示统计信息，对统计数据进行格式转换。
+	 * 
+	 * @param sourceMap
+	 * @return
+	 */
+	public HashMap<String, HashMap<String, Integer>> mapConvert(
+			HashMap<String, HashMap<Integer, Integer>> sourceMap) {
+		HashMap<String, HashMap<String, Integer>> destMap = new HashMap<String, HashMap<String, Integer>>();
+
+		List<School> schoolList = new SchoolService().getAll();
+		HashMap<Integer, String> schoolMap = new HashMap<Integer, String>();
+		for (School s : schoolList) {
+			schoolMap.put(s.getId(), s.getName());
+		}
+
+		Iterator<Map.Entry<String, HashMap<Integer, Integer>>> it = sourceMap
+				.entrySet().iterator();
+		while (it.hasNext()) {
+			Map.Entry<String, HashMap<Integer, Integer>> entry = (Map.Entry<String, HashMap<Integer, Integer>>) it
+					.next();
+			HashMap<Integer, Integer> tempMap = (HashMap<Integer, Integer>) entry
+					.getValue();
+			Iterator<Map.Entry<Integer, Integer>> tempIt = tempMap.entrySet()
+					.iterator();
+			HashMap<String, Integer> m = new HashMap<String, Integer>();
+			while (tempIt.hasNext()) {
+				Map.Entry<Integer, Integer> tempEntry = (Map.Entry<Integer, Integer>) tempIt
+						.next();
+				int schoolId = tempEntry.getKey();
+				m = destMap.get(schoolMap.get(schoolId));
+				if (m == null) {
+					m = new HashMap<String, Integer>();
+				}
+				if (m.get(entry.getKey()) != null) {
+					break;
+				} else {
+					m.put(entry.getKey(), tempEntry.getValue());
+				}
+				destMap.put(schoolMap.get(schoolId), m);
+			}
+		}
+		return destMap;
+	}
+
+}

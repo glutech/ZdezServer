@@ -1,0 +1,35 @@
+package cn.com.zdez.servlet;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import cn.com.zdez.service.SchoolMsgService;
+import cn.com.zdez.vo.SchoolMsgVo;
+
+public class Test extends HttpServlet {
+
+	public void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+
+		int stuId = 3;
+		SchoolMsgService service = new SchoolMsgService();
+		List<SchoolMsgVo> sMsgVoList = service.getMsgToUpdate(stuId);
+		String hostname="localhost:8080";
+		for(SchoolMsgVo sMsgVo : sMsgVoList) {
+			System.out.println(sMsgVo.getCoverPath(hostname));
+		}
+	}
+
+	public void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+
+		this.doGet(request, response);
+	}
+
+}

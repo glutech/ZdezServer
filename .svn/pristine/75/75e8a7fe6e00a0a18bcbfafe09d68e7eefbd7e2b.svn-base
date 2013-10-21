@@ -1,0 +1,38 @@
+package cn.com.zdez.service;
+
+import java.util.List;
+
+import cn.com.zdez.dao.SchoolDao;
+import cn.com.zdez.po.School;
+import cn.com.zdez.po.SchoolSys;
+import cn.com.zdez.po.Student;
+
+public class SchoolService {
+	
+	SchoolDao dao = new SchoolDao();
+	
+	public String getSchoolNameById(int schoolId) {
+		return dao.getSchoolNameById(schoolId);
+	}
+	
+	public List<School> getAll() {
+		return dao.getAll();
+	}
+	
+	public int getSchoolIdByStu(Student stu) {
+		return dao.getSchoolIdByStu(stu);
+	}
+	
+	public int getDepartmentIdByStu(Student stu) {
+		return dao.getDepartmentIdByStu(stu);
+	}
+	
+	public List<SchoolSys> getSchoolSysAll() {
+		return dao.getSchoolSysAll();
+	}
+	
+	public List<SchoolSys> getSchoolSysListBySchoolIds(String[] schoolIds) {
+		return dao.getSchoolSysListBySchoolIds(schoolIds);
+	}
+
+}

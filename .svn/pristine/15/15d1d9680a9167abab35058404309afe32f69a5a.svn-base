@@ -1,0 +1,37 @@
+package cn.com.zdez.servlet;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import cn.com.zdez.service.AdminService;
+import cn.com.zdez.service.NewsService;
+import cn.com.zdez.service.SchoolMsgService;
+import cn.com.zdez.service.StudentService;
+import cn.com.zdez.util.MD5;
+import cn.com.zdez.vo.AckType;
+
+public class Test extends HttpServlet {
+
+	public void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+
+		StudentService sService = new StudentService();
+		int begin = 109518;
+		int end = 125913;
+		if (sService.changePswToMd5(begin, end)) {
+			System.out.println("success~~~");
+		}
+	}
+
+	public void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		this.doGet(request, response);
+	}
+
+}

@@ -1,0 +1,194 @@
+package cn.com.zdez.dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import cn.com.zdez.po.News;
+import cn.com.zdez.service.SchoolMsgService;
+import cn.com.zdez.vo.NewsVo;
+
+public class NewsDao {
+
+	private SQLExecution sqlE = new SQLExecution();
+
+	public boolean newNews(News n) {
+		boolean flag = false;
+		String sql = "insert into news(title, content) values(?,?)";
+		Object[] params = { n.getTitle(), n.getContent() };
+		flag = sqlE.execSqlWithoutRS(sql, params);
+		return flag;
+	}
+
+	public int getLatestNewsId() {
+		int i = 0;
+		String sql = "select * from news order by date desc limit 0,1";
+		Object[] params = {};
+		ResultSet rs = sqlE.execSqlWithRS(sql, params);
+		try {
+			while (rs.next()) {
+				i = rs.getInt("id");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return i;
+	}
+
+	public boolean newNews_Receivers(int newsId, List<Integer> destUsers) {
+		boolean flag = false;
+		ConnectionFactory factor = ConnectionFactory.getInstatnce();
+		PreparedStatement pstmt = null;
+		Connection conn = null;
+		try {
+			conn = factor.getConnection();
+			String sql = "insert into news_receivers(newsId, receiverStuId) values (?,?)";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, newsId);
+			for (int i = 0, count = destUsers.size(); i < count; i++) {
+				pstmt.setInt(2, destUsers.get(i));
+				if (pstmt.executeUpdate() > 0) {
+					flag = true;
+				}
+				if (flag == false) {
+					break;
+				}
+			}
+			pstmt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			factor.freeConnection(conn);
+		}
+		return flag;
+	}
+
+	public boolean deleteReceivers(int newsId) {
+		boolean flag = false;
+		String sql = "delete from news_receivers where newsId = ?";
+		Object[] params = { newsId };
+		flag = sqlE.execSqlWithoutRS(sql, params);
+		return flag;
+	}
+
+	public boolean deleteNews(int newsId) {
+		boolean flag = false;
+		String sql = "delete from news where id = ?";
+		Object[] params = { newsId };
+		flag = sqlE.execSqlWithoutRS(sql, params);
+		return flag;
+	}
+
+	public synchronized List<NewsVo> getNewsToUpdate(int stuId) {
+		List<NewsVo> list = new ArrayList<NewsVo>();
+		List<News> nList = this.getNewsByIdList(this.getNewsIdListtoUpdate(stuId));
+		for (int i = 0, count = nList.size(); i < count; i++) {
+			NewsVo s = new NewsVo();
+			s.setId(nList.get(i).getId());
+			s.setTitle(nList.get(i).getTitle());
+			s.setContent(nList.get(i).getContent());
+			s.setDate(nList.get(i).getDate().substring(0, 19));
+			s.setCoverPath(new SchoolMsgService().getCoverPath(nList.get(i)
+					.getContent()));
+			list.add(s);
+		}
+		return list;
+	}
+
+	public List<Integer> getNewsIdListtoUpdate(int stuId) {
+		List<Integer> toReceive = new ArrayList<Integer>();
+		List<Integer> received = new ArrayList<Integer>();
+		ConnectionFactory factory = ConnectionFactory.getInstatnce();
+		PreparedStatement pstmt1 = null;
+		PreparedStatement pstmt2 = null;
+		Connection conn = null;
+
+		String sqlToReceive = "select newsId from news_receivers where receiverStuId = ? order by newsId desc";
+		String sqlReceived = "select newsId from news_received where receivedStuId = ? order by newsId desc";
+
+		try {
+			conn = factory.getConnection();
+
+			// 获取某一学生要接收的通知列表
+			pstmt1 = conn.prepareStatement(sqlToReceive);
+			pstmt1.setInt(1, stuId);
+			ResultSet rsIdToReceive = pstmt1.executeQuery();
+			while (rsIdToReceive.next()) {
+				toReceive.add(rsIdToReceive.getInt(1));
+			}
+
+			// 获取某一学生已接收的通知id列表
+			pstmt2 = conn.prepareStatement(sqlReceived);
+			pstmt2.setInt(1, stuId);
+			ResultSet rsIdReceived = pstmt2.executeQuery();
+			while (rsIdReceived.next()) {
+				received.add(rsIdReceived.getInt(1));
+			}
+
+			toReceive.removeAll(received);
+
+			pstmt1.close();
+			pstmt2.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			factory.freeConnection(conn);
+		}
+
+		return toReceive;
+	}
+
+	public List<News> getNewsByIdList(List<Integer> newsIdList) {
+		List<News> list = new ArrayList<News>();
+		ConnectionFactory factory = ConnectionFactory.getInstatnce();
+		PreparedStatement pstmt = null;
+		Connection conn = null;
+		try {
+			conn = factory.getConnection();
+			String sql = "select * from news where id = ?";
+			pstmt = conn.prepareStatement(sql);
+			for (int i = 0, count = newsIdList.size(); i < count; i++) {
+				pstmt.setInt(1, newsIdList.get(i));
+				ResultSet rs = pstmt.executeQuery();
+				while (rs.next()) {
+					News n = new News();
+					n.setId(rs.getInt("id"));
+					n.setTitle(rs.getString("title"));
+					n.setContent(rs.getString("content"));
+					n.setDate(rs.getString("date").substring(0, 19));
+					list.add(n);
+				}
+			}
+			pstmt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			factory.freeConnection(conn);
+		}
+		return list;
+	}
+
+	public void updateNewsReceived(int stuId, List<Integer> newsIdList) {
+		ConnectionFactory factory = ConnectionFactory.getInstatnce();
+		PreparedStatement pstmt = null;
+		Connection conn = null;
+		try {
+			conn = factory.getConnection();
+			String sql = "insert into news_received (newsId, receivedStuId) values (?,?);";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(2, stuId);
+			for (int i = 0, count = newsIdList.size(); i < count; i++) {
+				pstmt.setInt(1, newsIdList.get(i));
+				pstmt.executeUpdate();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			factory.freeConnection(conn);
+		}
+	}
+
+}

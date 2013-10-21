@@ -1,0 +1,11 @@
+package cn.com.zdez.dao;
+
+import redis.clients.jedis.Jedis;
+
+public class RedisConnection {
+	
+	public Jedis getConnection() {
+		return new Jedis("localhost",6379);
+	}
+
+}

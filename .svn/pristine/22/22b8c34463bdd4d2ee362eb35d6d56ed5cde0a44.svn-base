@@ -1,0 +1,88 @@
+package cn.com.zdez.service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import cn.com.zdez.dao.NewsDao;
+import cn.com.zdez.po.News;
+import cn.com.zdez.util.ContentOperation;
+import cn.com.zdez.vo.NewsVo;
+
+public class NewsService {
+
+	NewsDao dao = new NewsDao();
+
+	public synchronized boolean newNews(News n, List<Integer> destUsers, String rootPath) {
+		boolean flag = false;
+		if (dao.newNews(n)) {
+			int newsId = dao.getLatestNewsId();
+			if (dao.newNews_Receivers(newsId, destUsers)) {
+
+				//将内容写入html文件，用于网页显示
+				if(new ContentOperation().SaveContent("news", newsId, n.getContent(), rootPath)) {
+					flag = true;
+				}
+				// 是否要写入缓存？
+			} else {
+				this.roll_back(newsId);
+			}
+		}
+		return flag;
+	}
+
+	public void roll_back(int newsId) {
+		dao.deleteReceivers(newsId);
+		dao.deleteNews(newsId);
+	}
+
+	/**
+	 * @param stuId
+	 * @return
+	 */
+	public List<NewsVo> getNewsToUpdate(int stuId) {
+		return dao.getNewsToUpdate(stuId);
+	}
+
+	public void updateNewsReceived(int stuId, String[] newsIdArray) {
+		List<Integer> newsIdList = new ArrayList<Integer>();
+		for (int i = 0, count = newsIdArray.length; i < count; i++) {
+			newsIdList.add(Integer.parseInt(newsIdArray[i]));
+		}
+		dao.updateNewsReceived(stuId, newsIdList);
+	}
+	
+	public int getNewsCount() {
+		return dao.getNewsCount();
+	}
+	
+	public List<NewsVo> getNewsByPage(int start, int end) {
+		List<NewsVo> list = new ArrayList<NewsVo>();
+		List<Integer> newsIdList = dao.getNewsIdList(start, end);
+		list = dao.getNewsByIdList(newsIdList);
+		return list;
+	}
+	
+ 	public int getNewsQueryCount(String keyword) {
+ 		return dao.getNewsQueryCount(keyword);
+ 	}
+	
+	public List<NewsVo> getNewsQueryByPage(int start, int end, String keyword) {
+		List<NewsVo> list = new ArrayList<NewsVo>();
+		List<Integer> idList = dao.getNewsIdList(start, end, keyword);
+		list = dao.getNewsByIdList(idList);
+		return list;
+	}
+	
+	public List<NewsVo> getNewsByIdList(List<Integer> newsIdList) {
+		return dao.getNewsByIdList(newsIdList);
+	}
+	
+	public News getNewsById(int newsId) {
+		return dao.getNewsById(newsId);
+	}
+	
+	public List<Integer> getDestUsersByNewsId(int newsId) {
+		return dao.getDestUsersByNewsId(newsId);
+	}
+
+}

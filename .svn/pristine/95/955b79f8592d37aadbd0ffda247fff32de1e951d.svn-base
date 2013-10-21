@@ -1,0 +1,28 @@
+package cn.com.zdez.dao;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import cn.com.zdez.po.Grade;
+
+public class GradeDao {
+	
+	private SQLExecution sqlE = new SQLExecution();
+	
+	public Grade getGradeById(int gradeId) {
+		Grade grade = new Grade();
+		String sql = "select * from grade where id=?";
+		Object[] params = { gradeId };
+		ResultSet rs = sqlE.execSqlWithRS(sql, params);
+		try {
+			while(rs.next()) {
+				grade.setId(rs.getInt("id"));
+				grade.setDescription(rs.getString("description"));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return grade;
+	}
+
+}

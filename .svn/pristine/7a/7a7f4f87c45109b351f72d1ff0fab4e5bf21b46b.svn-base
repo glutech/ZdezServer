@@ -1,0 +1,37 @@
+package com.notnoop.mpns.sendnoti;
+
+import com.notnoop.mpns.DeliveryClass;
+import com.notnoop.mpns.MPNS;
+import com.notnoop.mpns.MpnsNotification;
+import com.notnoop.mpns.MpnsService;
+
+public class SendToastNotification  {
+
+	
+
+	/*
+	 * Uri is the Notification Channel
+	 * contentOf10 means we only need the first 10 word of the content
+	 * */
+	
+	public void pushShortNotification(String Uri, String userName,
+			String messageID, String sender, String date, String contentOf10,String type,String title) {
+		
+		MpnsService service=MPNS.newService().build();
+		MpnsNotification notification;
+		notification=MPNS.newNotification().toast().title(title).
+				subtitle(date).parameter("/MainPage.xaml?title=" + title +
+						"&name="+userName+
+						"&type=" + type 
+						+"&id=" + messageID +
+						"&sender="+ sender +
+						"&date=" + date +
+						"&context=" + contentOf10).
+						notificationClass(DeliveryClass.IMMEDIATELY).build();
+		
+		service.push(Uri,notification);
+	}
+
+
+
+}
