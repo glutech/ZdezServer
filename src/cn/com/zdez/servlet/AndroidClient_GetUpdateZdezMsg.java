@@ -50,7 +50,15 @@ public class AndroidClient_GetUpdateZdezMsg extends HttpServlet {
 			throws ServletException, IOException {
 
 		String user_id = request.getParameter("user_id");
-		System.out.println("用户请求找得着信息，用户id为: " + user_id);
+		String versionName = "1.0";
+		try {
+			versionName = request.getParameter("version_name");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		System.out.println("用户请求找得着信息，用户id为: " + user_id + ",客户端版本名称为："
+				+ versionName);
 
 		ZdezMsgService zms = new ZdezMsgService();
 		ArrayList<ZdezMsgVo> zdezList = (ArrayList<ZdezMsgVo>) zms
