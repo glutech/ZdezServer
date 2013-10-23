@@ -897,7 +897,7 @@ public class SchoolMsgDao {
 	 * @param stuId
 	 * @return
 	 */
-	public synchronized List<SchoolMsgVo> getMsgToUpdate(int stuId) {
+	public List<SchoolMsgVo> getMsgToUpdate(int stuId) {
 		List<SchoolMsgVo> list = new ArrayList<SchoolMsgVo>();
 
 		// 进行数据统计

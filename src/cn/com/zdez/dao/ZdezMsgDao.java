@@ -422,7 +422,7 @@ public class ZdezMsgDao {
 	 * @param stuId
 	 * @return
 	 */
-	public synchronized List<ZdezMsgVo> getMsgToUpdate(int stuId) {
+	public List<ZdezMsgVo> getMsgToUpdate(int stuId) {
 		List<ZdezMsgVo> list = new ArrayList<ZdezMsgVo>();
 
 		// 根据用户id获取需要更新的通知id列表

@@ -213,7 +213,7 @@ public class SchoolMsgService {
 	 * @param stuId
 	 * @return
 	 */
-	public synchronized List<SchoolMsgVo> getMsgToUpdate(int stuId) {
+	public List<SchoolMsgVo> getMsgToUpdate(int stuId) {
 		return dao.getMsgToUpdate(stuId);
 	}
 

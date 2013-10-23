@@ -127,7 +127,7 @@ public class NewsDao {
 	 * @param stuId
 	 * @return
 	 */
-	public synchronized List<NewsVo> getNewsToUpdate(int stuId) {
+	public List<NewsVo> getNewsToUpdate(int stuId) {
 		List<NewsVo> list = new ArrayList<NewsVo>();
 		List<NewsVo> nList = this.getNewsByIdList(this
 				.getNewsIdListtoUpdate(stuId));

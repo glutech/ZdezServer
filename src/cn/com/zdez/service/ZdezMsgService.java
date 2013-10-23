@@ -65,7 +65,7 @@ public class ZdezMsgService {
 	 * @param stuId
 	 * @return
 	 */
-	public synchronized List<ZdezMsgVo> getMsgToUpdate(int stuId) {
+	public List<ZdezMsgVo> getMsgToUpdate(int stuId) {
 		return dao.getMsgToUpdate(stuId);
 	}
 
