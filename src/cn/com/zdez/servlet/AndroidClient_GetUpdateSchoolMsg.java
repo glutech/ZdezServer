@@ -48,7 +48,15 @@ public class AndroidClient_GetUpdateSchoolMsg extends HttpServlet {
 	public void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		String user_id = request.getParameter("user_id");
-		System.out.println("用户请求校园通知信息，用户id为: " + user_id);
+		String versionName = "1.0";
+		try {
+			versionName = request.getParameter("version_name");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		System.out.println("用户请求校园通知信息，用户id为: " + user_id + ",客户端版本名称为："
+				+ versionName);
 
 		SchoolMsgService schoolMsgService = new SchoolMsgService();
 		ArrayList<SchoolMsgVo> result = (ArrayList<SchoolMsgVo>) schoolMsgService

@@ -73,7 +73,16 @@ public class AndroidClient_StudentLogiCheck extends HttpServlet {
 		String userName = request.getParameter("username");
 		String password = request.getParameter("password");
 
-		System.out.println("用户请求登陆验证，用户名和密码为：" + userName + "~~" + password);
+		String versionName = "1.0";
+		try {
+			versionName = request.getParameter("version_name");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		System.out.println("用户请求登陆验证，用户名和密码为：" + userName + "~~" + password
+				+ ",客户端版本名称为：" + versionName);
+
 		String result = "";
 		LoginService ls = new LoginService();
 		StudentService ss = new StudentService();
