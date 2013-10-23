@@ -18,6 +18,9 @@ public class ContentOperation {
 	public boolean SaveContent(String msgType, int msgId, String content,
 			String rootPath) {
 		boolean flag = false;
+		
+		System.out.println("rootPaht!!!!!!!" + rootPath);
+		
 		String fileName = msgType + Integer.toString(msgId) + ".html";
 		String pathName = rootPath + "html/" + fileName;
 
