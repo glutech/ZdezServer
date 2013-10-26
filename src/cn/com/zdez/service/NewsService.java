@@ -3,6 +3,8 @@ package cn.com.zdez.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.com.zdez.bgRunning.NewNewsMsg;
+import cn.com.zdez.cache.NewsMsgCache;
 import cn.com.zdez.dao.NewsDao;
 import cn.com.zdez.po.News;
 import cn.com.zdez.util.ContentOperation;
@@ -33,6 +35,11 @@ public class NewsService {
 					flag = true;
 				}
 				// 是否要写入缓存？
+
+				NewNewsMsg news = new NewNewsMsg(newsId, destUsers);
+				Thread thread = new Thread(news);
+				thread.start();
+
 			} else {
 				// 插入过程中出错，进行无效数据的删除
 				this.roll_back(newsId);
@@ -59,6 +66,8 @@ public class NewsService {
 	 */
 	public List<NewsVo> getNewsToUpdate(int stuId) {
 		return dao.getNewsToUpdate(stuId);
+		// List<NewsVo> list = new ArrayList<NewsVo>();
+		// return list;
 	}
 
 	/**
@@ -94,11 +103,11 @@ public class NewsService {
 	public List<NewsVo> getNewsByPage(int start, int end) {
 		List<NewsVo> list = new ArrayList<NewsVo>();
 		List<Integer> newsIdList = dao.getNewsIdList(start, end);
-//		list = dao.getNewsByIdList(newsIdList);
+		// list = dao.getNewsByIdList(newsIdList);
 		list = dao.getNewsToDisplayByIdList(newsIdList);
 		return list;
 	}
-	
+
 	public List<NewsVo> getNewsDetailByIdList(List<Integer> idList) {
 		return dao.getNewsDetialByIdList(idList);
 	}
@@ -156,6 +165,21 @@ public class NewsService {
 	 */
 	public List<Integer> getDestUsersByNewsId(int newsId) {
 		return dao.getDestUsersByNewsId(newsId);
+	}
+	
+	/**
+	 * 将缓存中的数据写入数据库，用于数据同步
+	 */
+	public void writeIntoNews_Received() {
+		dao.writeIntoNews_Received();
+	}
+	
+	/**
+	 * 缓存数据库中所有新闻资讯，只在redis清空后运行一次
+	 */
+	public void cacheNewsAll() {
+		List<NewsVo> list = dao.getNewsAll();
+		new NewsMsgCache().cacheNewsMsg(list);
 	}
 
 }

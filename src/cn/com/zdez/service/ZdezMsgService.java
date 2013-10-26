@@ -1,9 +1,11 @@
 package cn.com.zdez.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import cn.com.zdez.bgRunning.NewZdezMsg;
+import cn.com.zdez.cache.ZdezMsgCache;
 import cn.com.zdez.dao.ZdezMsgDao;
 import cn.com.zdez.po.ZdezMsg;
 import cn.com.zdez.util.ContentOperation;
@@ -37,20 +39,20 @@ public class ZdezMsgService {
 						zMsg.getContent(), rootPath)) {
 					flag = true;
 				}
-				
-				NewZdezMsg n = new NewZdezMsg(zdezMsgId);
+
+				NewZdezMsg n = new NewZdezMsg(zdezMsgId, destUsers);
 				Thread thread = new Thread(n);
 				thread.start();
 
-//				List<ZdezMsgVo> list = new ArrayList<ZdezMsgVo>();
-//				List<Integer> zdezMsgIdList = new ArrayList<Integer>();
-//				zdezMsgIdList.add(zdezMsgId);
-//				list = dao.getZdezMsgAll(zdezMsgIdList);
-//
-//				// 给微软服务器发送
-//
-//				// 缓存
-//				new ZdezMsgCache().cacheZdezMsg(list);
+				// List<ZdezMsgVo> list = new ArrayList<ZdezMsgVo>();
+				// List<Integer> zdezMsgIdList = new ArrayList<Integer>();
+				// zdezMsgIdList.add(zdezMsgId);
+				// list = dao.getZdezMsgAll(zdezMsgIdList);
+				//
+				// // 给微软服务器发送
+				//
+				// // 缓存
+				// new ZdezMsgCache().cacheZdezMsg(list);
 			} else {
 				// 数据插入过程出错，进行错误信息的删除
 				dao.roll_Back(zdezMsgId);
@@ -115,7 +117,7 @@ public class ZdezMsgService {
 		list = dao.getZdezMsgAll(idList);
 		return list;
 	}
-	
+
 	public List<ZdezMsgVo> getZdezMsgDetails(List<Integer> zdezMsgIdList) {
 		return dao.getZdezMsgDetails(zdezMsgIdList);
 	}
@@ -184,6 +186,23 @@ public class ZdezMsgService {
 	 */
 	public List<Integer> getDestUsersListByMsgId(int zdezMsgId) {
 		return dao.getDestUsersListByMsgId(zdezMsgId);
+	}
+
+	/**
+	 * 将有关zdezMsg_receivedStu的数据从redis中取出，并写入MySQL中，用于数据同步
+	 * 
+	 * @return
+	 */
+	public boolean writeIntoZdezMsg_ReceivedStu() {
+		return dao.writeIntoZdezMsg_ReceivedStu();
+	}
+
+	/**
+	 * 统计找得着信息已接收数，将数据写入缓存，只在redis清空后执行一次
+	 */
+	public void cacheZdezMsgReceivedNum() {
+		HashMap<Integer, Integer> map = dao.getRecievedNum();
+		new ZdezMsgCache().cacheReceivedNum(map);
 	}
 
 }

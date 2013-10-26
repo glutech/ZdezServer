@@ -45,8 +45,10 @@ public class LoginCheckServlet extends HttpServlet {
 				} else {
 					if (validateC.equals(veryCode)) {
 					} else {
-						request.setAttribute("uname", request.getParameter("username"));
-						request.setAttribute("passwd", request.getParameter("password"));
+						request.setAttribute("uname",
+								request.getParameter("username"));
+						request.setAttribute("passwd",
+								request.getParameter("password"));
 						errorMsg += "验证码错误！<br>";
 					}
 				}
@@ -81,23 +83,26 @@ public class LoginCheckServlet extends HttpServlet {
 						// 将用户名存入session中
 						HttpSession hs = request.getSession(true);
 
-						hs.setAttribute("uname", u);//used to display the username in the pages
+						hs.setAttribute("uname", u);// used to display the
+													// username in the pages
 						// --- compulsory-login flag
 						hs.setAttribute("adminUserLoginSucessFlag", true);
 
 						// admin login success
 						// 跳转到Admin_CacheStudentSchool是为了保持redis中用于统计的数据与数据库中一致，要不然会出错
-						request.getRequestDispatcher("Admin_CacheStudentSchool").forward(
-								request, response);
+						// request.getRequestDispatcher("Admin_CacheStudentSchool").forward(
+						// request, response);
 
+						request.getRequestDispatcher("admin.jsp").forward(
+								request, response);
 					} else if (new LoginService()
 							.schoolAdmin_loginCheck(schoolAdmin)) {
 
-						//getSchoolAdmin object by username
+						// getSchoolAdmin object by username
 						SchoolAdmin sAdmin = new SchoolAdminService()
 								.getSchoolAdminInfo(schoolAdmin.getUsername());
 
-						//set up cookie
+						// set up cookie
 						String keep = request.getParameter("keep");
 						if (keep != null) {
 
@@ -113,7 +118,8 @@ public class LoginCheckServlet extends HttpServlet {
 
 						HttpSession hs = request.getSession(true);
 
-						hs.setAttribute("uname", u);//used to display the username in the pages
+						hs.setAttribute("uname", u);// used to display the
+													// username in the pages
 						hs.setAttribute("schoolAdmin", sAdmin);
 						// --- compulsory-login flag
 						hs.setAttribute("schoolUserLoginSucessFlag", true);

@@ -370,7 +370,7 @@ public class SchoolMsgService {
 	}
 
 	/**
-	 * 将有关schoolMsg_receivedStu的数据从redis中取出，并写入MySQL中
+	 * 将有关schoolMsg_receivedStu的数据从redis中取出，并写入MySQL中，用于数据同步
 	 * 
 	 * @return
 	 */
@@ -379,7 +379,7 @@ public class SchoolMsgService {
 	}
 
 	/**
-	 * 统计校园通知已接收数，只在缓存(redis)清空之后执行一次
+	 * 统计校园通知已接收数，写入缓存，只在缓存(redis)清空之后执行一次
 	 * 
 	 * @return
 	 */

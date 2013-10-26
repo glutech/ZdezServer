@@ -21,7 +21,7 @@ public class AdminDao {
 	}
 
 	/**
-	 * 修改student表中密码为md5加密形式
+	 * 修改student表中密码为md5加密形式，全部修改，除非数据库内所有student的密码为非md5形式，否则不要调用
 	 * 
 	 * @return
 	 */
@@ -60,7 +60,7 @@ public class AdminDao {
 	}
 
 	/**
-	 * 修改admin表中密码为md5加密形式
+	 * 修改admin表中密码为md5加密形式，除非数据库内所有admin密码为非md5形式，否则不要调用
 	 * 
 	 * @return
 	 */
@@ -99,7 +99,7 @@ public class AdminDao {
 	}
 
 	/**
-	 * 修改schoolAdmin表中密码为md5加密形式
+	 * 修改schoolAdmin表中密码为md5加密形式，除非数据库中所有schoolAdmin密码为非md5形式，否则不要调用
 	 * 
 	 * @return
 	 */

@@ -10,13 +10,15 @@ import cn.com.zdez.vo.ZdezMsgVo;
 public class NewZdezMsg implements Runnable{
 	
 	private int zdezMsgId;
+	private List<Integer> destUsers;
 	
 	public NewZdezMsg() {
 		
 	}
 	
-	public NewZdezMsg(int zdezMsgId) {
+	public NewZdezMsg(int zdezMsgId, List<Integer> destUsers) {
 		this.zdezMsgId = zdezMsgId;
+		this.destUsers = destUsers;
 	}
 	
 	public void NewMsg() {
@@ -28,7 +30,9 @@ public class NewZdezMsg implements Runnable{
 		// 给微软服务器发送
 
 		// 缓存
-		new ZdezMsgCache().cacheZdezMsg(list);
+		ZdezMsgCache cache = new ZdezMsgCache();
+		cache.cacheZdezMsg(list);
+		cache.cacheZdezMsg_Receivers(zdezMsgId, destUsers);
 	}
 	
 	public void run() {

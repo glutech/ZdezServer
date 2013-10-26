@@ -61,7 +61,7 @@ public class Admin_NewZdezMsg extends HttpServlet {
 			ZdezMsg zMsg = new ZdezMsg();
 			zMsg.setTitle(title);
 			zMsg.setContent(content);
-			zMsg.setAdminId("luo");
+			zMsg.setAdminId((String)hs.getAttribute("uname"));
 
 			ZdezMsgService service = new ZdezMsgService();
 			// 发送信息

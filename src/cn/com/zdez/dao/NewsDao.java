@@ -5,10 +5,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import cn.com.zdez.cache.NewsMsgCache;
 import cn.com.zdez.po.News;
-import cn.com.zdez.service.SchoolMsgService;
 import cn.com.zdez.service.SchoolService;
 import cn.com.zdez.util.MassInsertion;
 import cn.com.zdez.vo.NewsVo;
@@ -60,36 +64,38 @@ public class NewsDao {
 	 */
 	public boolean newNews_Receivers(int newsId, List<Integer> destUsers) {
 		boolean flag = true;
-		
+
 		String sqlLoadData = "LOAD DATA LOCAL INFILE 'sql.csv' IGNORE INTO TABLE news_receivers (newsId, receiverStuId)";
-		
+
 		MassInsertion mi = new MassInsertion();
-		System.out.println(mi.excuteMassInsertion(sqlLoadData, newsId, destUsers));
-		
-//		ConnectionFactory factor = ConnectionFactory.getInstatnce();
-//		PreparedStatement pstmt = null;
-//		Connection conn = null;
-//		try {
-//			conn = factor.getConnection();
-//			String sql = "insert into news_receivers(newsId, receiverStuId) values (?,?)";
-//			pstmt = conn.prepareStatement(sql);
-//			pstmt.setInt(1, newsId);
-//			for (int i = 0, count = destUsers.size(); i < count; i++) {
-//				System.out.println("inserting into newNews_Receivers....");
-//				pstmt.setInt(2, destUsers.get(i));
-//				if (pstmt.executeUpdate() > 0) {
-//					flag = true;
-//				}
-//				if (flag == false) {
-//					break;
-//				}
-//			}
-//			pstmt.close();
-//		} catch (SQLException e) {
-//			e.printStackTrace();
-//		} finally {
-//			factor.freeConnection(conn);
-//		}
+		System.out.println(mi.excuteMassInsertion(sqlLoadData, newsId,
+				destUsers));
+
+		// ConnectionFactory factor = ConnectionFactory.getInstatnce();
+		// PreparedStatement pstmt = null;
+		// Connection conn = null;
+		// try {
+		// conn = factor.getConnection();
+		// String sql =
+		// "insert into news_receivers(newsId, receiverStuId) values (?,?)";
+		// pstmt = conn.prepareStatement(sql);
+		// pstmt.setInt(1, newsId);
+		// for (int i = 0, count = destUsers.size(); i < count; i++) {
+		// System.out.println("inserting into newNews_Receivers....");
+		// pstmt.setInt(2, destUsers.get(i));
+		// if (pstmt.executeUpdate() > 0) {
+		// flag = true;
+		// }
+		// if (flag == false) {
+		// break;
+		// }
+		// }
+		// pstmt.close();
+		// } catch (SQLException e) {
+		// e.printStackTrace();
+		// } finally {
+		// factor.freeConnection(conn);
+		// }
 		return flag;
 	}
 
@@ -129,18 +135,9 @@ public class NewsDao {
 	 */
 	public List<NewsVo> getNewsToUpdate(int stuId) {
 		List<NewsVo> list = new ArrayList<NewsVo>();
-		List<NewsVo> nList = this.getNewsByIdList(this
-				.getNewsIdListtoUpdate(stuId));
-		for (int i = 0, count = nList.size(); i < count; i++) {
-			NewsVo s = new NewsVo();
-			s.setId(nList.get(i).getId());
-			s.setTitle(nList.get(i).getTitle());
-			s.setContent(nList.get(i).getContent());
-			s.setDate(nList.get(i).getDate().substring(0, 19));
-			s.setCoverPath(new SchoolMsgService().getCoverPath(nList.get(i)
-					.getContent()));
-			list.add(s);
-		}
+		List<Integer> idList = this.getNewsIdListtoUpdate(stuId);
+
+		list = new NewsMsgCache().getNewsMsgFromCache(idList);
 		return list;
 	}
 
@@ -150,49 +147,131 @@ public class NewsDao {
 	 * @param stuId
 	 * @return
 	 */
-	public List<Integer> getNewsIdListtoUpdate(int stuId) {
-		List<Integer> toReceive = new ArrayList<Integer>();
-		List<Integer> received = new ArrayList<Integer>();
-		ConnectionFactory factory = ConnectionFactory.getInstatnce();
-		PreparedStatement pstmt1 = null;
-		PreparedStatement pstmt2 = null;
-		Connection conn = null;
+	// public List<Integer> getNewsIdListtoUpdate(int stuId) {
+	// List<Integer> toReceive = new ArrayList<Integer>();
+	// List<Integer> received = new ArrayList<Integer>();
+	// ConnectionFactory factory = ConnectionFactory.getInstatnce();
+	// PreparedStatement pstmt1 = null;
+	// PreparedStatement pstmt2 = null;
+	// Connection conn = null;
+	//
+	// String sqlToReceive =
+	// "select newsId from news_receivers where receiverStuId = ? order by newsId desc";
+	// String sqlReceived =
+	// "select newsId from news_received where receivedStuId = ? order by newsId desc";
+	//
+	// try {
+	// conn = factory.getConnection();
+	//
+	// // 获取某一学生要接收的通知列表
+	// pstmt1 = conn.prepareStatement(sqlToReceive);
+	// pstmt1.setInt(1, stuId);
+	// ResultSet rsIdToReceive = pstmt1.executeQuery();
+	// while (rsIdToReceive.next()) {
+	// toReceive.add(rsIdToReceive.getInt(1));
+	// }
+	//
+	// // 获取某一学生已接收的通知id列表
+	// pstmt2 = conn.prepareStatement(sqlReceived);
+	// pstmt2.setInt(1, stuId);
+	// ResultSet rsIdReceived = pstmt2.executeQuery();
+	// while (rsIdReceived.next()) {
+	// received.add(rsIdReceived.getInt(1));
+	// }
+	//
+	// toReceive.removeAll(received);
+	//
+	// pstmt1.close();
+	// pstmt2.close();
+	// } catch (SQLException e) {
+	// e.printStackTrace();
+	// } finally {
+	// factory.freeConnection(conn);
+	// }
+	//
+	// return toReceive;
+	// }
 
-		String sqlToReceive = "select newsId from news_receivers where receiverStuId = ? order by newsId desc";
-		String sqlReceived = "select newsId from news_received where receivedStuId = ? order by newsId desc";
+	public List<Integer> getNewsIdListtoUpdate(int stuId) {
+		JedisPool pool = new RedisConnection().getConnection();
+		Jedis jedis = pool.getResource();
+		List<Integer> toReceive = new ArrayList<Integer>();
+		String key1 = "newsMsg:toReceive:" + Integer.toString(stuId);
+		String key2 = "newsMsg:received:" + Integer.toString(stuId);
 
 		try {
-			conn = factory.getConnection();
 
-			// 获取某一学生要接收的通知列表
-			pstmt1 = conn.prepareStatement(sqlToReceive);
-			pstmt1.setInt(1, stuId);
-			ResultSet rsIdToReceive = pstmt1.executeQuery();
-			while (rsIdToReceive.next()) {
-				toReceive.add(rsIdToReceive.getInt(1));
+			List<Integer> msgIdList = new ArrayList<Integer>();
+			NewsMsgCache cache = new NewsMsgCache();
+
+			// 如果某用户从未拉取过信息，则将两个表中的数据均写入数据库
+			Set<String> receivedSet = jedis.smembers(key2);
+			if (receivedSet.size() == 0) {
+				msgIdList = this.getReceivedMsgIdsByStuId(stuId);
+				cache.cacheNewsMsg_ReceivedStu(stuId, msgIdList);
+				msgIdList = this.getToReceiveMsgIdsByStuId(stuId);
+				cache.cacheNewsMsg_toReceive(stuId, msgIdList);
 			}
 
-			// 获取某一学生已接收的通知id列表
-			pstmt2 = conn.prepareStatement(sqlReceived);
-			pstmt2.setInt(1, stuId);
-			ResultSet rsIdReceived = pstmt2.executeQuery();
-			while (rsIdReceived.next()) {
-				received.add(rsIdReceived.getInt(1));
+			Set<String> result = jedis.sdiff(key1, key2);
+			Iterator<String> it = result.iterator();
+			while (it.hasNext()) {
+				String str = it.next();
+				toReceive.add(Integer.parseInt(str));
 			}
 
-			toReceive.removeAll(received);
-
-			pstmt1.close();
-			pstmt2.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
 		} finally {
-			factory.freeConnection(conn);
+			pool.returnResource(jedis);
 		}
 
+		pool.destroy();
 		return toReceive;
 	}
-	
+
+	/**
+	 * 获取某个学生的待接收信息id列表，用于缓存
+	 * 
+	 * @param stuId
+	 * @return
+	 */
+	public List<Integer> getToReceiveMsgIdsByStuId(int stuId) {
+		List<Integer> list = new ArrayList<Integer>();
+		String sql = "select newsId from news_receivers where receiverStuId = ? order by newsId desc";
+		Object[] params = { stuId };
+		ResultSet rs = sqlE.execSqlWithRS(sql, params);
+		try {
+			while (rs.next()) {
+				list.add(rs.getInt(1));
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return list;
+	}
+
+	/**
+	 * 获取某个学生的已接收信息列表，用于缓存
+	 * 
+	 * @param stuId
+	 * @return
+	 */
+	public List<Integer> getReceivedMsgIdsByStuId(int stuId) {
+		List<Integer> list = new ArrayList<Integer>();
+		String sql = "select newsId from news_received where receivedStuId = ? order by newsId desc";
+		Object[] params = { stuId };
+		ResultSet rs = sqlE.execSqlWithRS(sql, params);
+		try {
+			while (rs.next()) {
+				list.add(rs.getInt(1));
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return list;
+	}
+
 	/*
 	 * 获取用于查看新闻列表的数据
 	 */
@@ -220,15 +299,35 @@ public class NewsDao {
 					NewsVo n = new NewsVo();
 					n.setId(rs.getInt("id"));
 					n.setTitle(rs.getString("title"));
-//					n.setContent(rs.getString("content"));
+					// n.setContent(rs.getString("content"));
 					n.setDate(rs.getString("date").substring(0, 19));
 
-					int receivedNum = -1;
-					ResultSet rsReceived = pstmt1.executeQuery();
-					while (rsReceived.next()) {
-						receivedNum = rsReceived.getInt(1);
+					// 获取已接收数
+
+					JedisPool pool = new RedisConnection().getConnection();
+					Jedis jedis = pool.getResource();
+
+					try {
+						String num = jedis.hget("newsMsg:receivedNum",
+								Integer.toString(newsIdList.get(i)));
+
+						if (num == null) {
+							int receivedNum = 0;
+							ResultSet rsReceived = pstmt1.executeQuery();
+							while (rsReceived.next()) {
+								receivedNum = rsReceived.getInt(1);
+							}
+							n.setReceivedNum(receivedNum);
+							jedis.hset("newsMsg:receivedNum", Integer.toString(newsIdList.get(i)), Integer.toString(receivedNum));
+						} else {
+							n.setReceivedNum(Integer.parseInt(num));
+						}
+
+					} finally {
+						pool.returnResource(jedis);
 					}
-					n.setReceivedNum(receivedNum);
+					
+					pool.destroy();
 
 					int receiverNum = -1;
 					ResultSet rsReceiver = pstmt2.executeQuery();
@@ -250,7 +349,7 @@ public class NewsDao {
 		}
 		return list;
 	}
-	
+
 	/*
 	 * 用于查看新闻的详细信息
 	 */
@@ -354,12 +453,32 @@ public class NewsDao {
 							.getSchoolNameById(schoolIdList);
 					n.setDestSchools(destSchools);
 
-					int receivedNum = -1;
-					ResultSet rsReceived = pstmt1.executeQuery();
-					while (rsReceived.next()) {
-						receivedNum = rsReceived.getInt(1);
+					// 获取已接收数
+
+					JedisPool pool = new RedisConnection().getConnection();
+					Jedis jedis = pool.getResource();
+
+					try {
+						String num = jedis.hget("newsMsg:receivedNum",
+								Integer.toString(newsIdList.get(i)));
+
+						if (num == null) {
+							int receivedNum = 0;
+							ResultSet rsReceived = pstmt1.executeQuery();
+							while (rsReceived.next()) {
+								receivedNum = rsReceived.getInt(1);
+							}
+							n.setReceivedNum(receivedNum);
+							jedis.hset("newsMsg:receivedNum", Integer.toString(newsIdList.get(i)), Integer.toString(receivedNum));
+						} else {
+							n.setReceivedNum(Integer.parseInt(num));
+						}
+
+					} finally {
+						pool.returnResource(jedis);
 					}
-					n.setReceivedNum(receivedNum);
+					
+					pool.destroy();
 
 					int receiverNum = -1;
 					ResultSet rsReceiver = pstmt2.executeQuery();
@@ -389,35 +508,39 @@ public class NewsDao {
 	 * @param stuId
 	 * @param newsIdList
 	 */
+//	public void updateNewsReceived(int stuId, List<Integer> newsIdList) {
+//		ConnectionFactory factory = ConnectionFactory.getInstatnce();
+//		PreparedStatement pstmt = null;
+//		PreparedStatement pstmt1 = null;
+//		Connection conn = null;
+//		try {
+//			conn = factory.getConnection();
+//			String sql = "insert into news_received (newsId, receivedStuId) values (?,?)";
+//			String sqlIsReceived = "select * from news_received where newsId = ? and receivedStuId = ?";
+//			pstmt = conn.prepareStatement(sql);
+//			pstmt1 = conn.prepareStatement(sqlIsReceived);
+//			pstmt.setInt(2, stuId);
+//			pstmt1.setInt(2, stuId);
+//			for (int i = 0, count = newsIdList.size(); i < count; i++) {
+//				pstmt.setInt(1, newsIdList.get(i));
+//				pstmt1.setInt(1, newsIdList.get(i));
+//				ResultSet rs = pstmt1.executeQuery();
+//				// 防止数据冗余
+//				if (!rs.next()) {
+//					pstmt.executeUpdate();
+//				}
+//			}
+//			pstmt.close();
+//			pstmt1.close();
+//		} catch (SQLException e) {
+//			e.printStackTrace();
+//		} finally {
+//			factory.freeConnection(conn);
+//		}
+//	}
+	
 	public void updateNewsReceived(int stuId, List<Integer> newsIdList) {
-		ConnectionFactory factory = ConnectionFactory.getInstatnce();
-		PreparedStatement pstmt = null;
-		PreparedStatement pstmt1 = null;
-		Connection conn = null;
-		try {
-			conn = factory.getConnection();
-			String sql = "insert into news_received (newsId, receivedStuId) values (?,?)";
-			String sqlIsReceived = "select * from news_received where newsId = ? and receivedStuId = ?";
-			pstmt = conn.prepareStatement(sql);
-			pstmt1 = conn.prepareStatement(sqlIsReceived);
-			pstmt.setInt(2, stuId);
-			pstmt1.setInt(2, stuId);
-			for (int i = 0, count = newsIdList.size(); i < count; i++) {
-				pstmt.setInt(1, newsIdList.get(i));
-				pstmt1.setInt(1, newsIdList.get(i));
-				ResultSet rs = pstmt1.executeQuery();
-				// 防止数据冗余
-				if (!rs.next()) {
-					pstmt.executeUpdate();
-				}
-			}
-			pstmt.close();
-			pstmt1.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally {
-			factory.freeConnection(conn);
-		}
+		new NewsMsgCache().cacheNewsMsg_ReceivedStu(stuId, newsIdList);
 	}
 
 	/**
@@ -547,6 +670,87 @@ public class NewsDao {
 				list.add(rs.getInt(1));
 			}
 		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return list;
+	}
+	
+	/**
+	 * 将有关news_received的数据从redis中取出，并写入MySQL中
+	 * 
+	 * @return
+	 */
+	public boolean writeIntoNews_Received() {
+		boolean flag = false;
+
+		JedisPool pool = new RedisConnection().getConnection();
+		Jedis jedis = pool.getResource();
+
+		ConnectionFactory factory = ConnectionFactory.getInstatnce();
+		Connection conn = null;
+		PreparedStatement pstmt1 = null;
+		PreparedStatement pstmt2 = null;
+
+		String sql1 = "select id from news_received where newsId = ? and receivedStuId = ?";
+		String sql2 = "insert into news_received (newsId, receivedStuId) value (?, ?)";
+
+		try {
+			conn = factory.getConnection();
+			Set<String> stuIdList = jedis.smembers("newsMsg:received:stuIdAll");
+			Iterator<String> it = stuIdList.iterator();
+			while (it.hasNext()) {
+				int stuId = Integer.parseInt(it.next());
+				String key = "newsMsg:received:" + stuId;
+				Set<String> newsMsgIdList = jedis.smembers(key);
+				Iterator<String> itNewsMsgId = newsMsgIdList.iterator();
+				while (itNewsMsgId.hasNext()) {
+					int schoolMsgId = Integer.parseInt(itNewsMsgId.next());
+					pstmt1 = conn.prepareStatement(sql1);
+					pstmt1.setInt(1, schoolMsgId);
+					pstmt1.setInt(2, stuId);
+					ResultSet rs1 = pstmt1.executeQuery();
+					if (!rs1.next()) {
+						pstmt2 = conn.prepareStatement(sql2);
+						pstmt2.setInt(1, schoolMsgId);
+						pstmt2.setInt(2, stuId);
+						if (pstmt2.executeUpdate() > 0) {
+							flag = true;
+						} else {
+							break;
+						}
+					}
+				}
+			}
+			if (pstmt1 != null) {
+				pstmt1.close();
+			}
+			if (pstmt2 != null) {
+				pstmt2.close();
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			factory.freeConnection(conn);
+			pool.returnResource(jedis);
+		}
+		pool.destroy();
+		return flag;
+	}
+	
+	public List<NewsVo> getNewsAll() {
+		List<NewsVo> list = new ArrayList<NewsVo>();
+		List<Integer> idList = new ArrayList<Integer>();
+		String sql = "select id from news";
+		Object[] params = {};
+		ResultSet rs = sqlE.execSqlWithRS(sql, params);
+		try {
+			while (rs.next()) {
+				idList.add(rs.getInt(1));
+			}
+			list = this.getNewsByIdList(idList);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return list;

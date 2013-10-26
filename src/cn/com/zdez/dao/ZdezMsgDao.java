@@ -5,8 +5,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 import cn.com.zdez.cache.ZdezMsgCache;
 import cn.com.zdez.po.ZdezMsg;
 import cn.com.zdez.util.MassInsertion;
@@ -39,7 +44,7 @@ public class ZdezMsgDao {
 	public int getLatestZdezMsgId() {
 		int i = 0;
 		SQLExecution sqlE = new SQLExecution();
-		String sql = "select * from zdezMsg order by date desc limit 0,1";
+		String sql = "select id from zdezMsg order by date desc limit 0,1";
 		Object[] params = {};
 		ResultSet rs = sqlE.execSqlWithRS(sql, params);
 		try {
@@ -98,43 +103,45 @@ public class ZdezMsgDao {
 	 */
 	public boolean newZdezMsg_Major(int zdezMsgId, String[] major) {
 		boolean flag = true;
-		
+
 		String sqlLoadData = "LOAD DATA LOCAL INFILE 'sql.csv' IGNORE INTO TABLE zdezMsg_destMajor (zdezMsgId, majorId)";
-		
+
 		MassInsertion mi = new MassInsertion();
-		
+
 		List<Integer> destMajor = new ArrayList<Integer>();
-		for (int i=0; i<major.length; i++) {
+		for (int i = 0; i < major.length; i++) {
 			destMajor.add(Integer.parseInt(major[i]));
 		}
-		
-		System.out.println(mi.excuteMassInsertion(sqlLoadData, zdezMsgId, destMajor));
-		
+
+		System.out.println(mi.excuteMassInsertion(sqlLoadData, zdezMsgId,
+				destMajor));
+
 		// 因为循环插入数据，所有不使用SQLExecution
-//		PreparedStatement pstmt = null;
-//		ConnectionFactory factory = ConnectionFactory.getInstatnce();
-//		Connection conn = null;
-//		String sql = "insert into zdezMsg_destMajor (zdezMsgId, majorId) values (?,?)";
-//		try {
-//			conn = factory.getConnection();
-//			pstmt = conn.prepareStatement(sql);
-//			pstmt.setInt(1, zdezMsgId);
-//			for (int i = 0, count = major.length; i < count; i++) {
-//				flag = false;
-//				pstmt.setInt(2, Integer.parseInt(major[i]));
-//				if (pstmt.executeUpdate() > 0) {
-//					flag = true;
-//				}
-//				if (flag == false) {
-//					break;
-//				}
-//			}
-//			pstmt.close();
-//		} catch (SQLException e) {
-//			e.printStackTrace();
-//		} finally {
-//			factory.freeConnection(conn);
-//		}
+		// PreparedStatement pstmt = null;
+		// ConnectionFactory factory = ConnectionFactory.getInstatnce();
+		// Connection conn = null;
+		// String sql =
+		// "insert into zdezMsg_destMajor (zdezMsgId, majorId) values (?,?)";
+		// try {
+		// conn = factory.getConnection();
+		// pstmt = conn.prepareStatement(sql);
+		// pstmt.setInt(1, zdezMsgId);
+		// for (int i = 0, count = major.length; i < count; i++) {
+		// flag = false;
+		// pstmt.setInt(2, Integer.parseInt(major[i]));
+		// if (pstmt.executeUpdate() > 0) {
+		// flag = true;
+		// }
+		// if (flag == false) {
+		// break;
+		// }
+		// }
+		// pstmt.close();
+		// } catch (SQLException e) {
+		// e.printStackTrace();
+		// } finally {
+		// factory.freeConnection(conn);
+		// }
 		return flag;
 	}
 
@@ -181,7 +188,7 @@ public class ZdezMsgDao {
 		// }
 		return flag;
 	}
-	
+
 	/*
 	 * 用于显示找得着信息列表
 	 */
@@ -240,7 +247,7 @@ public class ZdezMsgDao {
 		}
 		return list;
 	}
-	
+
 	/*
 	 * 查看找得着信息的详细信息
 	 */
@@ -299,8 +306,6 @@ public class ZdezMsgDao {
 			pstmt3 = conn.prepareStatement(getReceiverNumSql);
 			for (int i = 0, count = zdezMsgIdList.size(); i < count; i++) {
 				pstmt1.setInt(1, zdezMsgIdList.get(i));
-				pstmt2.setInt(1, zdezMsgIdList.get(i));
-				pstmt3.setInt(1, zdezMsgIdList.get(i));
 				ResultSet rs = pstmt1.executeQuery();
 				while (rs.next()) {
 					ZdezMsgVo zMsgVo = new ZdezMsgVo();
@@ -310,15 +315,40 @@ public class ZdezMsgDao {
 					zMsgVo.setDate(rs.getString("date").substring(0, 19));
 
 					// 获取已接收数
-					int receivedNum = -1;
-					ResultSet rsReceived = pstmt2.executeQuery();
-					while (rsReceived.next()) {
-						receivedNum = rsReceived.getInt(1);
+
+					JedisPool pool = new RedisConnection().getConnection();
+					Jedis jedis = pool.getResource();
+
+					try {
+
+						String num = jedis.hget("zdezMsg:receivedNum",
+								Integer.toString(zdezMsgIdList.get(i)));
+
+						if (num == null) {
+
+							int receivedNum = 0;
+							pstmt2.setInt(1, zdezMsgIdList.get(i));
+							ResultSet rsReceived = pstmt2.executeQuery();
+							while (rsReceived.next()) {
+								receivedNum = rsReceived.getInt(1);
+							}
+							zMsgVo.setReceivedNum(receivedNum);
+							jedis.hset("zdezMsg:receivedNum",
+									Integer.toString(zdezMsgIdList.get(i)),
+									Integer.toString(receivedNum));
+						} else {
+							zMsgVo.setReceivedNum(Integer.parseInt(num));
+						}
+
+					} finally {
+						pool.returnResource(jedis);
 					}
-					zMsgVo.setReceivedNum(receivedNum);
+
+					pool.destroy();
 
 					// 获取发送总数
 					int receiverNum = -1;
+					pstmt3.setInt(1, zdezMsgIdList.get(i));
 					ResultSet rsReceiver = pstmt3.executeQuery();
 					while (rsReceiver.next()) {
 						receiverNum = rsReceiver.getInt(1);
@@ -328,15 +358,151 @@ public class ZdezMsgDao {
 					list.add(zMsgVo);
 				}
 			}
-			pstmt1.close();
-			pstmt2.close();
-			pstmt3.close();
+			if (pstmt1 != null) {
+				pstmt1.close();
+			}
+			if (pstmt2 != null) {
+				pstmt2.close();
+			}
+			if (pstmt3 != null) {
+				pstmt3.close();
+			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
 			factory.freeConnection(conn);
 		}
 		return list;
+	}
+
+	/**
+	 * 将表zdezMsg_receivedStu 中的数据存入hashmap中，用于缓存。 仅在redis清空之后调用一次
+	 * 
+	 * @return
+	 */
+	public HashMap<Integer, List<Integer>> getZdezMsgReceivedAll() {
+		HashMap<Integer, List<Integer>> destMap = new HashMap<Integer, List<Integer>>();
+		ConnectionFactory factory = ConnectionFactory.getInstatnce();
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		PreparedStatement pstmt1 = null;
+		String sql = "select distinct(receivedStuId) from zdezMsg_receivedStu";
+		String sql1 = "select distinct(zdezMsgId) from zdezMsg_receivedStu where receivedStuId = ?";
+		try {
+			conn = factory.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			pstmt1 = conn.prepareStatement(sql1);
+			ResultSet rs = pstmt.executeQuery();
+			while (rs.next()) {
+				int key = rs.getInt(1);
+				List<Integer> tempList = new ArrayList<Integer>();
+				pstmt1.setInt(1, key);
+				ResultSet rs1 = pstmt1.executeQuery();
+				while (rs1.next()) {
+					tempList.add(rs1.getInt(1));
+				}
+				destMap.put(key, tempList);
+			}
+			pstmt.close();
+			pstmt1.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			factory.freeConnection(conn);
+		}
+		return destMap;
+	}
+
+	/**
+	 * 获取zdezMsg_receivers表中stuId的数量，用户分段缓存
+	 * 
+	 * @return
+	 */
+	public int getReceiversCount() {
+		int i = 0;
+		String sql = "select count(distinct(receiverId)) from zdezMsg_receivers";
+		Object[] params = {};
+		ResultSet rs = sqlE.execSqlWithRS(sql, params);
+		try {
+			while (rs.next()) {
+				i = rs.getInt(1);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return i;
+	}
+
+	/**
+	 * 将表zdezMsg_receivers 中的数据存入hashmap中，用于缓存。 仅在redis清空之后调用一次
+	 * 为了减少数据库连接，没有严格符合的MVC。
+	 * 
+	 * @return
+	 */
+	public HashMap<Integer, List<Integer>> cacheZdezMsgReceiverAll() {
+		HashMap<Integer, List<Integer>> destMap = new HashMap<Integer, List<Integer>>();
+		ConnectionFactory factory = ConnectionFactory.getInstatnce();
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		PreparedStatement pstmt1 = null;
+		String sql = "select distinct(receiverId) from zdezMsg_receivers limit ?, ?";
+		String sql1 = "select distinct(zdezMsgId) from zdezMsg_receivers where receiverId = ?";
+		try {
+			conn = factory.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			pstmt1 = conn.prepareStatement(sql1);
+
+			ZdezMsgCache cache = new ZdezMsgCache();
+			int idCount = this.getReceiversCount();
+			int mod = idCount % 200;
+			int count = idCount / 200;
+			for (int i = 1; i <= count; i++) {
+				int start = (i - 1) * 200;
+				int end = i * 200;
+				pstmt.setInt(1, start);
+				pstmt.setInt(2, end);
+				ResultSet rs = pstmt.executeQuery();
+				while (rs.next()) {
+					int key = rs.getInt(1);
+					List<Integer> tempList = new ArrayList<Integer>();
+					pstmt1.setInt(1, key);
+					ResultSet rs1 = pstmt1.executeQuery();
+					while (rs1.next()) {
+						tempList.add(rs1.getInt(1));
+					}
+					destMap.put(key, tempList);
+				}
+				cache.cacheZdezMsg_ReceiversAll(destMap);
+			}
+			if (mod != 0) {
+				int start = count * 200;
+				int end = start + mod;
+				pstmt.setInt(1, start);
+				pstmt.setInt(2, end);
+				ResultSet rs = pstmt.executeQuery();
+				while (rs.next()) {
+					int key = rs.getInt(1);
+					List<Integer> tempList = new ArrayList<Integer>();
+					pstmt1.setInt(1, key);
+					ResultSet rs1 = pstmt1.executeQuery();
+					while (rs1.next()) {
+						tempList.add(rs1.getInt(1));
+					}
+					destMap.put(key, tempList);
+				}
+				cache.cacheZdezMsg_ReceiversAll(destMap);
+			}
+			pstmt.close();
+			pstmt1.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			factory.freeConnection(conn);
+		}
+		return destMap;
 	}
 
 	/**
@@ -439,47 +605,129 @@ public class ZdezMsgDao {
 	 * @param stuId
 	 * @return
 	 */
+	// public List<Integer> getMsgIdListtoUpdate(int stuId) {
+	// List<Integer> toReceive = new ArrayList<Integer>();
+	// List<Integer> received = new ArrayList<Integer>();
+	// ConnectionFactory factory = ConnectionFactory.getInstatnce();
+	// PreparedStatement pstmt1 = null;
+	// PreparedStatement pstmt2 = null;
+	// Connection conn = null;
+	//
+	// String sqlToReceive =
+	// "select zdezMsgId from zdezMsg_receivers where receiverId = ? order by zdezMsgId desc";
+	// String sqlReceived =
+	// "select zdezMsgId from zdezMsg_receivedStu where receivedStuId = ? order by zdezMsgId desc";
+	//
+	// try {
+	// conn = factory.getConnection();
+	//
+	// // 获取某一学生要接收的通知列表
+	// pstmt1 = conn.prepareStatement(sqlToReceive);
+	// pstmt1.setInt(1, stuId);
+	// ResultSet rsIdToReceive = pstmt1.executeQuery();
+	// while (rsIdToReceive.next()) {
+	// toReceive.add(rsIdToReceive.getInt(1));
+	// }
+	//
+	// // 获取某一学生已接收的通知id列表
+	// pstmt2 = conn.prepareStatement(sqlReceived);
+	// pstmt2.setInt(1, stuId);
+	// ResultSet rsIdReceived = pstmt2.executeQuery();
+	// while (rsIdReceived.next()) {
+	// received.add(rsIdReceived.getInt(1));
+	// }
+	//
+	// toReceive.removeAll(received);
+	//
+	// pstmt1.close();
+	// pstmt2.close();
+	// } catch (SQLException e) {
+	// e.printStackTrace();
+	// } finally {
+	// factory.freeConnection(conn);
+	// }
+	//
+	// return toReceive;
+	// }
 	public List<Integer> getMsgIdListtoUpdate(int stuId) {
+		JedisPool pool = new RedisConnection().getConnection();
+		Jedis jedis = pool.getResource();
 		List<Integer> toReceive = new ArrayList<Integer>();
-		List<Integer> received = new ArrayList<Integer>();
-		ConnectionFactory factory = ConnectionFactory.getInstatnce();
-		PreparedStatement pstmt1 = null;
-		PreparedStatement pstmt2 = null;
-		Connection conn = null;
-
-		String sqlToReceive = "select zdezMsgId from zdezMsg_receivers where receiverId = ? order by zdezMsgId desc";
-		String sqlReceived = "select zdezMsgId from zdezMsg_receivedStu where receivedStuId = ? order by zdezMsgId desc";
+		String key1 = "zdezMsg:toReceive:" + Integer.toString(stuId);
+		String key2 = "zdezMsg:received:" + Integer.toString(stuId);
 
 		try {
-			conn = factory.getConnection();
 
-			// 获取某一学生要接收的通知列表
-			pstmt1 = conn.prepareStatement(sqlToReceive);
-			pstmt1.setInt(1, stuId);
-			ResultSet rsIdToReceive = pstmt1.executeQuery();
-			while (rsIdToReceive.next()) {
-				toReceive.add(rsIdToReceive.getInt(1));
+			List<Integer> msgIdList = new ArrayList<Integer>();
+			ZdezMsgCache cache = new ZdezMsgCache();
+
+			// 缓存中没有数据时，从数据库中获取并写入缓存
+			// 以未拉取过数据为准
+			
+			Set<String> receivedSet = jedis.smembers(key2);
+			if (receivedSet.size() == 0) {
+				msgIdList = this.getReceivedMsgIdsByStuId(stuId);
+				cache.cacheZdezMsg_ReceivedStu(stuId, msgIdList);
+				msgIdList = this.getToReceiveMsgIdsByStuId(stuId);
+				cache.cacheZdezMsg_toReceive(stuId, msgIdList);
+			}
+			
+			// 对比获得要更新的信息id
+			
+			Set<String> toReceivedSet = jedis.sdiff(key1, key2);
+			Iterator<String> it = toReceivedSet.iterator();
+			while (it.hasNext()) {
+				String str = it.next();
+				toReceive.add(Integer.parseInt(str));
 			}
 
-			// 获取某一学生已接收的通知id列表
-			pstmt2 = conn.prepareStatement(sqlReceived);
-			pstmt2.setInt(1, stuId);
-			ResultSet rsIdReceived = pstmt2.executeQuery();
-			while (rsIdReceived.next()) {
-				received.add(rsIdReceived.getInt(1));
-			}
-
-			toReceive.removeAll(received);
-
-			pstmt1.close();
-			pstmt2.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
 		} finally {
-			factory.freeConnection(conn);
+			pool.returnResource(jedis);
 		}
-
+		pool.destroy();
 		return toReceive;
+	}
+	
+	/**
+	 * 获取某个学生的待接收信息id列表，用于缓存
+	 * @param stuId
+	 * @return
+	 */
+	public List<Integer> getToReceiveMsgIdsByStuId(int stuId) {
+		List<Integer> list = new ArrayList<Integer>();
+		String sql = "select zdezMsgId from zdezMsg_receivers where receiverId = ? order by zdezMsgId desc";
+		Object[] params = {stuId};
+		ResultSet rs = sqlE.execSqlWithRS(sql, params);
+		try {
+			while (rs.next()) {
+				list.add(rs.getInt(1));
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return list;
+	}
+	
+	/**
+	 * 获取某个学生的已接收信息列表，用于缓存
+	 * @param stuId
+	 * @return
+	 */
+	public List<Integer> getReceivedMsgIdsByStuId(int stuId) {
+		List<Integer> list = new ArrayList<Integer>();
+		String sql = "select zdezMsgId from zdezMsg_receivedStu where receivedStuId = ? order by zdezMsgId desc";
+		Object[] params = {stuId};
+		ResultSet rs = sqlE.execSqlWithRS(sql, params);
+		try {
+			while (rs.next()) {
+				list.add(rs.getInt(1));
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return list;
 	}
 
 	/**
@@ -489,34 +737,41 @@ public class ZdezMsgDao {
 	 * @param stuId
 	 * @param zdezMsgIdList
 	 */
+	// public void updateZdezMsgReceived(int stuId, List<Integer> zdezMsgIdList)
+	// {
+	// ConnectionFactory factory = ConnectionFactory.getInstatnce();
+	// PreparedStatement pstmt = null;
+	// PreparedStatement pstmt1 = null;
+	// Connection conn = null;
+	// try {
+	// conn = factory.getConnection();
+	// String sql =
+	// "insert into zdezMsg_receivedStu (zdezMsgId, receivedStuId) values (?,?)";
+	// String sqlIsReceived =
+	// "select * from zdezMsg_receivedStu where zdezMsgId = ? and receivedStuId = ?";
+	// pstmt = conn.prepareStatement(sql);
+	// pstmt1 = conn.prepareStatement(sqlIsReceived);
+	// pstmt.setInt(2, stuId);
+	// pstmt1.setInt(2, stuId);
+	// for (int i = 0, count = zdezMsgIdList.size(); i < count; i++) {
+	// pstmt.setInt(1, zdezMsgIdList.get(i));
+	// pstmt1.setInt(1, zdezMsgIdList.get(i));
+	// ResultSet rs = pstmt1.executeQuery();
+	// if (!rs.next()) {
+	// pstmt.executeUpdate();
+	// }
+	// }
+	// pstmt.close();
+	// pstmt1.close();
+	// } catch (SQLException e) {
+	// e.printStackTrace();
+	// } finally {
+	// factory.freeConnection(conn);
+	// }
+	// }
+
 	public void updateZdezMsgReceived(int stuId, List<Integer> zdezMsgIdList) {
-		ConnectionFactory factory = ConnectionFactory.getInstatnce();
-		PreparedStatement pstmt = null;
-		PreparedStatement pstmt1 = null;
-		Connection conn = null;
-		try {
-			conn = factory.getConnection();
-			String sql = "insert into zdezMsg_receivedStu (zdezMsgId, receivedStuId) values (?,?)";
-			String sqlIsReceived = "select * from zdezMsg_receivedStu where zdezMsgId = ? and receivedStuId = ?";
-			pstmt = conn.prepareStatement(sql);
-			pstmt1 = conn.prepareStatement(sqlIsReceived);
-			pstmt.setInt(2, stuId);
-			pstmt1.setInt(2, stuId);
-			for (int i = 0, count = zdezMsgIdList.size(); i < count; i++) {
-				pstmt.setInt(1, zdezMsgIdList.get(i));
-				pstmt1.setInt(1, zdezMsgIdList.get(i));
-				ResultSet rs = pstmt1.executeQuery();
-				if (!rs.next()) {
-					pstmt.executeUpdate();
-				}
-			}
-			pstmt.close();
-			pstmt1.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} finally {
-			factory.freeConnection(conn);
-		}
+		new ZdezMsgCache().cacheZdezMsg_ReceivedStu(stuId, zdezMsgIdList);
 	}
 
 	/**
@@ -526,7 +781,7 @@ public class ZdezMsgDao {
 	 */
 	public int getZdezMsgCount() {
 		int i = -1;
-		String sql = "select count(*) from zdezMsg";
+		String sql = "select count(id) from zdezMsg";
 		Object[] params = {};
 		ResultSet rs = sqlE.execSqlWithRS(sql, params);
 		try {
@@ -569,7 +824,7 @@ public class ZdezMsgDao {
 	 */
 	public int getZdezMsgQueryCount(String keyword) {
 		int i = -1;
-		String sql = "select count(*) from zdezMsg where title like '%"
+		String sql = "select count(id) from zdezMsg where title like '%"
 				+ keyword + "%'";
 		Object[] params = {};
 		ResultSet rs = sqlE.execSqlWithRS(sql, params);
@@ -694,6 +949,109 @@ public class ZdezMsgDao {
 			e.printStackTrace();
 		}
 		return list;
+	}
+
+	/**
+	 * 将有关zdezMsg_receivedStu的数据从redis中取出，并写入MySQL中
+	 * 
+	 * @return
+	 */
+	public boolean writeIntoZdezMsg_ReceivedStu() {
+		boolean flag = false;
+
+		JedisPool pool = new RedisConnection().getConnection();
+		Jedis jedis = pool.getResource();
+
+		ConnectionFactory factory = ConnectionFactory.getInstatnce();
+		Connection conn = null;
+		PreparedStatement pstmt1 = null;
+		PreparedStatement pstmt2 = null;
+
+		String sql1 = "select id from zdezMsg_receivedStu where zdezMsgId = ? and receivedStuId = ?";
+		String sql2 = "insert into zdezMsg_receivedStu (zdezMsgId, receivedStuId) value (?, ?)";
+
+		try {
+			conn = factory.getConnection();
+			Set<String> stuIdList = jedis.smembers("zdezMsg:received:stuIdAll");
+			Iterator<String> it = stuIdList.iterator();
+			while (it.hasNext()) {
+				int stuId = Integer.parseInt(it.next());
+				String key = "zdezMsg:received:" + stuId;
+				Set<String> schoolMsgIdList = jedis.smembers(key);
+				Iterator<String> itSchoolMsgId = schoolMsgIdList.iterator();
+				while (itSchoolMsgId.hasNext()) {
+					int schoolMsgId = Integer.parseInt(itSchoolMsgId.next());
+					pstmt1 = conn.prepareStatement(sql1);
+					pstmt1.setInt(1, schoolMsgId);
+					pstmt1.setInt(2, stuId);
+					ResultSet rs1 = pstmt1.executeQuery();
+					if (!rs1.next()) {
+						pstmt2 = conn.prepareStatement(sql2);
+						pstmt2.setInt(1, schoolMsgId);
+						pstmt2.setInt(2, stuId);
+						if (pstmt2.executeUpdate() > 0) {
+							flag = true;
+						} else {
+							break;
+						}
+					}
+				}
+			}
+			if (pstmt1 != null) {
+				pstmt1.close();
+			}
+			if (pstmt2 != null) {
+				pstmt2.close();
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			factory.freeConnection(conn);
+			pool.returnResource(jedis);
+		}
+		pool.destroy();
+		return flag;
+	}
+
+	/**
+	 * 统计找得着信息已接收数，只在缓存清空之后执行一次
+	 * 
+	 * @return
+	 */
+	public HashMap<Integer, Integer> getRecievedNum() {
+		HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
+		ConnectionFactory factory = ConnectionFactory.getInstatnce();
+		Connection conn = null;
+		PreparedStatement pstmt1 = null;
+		PreparedStatement pstmt2 = null;
+		String sql1 = "select distinct(zdezMsgId) from zdezMsg_receivedStu";
+		String sql2 = "select count(receivedStuId) from zdezMsg_receivedStu where zdezMsgId = ?";
+		try {
+			conn = factory.getConnection();
+			pstmt1 = conn.prepareStatement(sql1);
+			ResultSet rs1 = pstmt1.executeQuery();
+			while (rs1.next()) {
+				pstmt2 = conn.prepareStatement(sql2);
+				pstmt2.setInt(1, rs1.getInt(1));
+				ResultSet rs2 = pstmt2.executeQuery();
+				while (rs2.next()) {
+					map.put(rs1.getInt(1), rs2.getInt(1));
+				}
+			}
+			if (pstmt1 != null) {
+				pstmt1.close();
+			}
+			if (pstmt2 != null) {
+				pstmt2.close();
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			factory.freeConnection(conn);
+		}
+		return map;
 	}
 
 }

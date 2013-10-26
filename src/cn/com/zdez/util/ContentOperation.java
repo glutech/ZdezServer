@@ -19,8 +19,6 @@ public class ContentOperation {
 			String rootPath) {
 		boolean flag = false;
 		
-		System.out.println("rootPaht!!!!!!!" + rootPath);
-		
 		String fileName = msgType + Integer.toString(msgId) + ".html";
 		String pathName = rootPath + "html/" + fileName;
 

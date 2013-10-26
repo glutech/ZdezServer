@@ -333,6 +333,16 @@
     <servlet-name>Admin_StatisticsDetails</servlet-name>
     <servlet-class>cn.com.zdez.servlet.Admin_StatisticsDetails</servlet-class>
   </servlet>
+  <servlet>
+    <servlet-name>ZdezMsgSync</servlet-name>
+    <servlet-class>cn.com.zdez.manualDBSync.ZdezMsgSync</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>SchoolMsgSync</servlet-name>
+    <servlet-class>cn.com.zdez.manualDBSync.SchoolMsgSync</servlet-class>
+  </servlet>
+
+
 
 
 
@@ -643,6 +653,14 @@
   <servlet-mapping>
     <servlet-name>Admin_StatisticsDetails</servlet-name>
     <url-pattern>/Admin_StatisticsDetails</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>ZdezMsgSync</servlet-name>
+    <url-pattern>/ZdezMsgSync</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>SchoolMsgSync</servlet-name>
+    <url-pattern>/SchoolMsgSync</url-pattern>
   </servlet-mapping>
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>

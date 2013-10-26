@@ -12,8 +12,8 @@ import java.util.Set;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
-
 import cn.com.zdez.cache.SchoolMsgCache;
+import cn.com.zdez.cache.SchoolStudentCache;
 import cn.com.zdez.po.SchoolAdmin;
 import cn.com.zdez.po.SchoolMsg;
 import cn.com.zdez.util.MassInsertion;
@@ -107,43 +107,45 @@ public class SchoolMsgDao {
 	 */
 	public boolean newSchoolMsg_Major(int schoolMsgId, String[] major) {
 		boolean flag = true;
-		
+
 		String sqlLoadData = "LOAD DATA LOCAL INFILE 'sql.csv' IGNORE INTO TABLE schoolMsg_destMajor (schoolMsgId, majorId)";
-		
+
 		MassInsertion mi = new MassInsertion();
-		
+
 		List<Integer> destMajor = new ArrayList<Integer>();
-		for (int i=0; i<major.length; i++) {
+		for (int i = 0; i < major.length; i++) {
 			destMajor.add(Integer.parseInt(major[i]));
 		}
-		
-		System.out.println(mi.excuteMassInsertion(sqlLoadData, schoolMsgId, destMajor));
-		
+
+		System.out.println(mi.excuteMassInsertion(sqlLoadData, schoolMsgId,
+				destMajor));
+
 		// 因为循环插入数据，所有不使用SQLExecution
-//		PreparedStatement pstmt = null;
-//		ConnectionFactory factory = ConnectionFactory.getInstatnce();
-//		Connection conn = null;
-//		String sql = "insert into schoolMsg_destMajor (schoolMsgId, majorId) values (?,?)";
-//		try {
-//			conn = factory.getConnection();
-//			pstmt = conn.prepareStatement(sql);
-//			pstmt.setInt(1, schoolMsgId);
-//			for (int i = 0, count = major.length; i < count; i++) {
-//				flag = false;
-//				pstmt.setInt(2, Integer.parseInt(major[i]));
-//				if (pstmt.executeUpdate() > 0) {
-//					flag = true;
-//				}
-//				if (flag == false) {
-//					break;
-//				}
-//			}
-//			pstmt.close();
-//		} catch (SQLException e) {
-//			e.printStackTrace();
-//		} finally {
-//			factory.freeConnection(conn);
-//		}
+		// PreparedStatement pstmt = null;
+		// ConnectionFactory factory = ConnectionFactory.getInstatnce();
+		// Connection conn = null;
+		// String sql =
+		// "insert into schoolMsg_destMajor (schoolMsgId, majorId) values (?,?)";
+		// try {
+		// conn = factory.getConnection();
+		// pstmt = conn.prepareStatement(sql);
+		// pstmt.setInt(1, schoolMsgId);
+		// for (int i = 0, count = major.length; i < count; i++) {
+		// flag = false;
+		// pstmt.setInt(2, Integer.parseInt(major[i]));
+		// if (pstmt.executeUpdate() > 0) {
+		// flag = true;
+		// }
+		// if (flag == false) {
+		// break;
+		// }
+		// }
+		// pstmt.close();
+		// } catch (SQLException e) {
+		// e.printStackTrace();
+		// } finally {
+		// factory.freeConnection(conn);
+		// }
 		return flag;
 	}
 
@@ -157,51 +159,52 @@ public class SchoolMsgDao {
 	public boolean newSchoolMsg_Receivers(int schoolMsgId,
 			List<Integer> destUsers) {
 		boolean flag = true;
-//		PreparedStatement pstmt = null;
-//		ConnectionFactory factory = ConnectionFactory.getInstatnce();
-//		Connection conn = null;
-//		String sql = "insert into schoolMsg_receivers (schoolMsgId, receiverId) values (?,?)";
-		
+		// PreparedStatement pstmt = null;
+		// ConnectionFactory factory = ConnectionFactory.getInstatnce();
+		// Connection conn = null;
+		// String sql =
+		// "insert into schoolMsg_receivers (schoolMsgId, receiverId) values (?,?)";
+
 		String sqlLoadData = "LOAD DATA LOCAL INFILE 'sql.csv' IGNORE INTO TABLE schoolMsg_receivers (schoolMsgId, receiverId)";
-		
+
 		MassInsertion mi = new MassInsertion();
-		System.out.println(mi.excuteMassInsertion(sqlLoadData, schoolMsgId, destUsers));
-		
-//		String sqlNew = "insert into schoolMsg_receivers (schoolMsgId, receiverId) values ";
-//		
-//		for (int i=0, count1 = destUsers.size(); i<count1; i++) {
-//			if (i == count1-1) {
-//				
-//				sqlNew = sqlNew + "" + schoolMsgId + "," + destUsers.get(i) + ");"; 
-//			} else {
-//				sqlNew = sqlNew + schoolMsgId + "," + destUsers.get(i) + "),";
-//			}
-//		}
-//		
-//		System.out.println(sqlNew);
-		
-		
-		
-//		try {
-//			conn = factory.getConnection();
-//			pstmt = conn.prepareStatement(sql);
-//			pstmt.setInt(1, schoolMsgId);
-//			for (int i = 0, count = destUsers.size(); i < count; i++) {
-//				flag = false;
-//				pstmt.setInt(2, destUsers.get(i));
-//				if (pstmt.executeUpdate() > 0) {
-//					flag = true;
-//				}
-//				if (flag == false) {
-//					break;
-//				}
-//			}
-//			pstmt.close();
-//		} catch (SQLException e) {
-//			e.printStackTrace();
-//		} finally {
-//			factory.freeConnection(conn);
-//		}
+		System.out.println(mi.excuteMassInsertion(sqlLoadData, schoolMsgId,
+				destUsers));
+
+		// String sqlNew =
+		// "insert into schoolMsg_receivers (schoolMsgId, receiverId) values ";
+		//
+		// for (int i=0, count1 = destUsers.size(); i<count1; i++) {
+		// if (i == count1-1) {
+		//
+		// sqlNew = sqlNew + "" + schoolMsgId + "," + destUsers.get(i) + ");";
+		// } else {
+		// sqlNew = sqlNew + schoolMsgId + "," + destUsers.get(i) + "),";
+		// }
+		// }
+		//
+		// System.out.println(sqlNew);
+
+		// try {
+		// conn = factory.getConnection();
+		// pstmt = conn.prepareStatement(sql);
+		// pstmt.setInt(1, schoolMsgId);
+		// for (int i = 0, count = destUsers.size(); i < count; i++) {
+		// flag = false;
+		// pstmt.setInt(2, destUsers.get(i));
+		// if (pstmt.executeUpdate() > 0) {
+		// flag = true;
+		// }
+		// if (flag == false) {
+		// break;
+		// }
+		// }
+		// pstmt.close();
+		// } catch (SQLException e) {
+		// e.printStackTrace();
+		// } finally {
+		// factory.freeConnection(conn);
+		// }
 		return flag;
 	}
 
@@ -480,10 +483,10 @@ public class SchoolMsgDao {
 				SchoolMsgVo sMsgVo = new SchoolMsgVo();
 
 				// get schoolMsg basic info
-				String sqlGetMsgInfo = "select schoolMsg.id, schoolMsg.title, schoolMsg.date, school.name as schoolName " +
-						"from schoolMsg, schoolAdmin, school " +
-						"where schoolAdmin.username = schoolMsg.schoolAdminId " +
-						"and schoolAdmin.schoolId = school.id and schoolMsg.id = ?";
+				String sqlGetMsgInfo = "select schoolMsg.id, schoolMsg.title, schoolMsg.date, school.name as schoolName "
+						+ "from schoolMsg, schoolAdmin, school "
+						+ "where schoolAdmin.username = schoolMsg.schoolAdminId "
+						+ "and schoolAdmin.schoolId = school.id and schoolMsg.id = ?";
 				pstmt = conn.prepareStatement(sqlGetMsgInfo);
 				pstmt.setInt(1, schoolMsgIdList.get(i));
 				ResultSet rsMsgInfo = pstmt.executeQuery();
@@ -504,14 +507,18 @@ public class SchoolMsgDao {
 
 					if (num == null) {
 
+						int receivedNum = 0;
 						String sqlReceivedNum = "select count(*) from schoolMsg_receivedStu where schoolMsgId = ?";
 						pstmt = conn.prepareStatement(sqlReceivedNum);
 						pstmt.setInt(1, schoolMsgIdList.get(i));
 						ResultSet rsReceivedNum = pstmt.executeQuery();
-						sMsgVo.setReceivedNum(0);
 						while (rsReceivedNum.next()) {
-							sMsgVo.setReceivedNum(rsReceivedNum.getInt(1));
+							receivedNum = rsReceivedNum.getInt(1);
 						}
+						sMsgVo.setReceivedNum(receivedNum);
+						jedis.hset("schoolMsg:receivedNum",
+								Integer.toString(schoolMsgIdList.get(i)),
+								Integer.toString(receivedNum));
 					} else {
 						sMsgVo.setReceivedNum(Integer.parseInt(num));
 					}
@@ -540,11 +547,12 @@ public class SchoolMsgDao {
 		}
 		return list;
 	}
-	
+
 	/*
 	 * 学校管理员用，查看本人帐号已发信息
 	 */
-	public List<SchoolMsgVo> getMsgToDisplaySchoolAdmin(List<Integer> schoolMsgIdList) {
+	public List<SchoolMsgVo> getMsgToDisplaySchoolAdmin(
+			List<Integer> schoolMsgIdList) {
 		List<SchoolMsgVo> list = new ArrayList<SchoolMsgVo>();
 
 		ConnectionFactory factory = ConnectionFactory.getInstatnce();
@@ -877,9 +885,22 @@ public class SchoolMsgDao {
 		String key2 = "schoolMsg:received:" + Integer.toString(stuId);
 
 		try {
+			
+			List<Integer> msgIdList = new ArrayList<Integer>();
+			SchoolMsgCache cache = new SchoolMsgCache();
 
-			Set<String> toReceiveSet = jedis.sdiff(key1, key2);
-			Iterator<String> it = toReceiveSet.iterator();
+			Set<String> receivedSet = jedis.smembers(key2);
+			if (receivedSet.size() == 0) {
+				msgIdList = this.getReceivedMsgIdsByStuId(stuId);
+				cache.cacheSchoolMsg_ReceivedStu(stuId, msgIdList);
+				msgIdList = this.getToReceiveMsgIdsByStuId(stuId);
+				cache.cacheSchoolMsg_toReceive(stuId, msgIdList);
+			}
+			
+			// 对比获得要更新的信息id
+
+			Set<String> toReceivedSet = jedis.sdiff(key1, key2);
+			Iterator<String> it = toReceivedSet.iterator();
 			while (it.hasNext()) {
 				String str = it.next();
 				toReceive.add(Integer.parseInt(str));
@@ -889,6 +910,48 @@ public class SchoolMsgDao {
 		}
 		pool.destroy();
 		return toReceive;
+	}
+
+	/**
+	 * 获取某一学生待接收信息的id列表
+	 * @param stuId
+	 * @return
+	 */
+	public List<Integer> getToReceiveMsgIdsByStuId(int stuId) {
+		List<Integer> list = new ArrayList<Integer>();
+		String sql = "select schoolMsgId from schoolMsg_receivers where receiverId = ? order by schoolMsgId desc";
+		Object[] params = { stuId };
+		ResultSet rs = sqlE.execSqlWithRS(sql, params);
+		try {
+			while (rs.next()) {
+				list.add(rs.getInt(1));
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return list;
+	}
+	
+	/**
+	 * 获取某一学生已接收信息的id列表
+	 * @param stuId
+	 * @return
+	 */
+	public List<Integer> getReceivedMsgIdsByStuId(int stuId) {
+		List<Integer> list = new ArrayList<Integer>();
+		String sql = "select schoolMsgId from schoolMsg_receivedStu where receivedStuId = ? order by schoolMsgId desc";
+		Object[] params = { stuId };
+		ResultSet rs = sqlE.execSqlWithRS(sql, params);
+		try {
+			while (rs.next()) {
+				list.add(rs.getInt(1));
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return list;
 	}
 
 	/**
@@ -902,6 +965,9 @@ public class SchoolMsgDao {
 
 		// 进行数据统计
 		new Statistics().setStatisticsDate(stuId);
+		
+		// 缓存学生与学校的对应关系，防止统计出错
+		new SchoolStudentCache().CacheStuSchool(stuId);
 
 		// 根据用户id获取需要更新的通知id列表
 		List<Integer> idList = this.getMsgIdListtoUpdate(stuId);

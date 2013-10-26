@@ -446,9 +446,27 @@ public class SchoolMsgCache {
 		}
 		pool.destroy();
 	}
+	
+	/**
+	 * 缓存每个学生的信息接收列表，用于缓存中没有学生信息接收列表的时候
+	 * @param stuId
+	 * @param list
+	 */
+	public void cacheSchoolMsg_toReceive(int stuId, List<Integer> list) {
+		try {
+			String key = "schoolMsg:toReceive:" + stuId;
+			int count = list.size();
+			for (int i=0; i<count; i++) {
+				jedis.sadd(key, Integer.toString(list.get(i)));
+			}
+		} finally {
+			pool.returnResource(jedis);
+		}
+		pool.destroy();
+	}
 
 	/**
-	 * 客户端返回已接收的确认信息时，将接受者和接收列表写入缓存
+	 * 客户端返回已接收的确认信息时，将接受者id和接收到的信息的id写入缓存，并将某条信息的接收数+1
 	 * 
 	 * @param stuId
 	 * @param schoolMsgIdList
@@ -477,6 +495,7 @@ public class SchoolMsgCache {
 	 * 将MySQL中表schoolMsg_receivedStu中的所有数据写入缓存 一般只在redis清空之后调用一次
 	 * 
 	 * @param map
+	 *            存储学生id与已接收信息id的对应关系
 	 */
 	public void cacheSchoolMsg_ReceivedStuAll(
 			HashMap<Integer, List<Integer>> map) {
@@ -505,6 +524,13 @@ public class SchoolMsgCache {
 		pool.destroy();
 	}
 
+	/**
+	 * 从数据库中取出每条信息的接收数，写入redis，只在redis清空后调用一次 由
+	 * SchoolMsgService.cacheSchoolMsgRecievedNum 调用
+	 * 
+	 * @param map
+	 *            存储msgId与接收数
+	 */
 	public void cacheReceivedNum(HashMap<Integer, Integer> map) {
 
 		try {
@@ -520,8 +546,6 @@ public class SchoolMsgCache {
 				jedis.hset(key, schoolMsgId, receivedNum);
 			}
 
-			Set<String> stuIdList = jedis
-					.smembers("schoolMsg:received:stuIdAll");
 		} finally {
 			pool.returnResource(jedis);
 		}

@@ -183,7 +183,7 @@ public class SchoolAdminDao {
 	 */
 	public int getSchoolAdminCount() {
 		int i = -1;
-		String sql = "select count(*) from schoolAdmin";
+		String sql = "select count(id) from schoolAdmin";
 		Object[] params = {};
 		ResultSet rs = sqlE.execSqlWithRS(sql, params);
 		try {
@@ -204,7 +204,7 @@ public class SchoolAdminDao {
 	 */
 	public int getSchoolAdminCount(String keyword) {
 		int i = -1;
-		String sql = "select count(*) from schoolAdmin where name like '%"
+		String sql = "select count(id) from schoolAdmin where name like '%"
 				+ keyword + "%' ";
 		Object[] params = {};
 		ResultSet rs = sqlE.execSqlWithRS(sql, params);
@@ -442,11 +442,11 @@ public class SchoolAdminDao {
 			// 如果在9月份之前（包括9月份），则可向今年的毕业生发信息
 			if (tempMonth <= 9) {
 				i = currentId;
-				count = currentId + 4;
+				count = currentId + 6;
 			} else {
 				// 如果在9月份之后，则不可再给今年的毕业生发信息
 				i = currentId + 1;
-				count = currentId + 5;
+				count = currentId + 7;
 			}
 
 			for (; i < count; i++) {

@@ -15,8 +15,8 @@ public class Test extends HttpServlet {
 	public void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
-		int begin = 110717;
-		int end = 125807;
+		int begin = 139738;
+		int end = 140941;
 		
 		new StudentService().changePswToMd5(begin, end);
 		

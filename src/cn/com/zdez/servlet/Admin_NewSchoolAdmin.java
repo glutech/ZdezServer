@@ -53,7 +53,8 @@ public class Admin_NewSchoolAdmin extends HttpServlet {
 		String school = request.getParameter("school");
 		String department = request.getParameter("department");
 		String major = request.getParameter("major");
-		String remarks = request.getParameter("remarks");
+		String remarksOrigin = request.getParameter("remarks");
+		String remarks = new String(remarksOrigin.getBytes("ISO-8859-1"), "utf-8");
 
 		if (username == null) {
 			username = (String) request.getAttribute("username");
@@ -64,7 +65,7 @@ public class Admin_NewSchoolAdmin extends HttpServlet {
 			school = (String) request.getAttribute("school");
 			department = (String) request.getAttribute("department");
 			major = (String) request.getAttribute("major");
-			remarks = (String) request.getAttribute("remarks");
+			remarks = (String) request.getAttribute("remarksOrigin");
 		}
 		hs.setAttribute("username", username);
 		hs.setAttribute("psw", psw);
@@ -74,7 +75,7 @@ public class Admin_NewSchoolAdmin extends HttpServlet {
 		hs.setAttribute("school", school);
 		hs.setAttribute("department", department);
 		hs.setAttribute("major", major);
-		hs.setAttribute("remarks", remarks);
+		hs.setAttribute("remarks", remarksOrigin);
 
 		SchoolAdmin sAdmin = new SchoolAdmin();
 		sAdmin.setUsername(username);

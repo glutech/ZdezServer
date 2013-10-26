@@ -49,7 +49,7 @@ public class SchoolDao {
 		PreparedStatement pstmt = null;
 		try {
 			conn = factory.getConnection();
-			String sql = "select * from school where id=?";
+			String sql = "select name from school where id=?";
 			pstmt = conn.prepareStatement(sql);
 			for (int i = 0, count = schoolIdList.size(); i < count; i++) {
 				pstmt.setInt(1, schoolIdList.get(i));

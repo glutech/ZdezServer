@@ -35,18 +35,18 @@ public class NewSchoolMsg implements Runnable{
 		list = new SchoolMsgDao().getSchoolMsgAll(schoolMsgIdList);
 
 		// 给微软服务器发送
-		List<Student> stuList = new StudentService()
-				.getStudentByIdList(destUsers);
-		for (Student stu : stuList) {
-			for (SchoolMsgVo sMsgVo : list) {
-				if (stu.getStaus().contains("http://")) {
-					new SchoolMsgService().sendMsgToWP(
-							stu.getUsername(), sMsgVo, stu.getStaus());
-				} else {
-					// for iOS
-				}
-			}
-		}
+//		List<Student> stuList = new StudentService()
+//				.getStudentByIdList(destUsers);
+//		for (Student stu : stuList) {
+//			for (SchoolMsgVo sMsgVo : list) {
+//				if (stu.getStaus().contains("http://")) {
+//					new SchoolMsgService().sendMsgToWP(
+//							stu.getUsername(), sMsgVo, stu.getStaus());
+//				} else {
+//					// for iOS
+//				}
+//			}
+//		}
 
 		// 写入Redis缓存
 		SchoolMsgCache cache = new SchoolMsgCache();

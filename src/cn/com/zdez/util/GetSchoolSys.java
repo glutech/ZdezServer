@@ -25,6 +25,7 @@ public class GetSchoolSys {
 			}
 		}else if(schoolId == 3) {
 			list.add(2);
+			list.add(3);
 		}else if(schoolId == 4) {
 			list.add(1);
 		}else if(schoolId == 5) {
@@ -32,6 +33,8 @@ public class GetSchoolSys {
 			list.add(2);
 			list.add(3);
 		}else if(schoolId == 6) {
+			list.add(1);
+		}else if (schoolId == 10) {
 			list.add(1);
 		}else {
 			for(int i=1, count=5; i<count; i++) {

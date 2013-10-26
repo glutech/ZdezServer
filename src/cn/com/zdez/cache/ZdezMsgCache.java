@@ -1,7 +1,10 @@
 package cn.com.zdez.cache;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import redis.clients.jedis.Jedis;
@@ -152,7 +155,7 @@ public class ZdezMsgCache {
 	}
 
 	/**
-	 * 通过idList，从缓存中获取信息
+	 * 通过idList从缓存中获取信息
 	 * 
 	 * @param idList
 	 * @return
@@ -199,5 +202,164 @@ public class ZdezMsgCache {
 
 		pool.destroy();
 		return list;
+	}
+
+	/**
+	 * 每次发送信息时，将receivers写入缓存
+	 * ZdezMsgDao.getMsgIdListtoUpdate获取要更新的信息列表时，不再经过MySQL
+	 * 
+	 * @param zdezMsgId
+	 *            zdezMsg信息Id
+	 * @param destUsersId
+	 *            列表中存储此条信息的接收者id
+	 */
+	public void cacheZdezMsg_Receivers(int zdezMsgId, List<Integer> destUsersId) {
+
+		try {
+
+			for (int i = 0, count = destUsersId.size(); i < count; i++) {
+				String key = "zdezMsg:toReceive:";
+				key = key + Integer.toString(destUsersId.get(i));
+				jedis.sadd(key, Integer.toString(zdezMsgId));
+			}
+
+		} finally {
+			pool.returnResource(jedis);
+		}
+		pool.destroy();
+	}
+
+	/**
+	 * 将MySQL中表zdezMsg_receivers中的所有数据写入缓存 一般只在redis清空后执行一次
+	 * 
+	 * @param map
+	 *            存储zdezMsgId和receiversID的对应关系
+	 */
+	public void cacheZdezMsg_ReceiversAll(HashMap<Integer, List<Integer>> map) {
+		try {
+
+			Iterator<Map.Entry<Integer, List<Integer>>> it = map.entrySet()
+					.iterator();
+			while (it.hasNext()) {
+				String key = "zdezMsg:toReceive:";
+				Map.Entry<Integer, List<Integer>> entry = (Map.Entry<Integer, List<Integer>>) it
+						.next();
+				String stuId = Integer.toString(entry.getKey());
+				key = key + stuId;
+				List<Integer> zdezMsgIdList = entry.getValue();
+				for (int i = 0, count = zdezMsgIdList.size(); i < count; i++) {
+					jedis.sadd(key, Integer.toString(zdezMsgIdList.get(i)));
+				}
+			}
+
+		} finally {
+			pool.returnResource(jedis);
+		}
+
+		pool.destroy();
+	}
+	
+	/**
+	 * 缓存每个学生的信息接收列表，用于缓存中没有学生信息接收列表的时候
+	 * @param stuId
+	 * @param list
+	 */
+	public void cacheZdezMsg_toReceive(int stuId, List<Integer> list) {
+		try {
+			String key = "zdezMsg:toReceive:" + stuId;
+			int count = list.size();
+			for (int i=0; i<count; i++) {
+				jedis.sadd(key, Integer.toString(list.get(i)));
+			}
+		} finally {
+			pool.returnResource(jedis);
+		}
+		pool.destroy();
+	}
+
+	/**
+	 * 客户端返回已收到的确认信息时，将接收者id和接收到的信息id写入缓存，并将某条信息的接收数+1
+	 * 
+	 * @param stuId
+	 * @param zdezMsgIdList
+	 */
+	public void cacheZdezMsg_ReceivedStu(int stuId, List<Integer> zdezMsgIdList) {
+		try {
+
+			String keyAll = "zdezMsg:received:stuIdAll";
+			jedis.sadd(keyAll, Integer.toString(stuId));
+			int count = zdezMsgIdList.size();
+			for (int i = 0; i < count; i++) {
+				String key = "zdezMsg:received:";
+				key = key + Integer.toString(stuId);
+				jedis.sadd(key, Integer.toString(zdezMsgIdList.get(i)));
+				jedis.hincrBy("zdezMsg:receivedNum",
+						Integer.toString(zdezMsgIdList.get(i)), 1);
+			}
+
+		} finally {
+			pool.returnResource(jedis);
+		}
+
+		pool.destroy();
+	}
+
+	/**
+	 * 将MySQL中表zdezMsg_receivedStu中的所有数据写入缓存 一般只在redis清空后调用一次
+	 * 
+	 * @param map
+	 *            存储学生id与已接收信息id的对应关系
+	 */
+	public void cacheZdezMsg_ReceivedStuAll(
+			HashMap<Integer, List<Integer>> map) {
+		try {
+
+			Iterator<Map.Entry<Integer, List<Integer>>> it = map.entrySet()
+					.iterator();
+			// 此key记录了redis中缓存了哪些stuId的已接收列表，为了后续将redis中的数据写入数据库（主要是回写zdezMsg_receivedStu）
+			String keyAll = "zdezMsg:received:stuIdAll";
+			while (it.hasNext()) {
+				String key = "zdezMsg:received:";
+				Map.Entry<Integer, List<Integer>> entry = (Map.Entry<Integer, List<Integer>>) it
+						.next();
+				String stuId = Integer.toString(entry.getKey());
+				jedis.sadd(keyAll, stuId);
+				List<Integer> zdezMsgIdList = entry.getValue();
+				key = key + stuId;
+				int count = zdezMsgIdList.size();
+				for (int i = 0; i < count; i++) {
+					jedis.sadd(key, Integer.toString(zdezMsgIdList.get(i)));
+				}
+			}
+
+		} finally {
+			pool.returnResource(jedis);
+		}
+
+		pool.destroy();
+	}
+	
+	/**
+	 * 从数据库中取出每条信息的接收数， 写入redis，只在redis清空后调用一次
+	 * 由ZdezMsgService.cacheZdezMsgReceivedNum调用
+	 * @param map
+	 */
+	public void cacheReceivedNum(HashMap<Integer, Integer> map) {
+		try {
+			
+			String key = "zdezMsg:receivedNum";
+			Iterator<Map.Entry<Integer, Integer>> it = map.entrySet().iterator();
+			while (it.hasNext()) {
+				Map.Entry<Integer, Integer> entry = (Map.Entry<Integer, Integer>) it.next();
+				String zdezMsgId = Integer.toString(entry.getKey());
+				String receivedNum = Integer.toString(entry.getValue());
+				jedis.hset(key, zdezMsgId, receivedNum);
+			}
+			
+		} finally {
+			pool.returnResource(jedis);
+		}
+		
+		pool.destroy();
 	}
 }

@@ -8,6 +8,8 @@ public class DBSyncService implements Runnable{
 	
 	private void dbSync() {
 		new SchoolMsgService().writeIntoSchoolMsg_ReceivedStu();
+		new ZdezMsgService().writeIntoZdezMsg_ReceivedStu();
+		new NewsService().writeIntoNews_Received();
 	}
 	
 	public void run() {
