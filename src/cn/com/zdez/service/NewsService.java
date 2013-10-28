@@ -22,7 +22,7 @@ public class NewsService {
 	 * @param rootPath
 	 * @return
 	 */
-	public synchronized boolean newNews(News n, List<Integer> destUsers,
+	public boolean newNews(News n, List<Integer> destUsers,
 			String rootPath) {
 		boolean flag = false;
 		if (dao.newNews(n)) {

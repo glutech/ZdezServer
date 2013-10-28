@@ -22,7 +22,8 @@ import cn.com.zdez.dao.SQLExecution;
  */
 public class SchoolStudentCache {
 
-	public static JedisPool pool = new RedisConnection().getConnection();
+	private JedisPool pool = new RedisConnection().getConnection();
+	private Jedis jedis = pool.getResource();
 
 	public void Cache() {
 		Jedis jedis = pool.getResource();
@@ -58,7 +59,6 @@ public class SchoolStudentCache {
 	 */
 	public void CacheStuSchool(int stuId) {
 
-		Jedis jedis = pool.getResource();
 		try {
 			String key = "hashmap:stuId:schoolId";
 			String schoolIdStr = jedis.hget(key, Integer.toString(stuId));

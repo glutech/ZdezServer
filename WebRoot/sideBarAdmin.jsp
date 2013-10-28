@@ -26,7 +26,6 @@
 		</li>
 		<%--<li class="icn_profile"><a href="Admin_Unit.do">企业用户</a></li>--%>
 	</ul>
-	<!--  
 	<h3>新闻资讯管理</h3>
 	<ul class="toggle">
 		<li class="icn_new_article"><a href="Admin_NewNewsHref">新建消息</a>
@@ -34,7 +33,6 @@
 		<li class="icn_categories"><a href="Admin_ViewNews?currentPage=1">已发信息</a>
 		</li>
 	</ul>
-	-->
 	<h3>“找得着”信息管理</h3>
 	<ul class="toggle">
 		<li class="icn_new_article"><a href="Admin_NewZdezMsgHref">新建消息</a>

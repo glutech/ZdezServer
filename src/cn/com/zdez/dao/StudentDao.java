@@ -138,7 +138,7 @@ public class StudentDao {
 		Connection conn = null;
 		try {
 			conn = factory.getConnection();
-			String sql = "select * from student where gradeId=? and majorId=? and gender=?";
+			String sql = "select id from student where gradeId=? and majorId=? and gender=?";
 			pstmt = conn.prepareStatement(sql);
 			for (int m = 0, count1 = gradeId.length; m < count1; m++) {
 				for (int n = 0, count2 = majorId.length; n < count2; n++) {
@@ -446,8 +446,8 @@ public class StudentDao {
 		Connection conn = null;
 		try {
 			conn = factory.getConnection();
-			String sql = "select * from student where isTeacher = 0 "
-					+ "and majorId = any (select id from major "
+			String sql = "select * from student where "
+					+ "majorId = any (select id from major "
 					+ "where departmentId = any (select id from department "
 					+ "where schoolId = ?))";
 			pstmt = conn.prepareStatement(sql);
