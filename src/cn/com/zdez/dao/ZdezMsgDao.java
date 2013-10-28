@@ -14,6 +14,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import cn.com.zdez.cache.ZdezMsgCache;
 import cn.com.zdez.po.ZdezMsg;
+import cn.com.zdez.service.SchoolMsgService;
 import cn.com.zdez.util.MassInsertion;
 import cn.com.zdez.vo.ZdezMsgVo;
 
@@ -304,6 +305,9 @@ public class ZdezMsgDao {
 			pstmt1 = conn.prepareStatement(sql);
 			pstmt2 = conn.prepareStatement(getReceivedNumSql);
 			pstmt3 = conn.prepareStatement(getReceiverNumSql);
+			
+			SchoolMsgService smService = new SchoolMsgService();
+			
 			for (int i = 0, count = zdezMsgIdList.size(); i < count; i++) {
 				pstmt1.setInt(1, zdezMsgIdList.get(i));
 				ResultSet rs = pstmt1.executeQuery();
@@ -313,6 +317,7 @@ public class ZdezMsgDao {
 					zMsgVo.setTitle(rs.getString("title"));
 					zMsgVo.setContent(rs.getString("content"));
 					zMsgVo.setDate(rs.getString("date").substring(0, 19));
+					zMsgVo.setCoverPath(smService.getCoverPath(rs.getString("content")));
 
 					// 获取已接收数
 

@@ -13,6 +13,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import cn.com.zdez.cache.NewsMsgCache;
 import cn.com.zdez.po.News;
+import cn.com.zdez.service.SchoolMsgService;
 import cn.com.zdez.service.SchoolService;
 import cn.com.zdez.util.MassInsertion;
 import cn.com.zdez.vo.NewsVo;
@@ -430,6 +431,9 @@ public class NewsDao {
 					+ "(select majorId from student where id = any"
 					+ "(select receiverStuId from news_receivers where newsId = ?))))";
 			pstmt3 = conn.prepareStatement(getSchoolIdsSql);
+			
+			SchoolMsgService smService = new SchoolMsgService();
+			
 			for (int i = 0, count = newsIdList.size(); i < count; i++) {
 				pstmt.setInt(1, newsIdList.get(i));
 				pstmt1.setInt(1, newsIdList.get(i));
@@ -442,6 +446,7 @@ public class NewsDao {
 					n.setTitle(rs.getString("title"));
 					n.setContent(rs.getString("content"));
 					n.setDate(rs.getString("date").substring(0, 19));
+					n.setCoverPath(smService.getCoverPath(rs.getString("content")));
 
 					List<String> destSchools = new ArrayList<String>();
 					ResultSet rsDestSchools = pstmt3.executeQuery();

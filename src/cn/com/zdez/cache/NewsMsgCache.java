@@ -57,6 +57,7 @@ public class NewsMsgCache {
 			String title = jedis.hget("newsMsg:" + Integer.toString(newsId), "title");
 			String content = jedis.hget("newsMsg:" + Integer.toString(newsId), "content");
 			String cover = jedis.hget("newsMsg:" + Integer.toString(newsId), "cover");
+			
 			String date = jedis.hget("newsMsg:" + Integer.toString(newsId), "date");
 			
 			Set<String> schoolSet = jedis.smembers("destSchool:" + Integer.toString(newsId));
@@ -85,7 +86,7 @@ public class NewsMsgCache {
 			for (int i=0, count = idList.size(); i<count; i++) {
 				int newsId = idList.get(i);
 				if (jedis.sismember("newsMsg:idList", Integer.toString(newsId))) {
-					System.out.println("getnews from cache!");
+					System.out.println("get news from cache!");
 					NewsVo newsVo = new NewsVo();
 					newsVo = this.getFromCache(newsId);
 					list.add(newsVo);
