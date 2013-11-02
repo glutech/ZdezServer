@@ -46,7 +46,7 @@ public class Admin_NewsResend extends HttpServlet {
 		} else {
 
 			// 发送信息
-			if (service.newNews(newsNews, destUsers, (String) request.getSession()
+			if (service.newsResend(newsNews, newsIdInt, (String) request.getSession()
 					.getAttribute("rootPath"))) {
 				// 发送成功
 				request.getRequestDispatcher("admin_NewNewsSuccess.jsp")

@@ -1,5 +1,7 @@
 package cn.com.zdez.dao;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -100,6 +102,28 @@ public class MajorDao {
 				m.setSchoolSysId(rs.getInt("schoolSysId"));
 				m.setDepartmentId(rs.getInt("departmentId"));
 				list.add(m);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return list;
+	}
+	
+	public List<String> getNameById(String[] major) {
+		List<String> list = new ArrayList<String>();
+		ConnectionFactory factory = ConnectionFactory.getInstatnce();
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		String sql = "select name from major where id = ?";
+		try {
+			conn = factory.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			for (int i=0, count  = major.length; i <count; i++) {
+				pstmt.setInt(1, Integer.parseInt(major[i]));
+				ResultSet rs = pstmt.executeQuery();
+				while (rs.next()) {
+					list.add(rs.getString(1));
+				}
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

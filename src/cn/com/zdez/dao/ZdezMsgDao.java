@@ -884,6 +884,7 @@ public class ZdezMsgDao {
 				sMsg.setTitle(rs.getString("title"));
 				sMsg.setContent(rs.getString("content"));
 				sMsg.setDate(rs.getString("date"));
+				sMsg.setAdminId(rs.getString("adminId"));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();

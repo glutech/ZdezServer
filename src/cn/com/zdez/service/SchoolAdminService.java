@@ -3,6 +3,7 @@ package cn.com.zdez.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.com.zdez.cache.UserCache;
 import cn.com.zdez.dao.SchoolAdminDao;
 import cn.com.zdez.po.Department;
 import cn.com.zdez.po.Grade;
@@ -17,13 +18,25 @@ public class SchoolAdminService {
 	SchoolAdminDao dao = new SchoolAdminDao();
 
 	/**
-	 * 通过用户名获取用户详细信息
+	 * 通过用户名获取用户详细信息（从缓存中取）
 	 * 
 	 * @param username
 	 * @return schoolAdmin entity
 	 */
 	public SchoolAdmin getSchoolAdminInfo(String username) {
+//		return dao.getSchoolAdminInfo(username);
+		return new UserCache().getInfoFromCache(username);
+	}
+
+	/**
+	 * 通过用户名获取用户详细信息（从数据库中取）
+	 * 
+	 * @param username
+	 * @return schoolAdmin entity
+	 */
+	public SchoolAdmin getSchoolAdminInfoFromMySQL(String username) {
 		return dao.getSchoolAdminInfo(username);
+//		return new UserCache().getInfoFromCache(username);
 	}
 
 	/**

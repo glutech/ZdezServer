@@ -3,6 +3,11 @@ package cn.com.zdez.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+
+import cn.com.zdez.cache.UserCache;
+import cn.com.zdez.dao.RedisConnection;
 import cn.com.zdez.dao.StudentDao;
 import cn.com.zdez.po.Student;
 import cn.com.zdez.util.MD5;
@@ -92,7 +97,12 @@ public class StudentService {
 	 * @return
 	 */
 	public StudentVo getStudentVoByUsername(String username) {
-		return dao.getStudentVoByUsername(username);
+		// return dao.getStudentVoByUsername(username);
+		return new UserCache().getStudentInfoFromCache(username);
+	}
+	
+	public StudentVo getStudentVoByUsernameFromDB(String username) {
+		 return dao.getStudentVoByUsername(username);
 	}
 
 	/**
@@ -144,12 +154,26 @@ public class StudentService {
 	 * @param newPassword
 	 * @return
 	 */
-	public boolean modifyPassword(int stuId, String oldPassword, String newPassword) {
+	public boolean modifyPassword(int stuId, String oldPassword,
+			String newPassword) {
 		boolean flag = false;
+		JedisPool pool = new RedisConnection().getConnection();
+		Jedis jedis = pool.getResource();
+
 		String psw = dao.getPassword(stuId);
-		if(psw.equals(new MD5().toMD5String(oldPassword))) {
+		if (psw.equals(new MD5().toMD5String(oldPassword))) {
 			flag = dao.modifyPassword(stuId, newPassword);
+			String username = dao.getUsernameById(stuId);
+
+			// 修改缓存中的密码
+			try {
+				jedis.hset("student:" + username, "password", new MD5().toMD5String(newPassword));
+			} finally {
+				pool.returnResource(jedis);
+			}
 		}
+
+		pool.destroy();
 		return flag;
 	}
 
@@ -211,16 +235,20 @@ public class StudentService {
 	public boolean newStudent(Student stu) {
 		return dao.newStudent(stu);
 	}
-	
+
 	public boolean changePswToMd5(int begin, int end) {
 		return dao.changePswToMd5(begin, end);
 	}
-	
+
 	public List<Student> getAll() {
-		return dao.getAll();		
+		return dao.getAll();
 	}
-	
+
 	public List<Integer> getTopStudentIds(int num) {
 		return dao.getTopStudentIds(num);
+	}
+	
+	public void cacheStudentInfoAll() {
+		dao.cacheStudentAll();
 	}
 }

@@ -783,6 +783,21 @@ public class SchoolMsgDao {
 		return list;
 	}
 
+	public List<Integer> getDepartmentIdListByMsgId(int schoolMsgId) {
+		List<Integer> list = new ArrayList<Integer>();
+		String sql = "select distinct(departmentId) from major where id = any (select majorId from schoolMsg_destMajor where schoolMsgId = ?)";
+		Object[] params = { schoolMsgId };
+		ResultSet rs = sqlE.execSqlWithRS(sql, params);
+		try {
+			while (rs.next()) {
+				list.add(rs.getInt(1));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return list;
+	}
+
 	/**
 	 * 根据通知id获得通知的目的专业
 	 * 
@@ -819,6 +834,27 @@ public class SchoolMsgDao {
 		try {
 			while (rs.next()) {
 				list.add(rs.getInt("receiverId"));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return list;
+	}
+
+	/**
+	 * 根据通知id获取接收者中的老师id，用于信息重发
+	 * 
+	 * @param schoolMsgId
+	 * @return
+	 */
+	public List<Integer> getDestTeachersByMsgId(int schoolMsgId) {
+		List<Integer> list = new ArrayList<Integer>();
+		String sql = "select receiverId from schoolMsg_receivers, student where student.id = schoolMsg_receivers.receiverId and student.isTeacher = 1 and schoolMsgId=?";
+		Object[] params = { schoolMsgId };
+		ResultSet rs = sqlE.execSqlWithRS(sql, params);
+		try {
+			while (rs.next()) {
+				list.add(rs.getInt(1));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -885,7 +921,7 @@ public class SchoolMsgDao {
 		String key2 = "schoolMsg:received:" + Integer.toString(stuId);
 
 		try {
-			
+
 			List<Integer> msgIdList = new ArrayList<Integer>();
 			SchoolMsgCache cache = new SchoolMsgCache();
 
@@ -896,7 +932,7 @@ public class SchoolMsgDao {
 				msgIdList = this.getToReceiveMsgIdsByStuId(stuId);
 				cache.cacheSchoolMsg_toReceive(stuId, msgIdList);
 			}
-			
+
 			// 对比获得要更新的信息id
 
 			Set<String> toReceivedSet = jedis.sdiff(key1, key2);
@@ -914,6 +950,7 @@ public class SchoolMsgDao {
 
 	/**
 	 * 获取某一学生待接收信息的id列表
+	 * 
 	 * @param stuId
 	 * @return
 	 */
@@ -932,9 +969,10 @@ public class SchoolMsgDao {
 		}
 		return list;
 	}
-	
+
 	/**
 	 * 获取某一学生已接收信息的id列表
+	 * 
 	 * @param stuId
 	 * @return
 	 */
@@ -965,7 +1003,7 @@ public class SchoolMsgDao {
 
 		// 进行数据统计
 		new Statistics().setStatisticsDate(stuId);
-		
+
 		// 缓存学生与学校的对应关系，防止统计出错
 		new SchoolStudentCache().CacheStuSchool(stuId);
 
@@ -1223,6 +1261,21 @@ public class SchoolMsgDao {
 			factory.freeConnection(conn);
 		}
 		return map;
+	}
+	
+	public List<Integer> getMsgIdAll() {
+		List<Integer> list = new ArrayList<Integer>();
+		String sql = "select id from schoolMsg";
+		Object[] params = {};
+		ResultSet rs = sqlE.execSqlWithRS(sql, params);
+		try {
+			while (rs.next()) {
+				list.add(rs.getInt(1));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return list;
 	}
 
 }

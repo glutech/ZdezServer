@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.com.zdez.cache.UserCache;
 import cn.com.zdez.po.Student;
 import cn.com.zdez.util.MD5;
 import cn.com.zdez.vo.StudentVo;
@@ -232,7 +233,7 @@ public class StudentDao {
 	 */
 	public StudentVo getStudentVoByUsername(String username) {
 		StudentVo stuVo = new StudentVo();
-		String sql = "select student.id, student.username as username, student.name as name, student.gender, "
+		String sql = "select student.id, student.username as username, student.password as password, student.name as name, student.gender, "
 				+ "grade.description as grade, major.name as major, department.name as department, school.name as school "
 				+ "from ((((student join grade) join major) join school) join department) "
 				+ "where ((student.gradeId = grade.id) and (student.majorId = major.id) "
@@ -244,11 +245,14 @@ public class StudentDao {
 			while (rs.next()) {
 				stuVo.setId(rs.getInt("id"));
 				stuVo.setUsername(rs.getString("username"));
+				stuVo.setPassword(rs.getString("password"));
 				stuVo.setName(rs.getString("name"));
 				if (rs.getString("gender").equals("M")) {
 					stuVo.setGender("男");
 				} else if (rs.getString("gender").equals("F")) {
 					stuVo.setGender("女");
+				} else {
+					stuVo.setGender("未知");
 				}
 				stuVo.setGrade(rs.getString("grade"));
 				stuVo.setMajor(rs.getString("major"));
@@ -371,20 +375,41 @@ public class StudentDao {
 		flag = sqlE.execSqlWithoutRS(sql, params);
 		return flag;
 	}
-	
+
 	public String getPassword(int stuId) {
 		String psw = "";
 		String sql = "select password from student where id = ?";
 		Object[] params = { stuId };
 		ResultSet rs = sqlE.execSqlWithRS(sql, params);
 		try {
-			while(rs.next()) {
+			while (rs.next()) {
 				psw = rs.getString(1);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return psw;
+	}
+
+	/**
+	 * 通过学生id获得用户名，用于修改缓存中的学生密码
+	 * 
+	 * @param stuId
+	 * @return
+	 */
+	public String getUsernameById(int stuId) {
+		String username = "";
+		String sql = "select username from student where id = ?";
+		Object[] params = { stuId };
+		ResultSet rs = sqlE.execSqlWithRS(sql, params);
+		try {
+			while (rs.next()) {
+				username = rs.getString(1);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return username;
 	}
 
 	/**
@@ -436,6 +461,7 @@ public class StudentDao {
 
 	/**
 	 * 获取某一学校下的所有学生，用于新闻资讯的发送
+	 * 
 	 * @param school
 	 * @return
 	 */
@@ -471,14 +497,14 @@ public class StudentDao {
 		}
 		return list;
 	}
-	
+
 	public boolean isExist(String username) {
 		boolean flag = false;
 		String sql = "select username from student where username = ?";
 		Object[] params = { username };
-		ResultSet rs  = sqlE.execSqlWithRS(sql, params);
+		ResultSet rs = sqlE.execSqlWithRS(sql, params);
 		try {
-			while(rs.next()) {
+			while (rs.next()) {
 				flag = true;
 			}
 		} catch (SQLException e) {
@@ -486,15 +512,18 @@ public class StudentDao {
 		}
 		return flag;
 	}
-	
+
 	public boolean newStudent(Student stu) {
 		boolean flag = false;
 		String sql = "insert into student (username, password, name, gender, status, staus, gradeId, isTeacher, majorId) values (?,?,?,?,?,?,?,?,?)";
-		Object[] params = { stu.getUsername(), stu.getPassword(), stu.getName(), stu.getGender(), stu.getStatus(), stu.getStaus(), stu.getGradeId(), stu.getIsTeacher(), stu.getMajorId()};
+		Object[] params = { stu.getUsername(), stu.getPassword(),
+				stu.getName(), stu.getGender(), stu.getStatus(),
+				stu.getStaus(), stu.getGradeId(), stu.getIsTeacher(),
+				stu.getMajorId() };
 		flag = sqlE.execSqlWithoutRS(sql, params);
 		return flag;
 	}
-	
+
 	public boolean changePswToMd5(int begin, int end) {
 		boolean flag = false;
 		ConnectionFactory factory = ConnectionFactory.getInstatnce();
@@ -510,7 +539,7 @@ public class StudentDao {
 			pstmt1.setInt(2, end);
 			ResultSet rs1 = pstmt1.executeQuery();
 			MD5 md5 = new MD5();
-			while(rs1.next()) {
+			while (rs1.next()) {
 				System.out.println(md5.toMD5String(rs1.getString(2)));
 				System.out.println(rs1.getInt(1));
 				pstmt2 = conn.prepareStatement(sql2);
@@ -534,7 +563,7 @@ public class StudentDao {
 		}
 		return flag;
 	}
-	
+
 	public List<Integer> getTopStudentIds(int num) {
 		System.out.println("Getting stu Ids!!!!");
 		List<Integer> idList = new ArrayList<Integer>();
@@ -547,7 +576,7 @@ public class StudentDao {
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setInt(1, num);
 			ResultSet rs = pstmt.executeQuery();
-			while(rs.next()) {
+			while (rs.next()) {
 				idList.add(rs.getInt(1));
 			}
 			pstmt.close();
@@ -556,8 +585,104 @@ public class StudentDao {
 		} finally {
 			factory.freeConnection(conn);
 		}
-		
+
 		return idList;
+	}
+
+	public void cacheStudentAll() {
+		ConnectionFactory factory = ConnectionFactory.getInstatnce();
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		String sql = "select count(id) from student";
+		String sql1 = "select student.id as id, student.username as username, student.password as password, student.name as name, student.gender, "
+				+ "grade.description as grade, major.name as major, department.name as department, school.name as school "
+				+ "from ((((student join grade) join major) join school) join department) "
+				+ "where ((student.gradeId = grade.id) and (student.majorId = major.id) "
+				+ "and (department.schoolId = school.id) and (major.departmentId = department.id)) and isTeacher = 0 limit ?,?";
+
+		try {
+			conn = factory.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			ResultSet rs = pstmt.executeQuery();
+			int idCount = 0;
+			while (rs.next()) {
+				idCount = rs.getInt(1);
+			}
+
+			pstmt = conn.prepareStatement(sql1);
+
+			UserCache cache = new UserCache();
+
+			int mod = idCount % 200;
+			int count = idCount / 200;
+			for (int i = 1; i <= count; i++) {
+				List<StudentVo> tempList = new ArrayList<StudentVo>();
+				int start = (i - 1) * 200;
+				int end = i * 200;
+				pstmt.setInt(1, start);
+				pstmt.setInt(2, end);
+
+				ResultSet rs1 = pstmt.executeQuery();
+				while (rs1.next()) {
+					StudentVo stuVo = new StudentVo();
+					stuVo.setId(rs1.getInt("id"));
+					stuVo.setUsername(rs1.getString("username"));
+					stuVo.setPassword(rs1.getString("password"));
+					stuVo.setName(rs1.getString("name"));
+					if (rs1.getString("gender").equals("M")) {
+						stuVo.setGender("男");
+					} else if (rs1.getString("gender").equals("F")) {
+						stuVo.setGender("女");
+					} else {
+						stuVo.setGender("未知");
+					}
+					stuVo.setGrade(rs1.getString("grade"));
+					stuVo.setMajor(rs1.getString("major"));
+					stuVo.setDepartment(rs1.getString("department"));
+					stuVo.setSchool(rs1.getString("school"));
+					tempList.add(stuVo);
+				}
+
+				cache.cacheStudentInfoAll(tempList);
+			}
+
+			if (mod != 0) {
+
+				List<StudentVo> tempList = new ArrayList<StudentVo>();
+
+				int start = count * 200;
+				int end = start + mod;
+
+				pstmt.setInt(1, start);
+				pstmt.setInt(2, end);
+				ResultSet rs1 = pstmt.executeQuery();
+				while (rs1.next()) {
+					StudentVo stuVo = new StudentVo();
+					stuVo.setId(rs1.getInt("id"));
+					stuVo.setUsername(rs1.getString("username"));
+					stuVo.setPassword(rs1.getString("password"));
+					stuVo.setName(rs1.getString("name"));
+					if (rs1.getString("gender").equals("M")) {
+						stuVo.setGender("男");
+					} else if (rs1.getString("gender").equals("F")) {
+						stuVo.setGender("女");
+					} else {
+						stuVo.setGender("未知");
+					}
+					stuVo.setGrade(rs1.getString("grade"));
+					stuVo.setMajor(rs1.getString("major"));
+					stuVo.setDepartment(rs1.getString("department"));
+					stuVo.setSchool(rs1.getString("school"));
+					tempList.add(stuVo);
+				}
+
+				cache.cacheStudentInfoAll(tempList);
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 }

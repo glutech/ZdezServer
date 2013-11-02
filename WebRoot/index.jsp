@@ -4,6 +4,8 @@
 	String basePath = request.getScheme() + "://"
 			+ request.getServerName() + ":" + request.getServerPort()
 			+ path + "/";
+	String rootPath = pageContext.getServletContext().getRealPath("/") + "attached/";
+	session.setAttribute("rootPath", rootPath);
 %>
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">

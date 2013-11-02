@@ -61,8 +61,15 @@ public class AndroidClient_GetUpdateZdezMsg extends HttpServlet {
 				+ versionName);
 
 		ZdezMsgService zms = new ZdezMsgService();
-		ArrayList<ZdezMsgVo> zdezList = (ArrayList<ZdezMsgVo>) zms
-				.getMsgToUpdate(Integer.valueOf(user_id));
+		ArrayList<ZdezMsgVo> zdezList = new ArrayList<ZdezMsgVo>();
+
+		try {
+
+			zdezList = (ArrayList<ZdezMsgVo>) zms.getMsgToUpdate(Integer
+					.valueOf(user_id));
+		} catch (NumberFormatException nfe) {
+			System.out.println("no id passed from client...");
+		}
 
 		PrintWriter out = response.getWriter();
 		Gson gson = new Gson();

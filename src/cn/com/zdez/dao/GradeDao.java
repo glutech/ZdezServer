@@ -1,5 +1,7 @@
 package cn.com.zdez.dao;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -53,6 +55,33 @@ public class GradeDao {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+		return list;
+	}
+	
+	public List<String> getDescriptionById(String[] grade) {
+		List<String> list = new ArrayList<String>();
+		ConnectionFactory factory = ConnectionFactory.getInstatnce();
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		String sql = "select description from grade where id = ?";
+		
+		try {
+			conn = factory.getConnection();
+			pstmt = conn.prepareStatement(sql);
+			for (int i=0, count = grade.length; i<count; i++) {
+				pstmt.setInt(1, Integer.parseInt(grade[i]));
+				ResultSet rs = pstmt.executeQuery();
+				while (rs.next()) {
+					list.add(rs.getString(1));
+				}
+			}
+			pstmt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			factory.freeConnection(conn);
+		}
+		
 		return list;
 	}
 

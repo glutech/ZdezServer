@@ -341,6 +341,21 @@
     <servlet-name>SchoolMsgSync</servlet-name>
     <servlet-class>cn.com.zdez.manualDBSync.SchoolMsgSync</servlet-class>
   </servlet>
+  <servlet>
+    <servlet-name>Admin_CacheSchoolAdminInfo</servlet-name>
+    <servlet-class>cn.com.zdez.servlet.Admin_CacheSchoolAdminInfo</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>Admin_CacheStudentInfo</servlet-name>
+    <servlet-class>cn.com.zdez.servlet.Admin_CacheStudentInfo</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>Admin_ReGenerateHtml</servlet-name>
+    <servlet-class>cn.com.zdez.servlet.Admin_ReGenerateHtml</servlet-class>
+  </servlet>
+
+
+
 
 
 
@@ -661,6 +676,18 @@
   <servlet-mapping>
     <servlet-name>SchoolMsgSync</servlet-name>
     <url-pattern>/SchoolMsgSync</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>Admin_CacheSchoolAdminInfo</servlet-name>
+    <url-pattern>/Admin_CacheSchoolAdminInfo</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>Admin_CacheStudentInfo</servlet-name>
+    <url-pattern>/Admin_CacheStudentInfo</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>Admin_ReGenerateHtml</servlet-name>
+    <url-pattern>/Admin_ReGenerateHtml</url-pattern>
   </servlet-mapping>
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>

@@ -1,7 +1,6 @@
 package cn.com.zdez.servlet;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import cn.com.zdez.po.SchoolAdmin;
+import cn.com.zdez.service.SchoolAdminService;
 import cn.com.zdez.service.SchoolMsgService;
 import cn.com.zdez.vo.SchoolMsgVo;
 
@@ -21,7 +21,18 @@ public class School_SendedMsgQuery extends HttpServlet {
 			throws ServletException, IOException {
 
 		HttpSession hs = request.getSession();
-		SchoolAdmin sAdmin = (SchoolAdmin) hs.getAttribute("schoolAdmin");
+		// 把从session中获取管理员信息改为从缓存中获取（因为西南林大权限失灵）
+//		SchoolAdmin sAdmin = (SchoolAdmin) hs.getAttribute("schoolAdmin");
+		SchoolAdmin sAdmin = new SchoolAdminService().getSchoolAdminInfo((String) hs.getAttribute("uname"));
+		
+//		System.out.println(sAdmin.getUsername());
+//		System.out.println(sAdmin.getPassword());
+//		System.out.println(sAdmin.getTelPhone());
+//		System.out.println(sAdmin.getName());
+//		System.out.println(sAdmin.getSchoolId());
+//		System.out.println(sAdmin.getDepartmentId());
+//		System.out.println(sAdmin.getMajorId());
+//		System.out.println(sAdmin.getRemarks());
 
 		String keyword = new String(request.getParameter("keyword").getBytes(
 				"ISO-8859-1"), "utf-8");

@@ -20,29 +20,27 @@ public class SchoolMsgCache {
 	private Jedis jedis = pool.getResource();
 
 	/**
-	 * 对schoolMsg进行缓存，每个帐号缓存40条
+	 * 对schoolMsg进行缓存
 	 * 
 	 * @param list
-	 * @param schoolAdminUsername
 	 */
-	public void cacheSchoolMsg(List<SchoolMsgVo> list,
-			String schoolAdminUsername) {
+	public void cacheSchoolMsg(List<SchoolMsgVo> list) {
 		try {
 			for (int i = 0, count = list.size(); i < count; i++) {
 				// 利用list控制每个发送帐号缓存的信息为40条
-				jedis.rpush("idList:" + schoolAdminUsername,
-						Integer.toString(list.get(i).getSchoolMsgId()));
-				if (jedis.llen("idList:" + schoolAdminUsername) > 40) {
-					// delete some data
-					// 移除最早存储的数据
-					String schoolMsgId = jedis.lpop("idList:"
-							+ schoolAdminUsername);
-					jedis.srem("schoolMsg:idList", schoolMsgId);
-					jedis.del("schoolMsg:" + schoolMsgId);
-					jedis.del("destGrade:" + schoolMsgId);
-					jedis.del("destMajor:" + schoolMsgId);
-					jedis.del("destDepartment:" + schoolMsgId);
-				}
+//				jedis.rpush("idList:" + schoolAdminUsername,
+//						Integer.toString(list.get(i).getSchoolMsgId()));
+//				if (jedis.llen("idList:" + schoolAdminUsername) > 40) {
+//					// delete some data
+//					// 移除最早存储的数据
+//					String schoolMsgId = jedis.lpop("idList:"
+//							+ schoolAdminUsername);
+//					jedis.srem("schoolMsg:idList", schoolMsgId);
+//					jedis.del("schoolMsg:" + schoolMsgId);
+//					jedis.del("destGrade:" + schoolMsgId);
+//					jedis.del("destMajor:" + schoolMsgId);
+//					jedis.del("destDepartment:" + schoolMsgId);
+//				}
 
 				jedis.sadd("schoolMsg:idList",
 						Integer.toString(list.get(i).getSchoolMsgId()));
@@ -421,6 +419,7 @@ public class SchoolMsgCache {
 
 	/**
 	 * 将MySQL中表schoolMsg_receivers中的所有数据写入缓存 一般只在redis清空之后调用一次
+	 * 由于表中数据量比较大，一般不要调用...
 	 * 
 	 * @param map
 	 */
@@ -446,9 +445,10 @@ public class SchoolMsgCache {
 		}
 		pool.destroy();
 	}
-	
+
 	/**
 	 * 缓存每个学生的信息接收列表，用于缓存中没有学生信息接收列表的时候
+	 * 
 	 * @param stuId
 	 * @param list
 	 */
@@ -456,7 +456,7 @@ public class SchoolMsgCache {
 		try {
 			String key = "schoolMsg:toReceive:" + stuId;
 			int count = list.size();
-			for (int i=0; i<count; i++) {
+			for (int i = 0; i < count; i++) {
 				jedis.sadd(key, Integer.toString(list.get(i)));
 			}
 		} finally {

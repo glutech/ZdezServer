@@ -1,7 +1,6 @@
 package cn.com.zdez.servlet;
 
 import java.io.IOException;
-import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -11,7 +10,6 @@ import javax.servlet.http.HttpSession;
 
 import cn.com.zdez.po.News;
 import cn.com.zdez.service.NewsService;
-import cn.com.zdez.service.StudentService;
 
 public class Admin_NewNewsServlet extends HttpServlet {
 
@@ -37,10 +35,6 @@ public class Admin_NewNewsServlet extends HttpServlet {
 		hs.setAttribute("school", school);
 		// ---
 
-		StudentService sService = new StudentService();
-		// 获取所有用户，新闻的发送对象应该是所有安装客户端并登录的用户
-		List<Integer> destUsers = sService.getStuIdListBySchool(school);
-
 		// send message here.
 		boolean  flag = false;
 		flag = (Boolean) hs.getAttribute("adminUserLoginSucessFlag");
@@ -58,7 +52,7 @@ public class Admin_NewNewsServlet extends HttpServlet {
 			
 			NewsService nService = new NewsService();
 			// 发送信息
-			if (nService.newNews(n, destUsers, (String)request.getSession().getAttribute("rootPath"))) {
+			if (nService.newNews(n, school, (String)request.getSession().getAttribute("rootPath"))) {
 				// 发送成功
 				request.getRequestDispatcher("admin_NewNewsSuccess.jsp")
 						.forward(request, response);

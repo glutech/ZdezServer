@@ -9,7 +9,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import cn.com.zdez.po.SchoolAdmin;
 import cn.com.zdez.po.SchoolMsg;
+import cn.com.zdez.service.SchoolAdminService;
 import cn.com.zdez.service.SchoolMsgService;
 
 public class School_MsgResend extends HttpServlet {
@@ -21,13 +23,13 @@ public class School_MsgResend extends HttpServlet {
 		// resend here
 
 		String schoolMsgId = request.getParameter("schoolMsgId");
-		
-		//解决reload时错误
-		if(schoolMsgId == null) {
-			schoolMsgId = (String)hs.getAttribute("schoolMsgId");
+
+		// 解决reload时错误
+		if (schoolMsgId == null) {
+			schoolMsgId = (String) hs.getAttribute("schoolMsgId");
 		}
 		hs.setAttribute("schoolMsgId", schoolMsgId);
-		
+
 		int schoolMsgIdInt = Integer.parseInt(schoolMsgId);
 
 		// get school message here
@@ -37,32 +39,49 @@ public class School_MsgResend extends HttpServlet {
 		sMsgNew.setTitle(sMsg.getTitle());
 		sMsgNew.setContent(sMsg.getContent());
 		sMsgNew.setSchoolAdminUsername(sMsg.getSchoolAdminUsername());
-		
-		List<Integer> gradeIdList = sService.getGradeIdListByMsgId(schoolMsgIdInt);
-		List<Integer> majorIdList = sService.getMajorIdListByMsgId(schoolMsgIdInt);
-		
+
+		List<Integer> gradeIdList = sService
+				.getGradeIdListByMsgId(schoolMsgIdInt);
+		List<Integer> departmentIdList = sService
+				.getDepartmentIdListByMsgId(schoolMsgIdInt);
+		List<Integer> majorIdList = sService
+				.getMajorIdListByMsgId(schoolMsgIdInt);
+		List<Integer> teachersList = sService.getDestTeachersByMsgId(Integer
+				.parseInt(schoolMsgId));
+
 		String[] grade = new String[gradeIdList.size()];
+		String[] department = new String[departmentIdList.size()];
 		String[] major = new String[majorIdList.size()];
-		for(int i=0, count=gradeIdList.size(); i<count; i++) {
+		String[] teachers = new String[teachersList.size()];
+		for (int i = 0, count = gradeIdList.size(); i < count; i++) {
 			grade[i] = gradeIdList.get(i).toString();
 		}
-		for(int i=0, count=majorIdList.size(); i<count; i++) {
+		for (int i = 0, count = departmentIdList.size(); i < count; i++) {
+			department[i] = departmentIdList.get(i).toString();
+		}
+		for (int i = 0, count = majorIdList.size(); i < count; i++) {
 			major[i] = majorIdList.get(i).toString();
 		}
-		
-		List<Integer> destUsers = sService.getDestUsersListByMsgId(schoolMsgIdInt);
-		
+		for (int i = 0, count = teachersList.size(); i < count; i++) {
+			teachers[i] = teachersList.get(i).toString();
+		}
+
+		SchoolAdmin sAdmin = new SchoolAdminService()
+				.getSchoolAdminInfo((String) request.getSession().getAttribute(
+						"uname"));
+
 		// 发送信息
-		if (sService.newSchoolMsg(sMsgNew, grade, major, destUsers, (String) request.getSession().getAttribute("rootPath"))) {
+		if (sService.newSchoolMsg(sMsgNew, grade, department, major, teachers,
+				sAdmin, (String) request.getSession().getAttribute("rootPath"))) {
 			// 发送成功
 			request.getRequestDispatcher("school_NewMsgSuccess.jsp").forward(
 					request, response);
 		} else {
 			request.setAttribute("errorMsg", "信息已发送，但所选条件下无发送对象！");
-//			request.getRequestDispatcher("error.jsp").forward(request,
-//					response);
-			request.getRequestDispatcher("school_NewMsgSuccess.jsp")
-					.forward(request, response);
+			// request.getRequestDispatcher("error.jsp").forward(request,
+			// response);
+			request.getRequestDispatcher("school_NewMsgSuccess.jsp").forward(
+					request, response);
 		}
 	}
 

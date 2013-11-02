@@ -8,6 +8,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+
 import cn.com.zdez.po.Grade;
 import cn.com.zdez.po.SchoolAdmin;
 import cn.com.zdez.po.SchoolSys;
@@ -55,10 +58,25 @@ public class SchoolAdminDao {
 	 * @return true or false
 	 */
 	public boolean modifyPassword(SchoolAdmin sAdmin) {
+		
+		JedisPool pool = new RedisConnection().getConnection();
+		Jedis jedis = pool.getResource();
+		
 		boolean flag = false;
 		String sql = "update schoolAdmin set password=? where username=?";
 		Object[] params = { sAdmin.getPassword(), sAdmin.getUsername() };
 		flag = sqlE.execSqlWithoutRS(sql, params);
+		
+		// 将修改后的密码写入redis
+		try {
+			
+			jedis.hset("schoolAdmin:" + sAdmin.getUsername(), "password", sAdmin.getPassword());
+			
+		} finally {
+			pool.returnResource(jedis);
+		}
+		
+		pool.destroy();
 		return flag;
 	}
 
@@ -183,7 +201,7 @@ public class SchoolAdminDao {
 	 */
 	public int getSchoolAdminCount() {
 		int i = -1;
-		String sql = "select count(id) from schoolAdmin";
+		String sql = "select count(username) from schoolAdmin";
 		Object[] params = {};
 		ResultSet rs = sqlE.execSqlWithRS(sql, params);
 		try {
@@ -559,5 +577,38 @@ public class SchoolAdminDao {
 			flag = sqlE.execSqlWithoutRS(sql, params);
 		}
 		return flag;
+	}
+	
+	/**
+	 * 获取所有学校管理员信息，用于首次缓存
+	 * @return
+	 */
+	public List<SchoolAdmin> getAll() {
+		List<SchoolAdmin> list = new ArrayList<SchoolAdmin>();
+		
+		String sql = "select * from schoolAdmin";
+		Object[] params = {};
+		ResultSet rs = sqlE.execSqlWithRS(sql, params);
+		try {
+			while (rs.next()) {
+				
+				SchoolAdmin s = new SchoolAdmin();
+				s.setUsername(rs.getString("username"));
+				s.setPassword(rs.getString("password"));
+				s.setTelPhone(rs.getString("telPhone"));
+				s.setName(rs.getString("name"));
+				s.setAuth(rs.getInt("auth"));
+				s.setSchoolId(rs.getInt("schoolId"));
+				s.setDepartmentId(rs.getInt("departmentId"));
+				s.setMajorId(rs.getInt("majorId"));
+				s.setRemarks(rs.getString("remarks"));
+				
+				list.add(s);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return list;
 	}
 }

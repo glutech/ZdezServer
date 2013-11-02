@@ -36,6 +36,7 @@ public class Admin_ZdezMsgResend extends HttpServlet {
 		ZdezMsg zMsgNew = new ZdezMsg();
 		zMsgNew.setTitle(zMsg.getTitle());
 		zMsgNew.setContent(zMsg.getContent());
+		zMsgNew.setAdminId(zMsg.getAdminId());
 		
 		List<Integer> gradeIdList = service.getGradeIdListByMsgId(zdezMsgIdInt);
 		List<Integer> majorIdList = service.getMajorIdListByMsgId(zdezMsgIdInt);

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cn.com.zdez.bgRunning.NewNewsMsg;
+import cn.com.zdez.bgRunning.NewsResend;
 import cn.com.zdez.cache.NewsMsgCache;
 import cn.com.zdez.dao.NewsDao;
 import cn.com.zdez.po.News;
@@ -22,30 +23,46 @@ public class NewsService {
 	 * @param rootPath
 	 * @return
 	 */
-	public boolean newNews(News n, List<Integer> destUsers,
-			String rootPath) {
+	public boolean newNews(News n, String[] school, String rootPath) {
 		boolean flag = false;
 		if (dao.newNews(n)) {
 			int newsId = dao.getLatestNewsId();
-			if (dao.newNews_Receivers(newsId, destUsers)) {
-
-				// 将内容写入html文件，用于网页显示
-				if (new ContentOperation().SaveContent("news", newsId,
-						n.getContent(), rootPath)) {
-					flag = true;
-				}
-				// 是否要写入缓存？
-
-				NewNewsMsg news = new NewNewsMsg(newsId, destUsers);
-				Thread thread = new Thread(news);
-				thread.start();
-
-			} else {
-				// 插入过程中出错，进行无效数据的删除
-				this.roll_back(newsId);
+			// 将内容写入html文件，用于网页显示
+			if (new ContentOperation().SaveContent("news", newsId,
+					n.getContent(), rootPath)) {
+				flag = true;
 			}
+
+			// 新起线程进行新闻资讯的发送
+			NewNewsMsg news = new NewNewsMsg(newsId, school);
+			Thread thread = new Thread(news);
+			thread.start();
+
 		}
 		return flag;
+	}
+
+	public boolean newsResend(News n, int news_old_id, String rootPath) {
+		boolean flag = false;
+		if (dao.newNews(n)) {
+			int newsId = dao.getLatestNewsId();
+			// 将内容写入html文件，用于网页显示
+			if (new ContentOperation().SaveContent("news", newsId,
+					n.getContent(), rootPath)) {
+				flag = true;
+			}
+			
+			// 新起线程进行新闻资讯的发送
+			NewsResend ns = new NewsResend(newsId, news_old_id);
+			Thread thread = new Thread(ns);
+			thread.start();
+		}
+
+		return flag;
+	}
+
+	public boolean newNews_Receivers(int newsId, List<Integer> destUsers) {
+		return dao.newNews_Receivers(newsId, destUsers);
 	}
 
 	/**
@@ -166,14 +183,14 @@ public class NewsService {
 	public List<Integer> getDestUsersByNewsId(int newsId) {
 		return dao.getDestUsersByNewsId(newsId);
 	}
-	
+
 	/**
 	 * 将缓存中的数据写入数据库，用于数据同步
 	 */
 	public void writeIntoNews_Received() {
 		dao.writeIntoNews_Received();
 	}
-	
+
 	/**
 	 * 缓存数据库中所有新闻资讯，只在redis清空后运行一次
 	 */

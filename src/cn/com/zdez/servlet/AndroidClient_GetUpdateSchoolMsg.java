@@ -59,8 +59,15 @@ public class AndroidClient_GetUpdateSchoolMsg extends HttpServlet {
 				+ versionName);
 
 		SchoolMsgService schoolMsgService = new SchoolMsgService();
-		ArrayList<SchoolMsgVo> result = (ArrayList<SchoolMsgVo>) schoolMsgService
-				.getMsgToUpdate(Integer.valueOf(user_id));
+		ArrayList<SchoolMsgVo> result = new ArrayList<SchoolMsgVo>();
+
+		try {
+
+			result = (ArrayList<SchoolMsgVo>) schoolMsgService
+					.getMsgToUpdate(Integer.valueOf(user_id));
+		} catch (NumberFormatException nfe) {
+			System.out.println("no id passed from client...");
+		}
 
 		PrintWriter out = response.getWriter();
 		Gson gson = new Gson();
@@ -69,6 +76,7 @@ public class AndroidClient_GetUpdateSchoolMsg extends HttpServlet {
 		resultStr = new String(resultStr.getBytes("UTF-8"), "iso-8859-1");
 		out.append(resultStr);
 		out.close();
+		result = null;
 	}
 
 	/**

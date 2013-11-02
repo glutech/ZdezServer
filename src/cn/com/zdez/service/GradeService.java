@@ -16,5 +16,9 @@ public class GradeService {
 	public List<Grade> getAll() {
 		return dao.getAll();
 	}
+	
+	public List<String> getDescriptionById(String[] grade) {
+		return dao.getDescriptionById(grade);
+	}
 
 }

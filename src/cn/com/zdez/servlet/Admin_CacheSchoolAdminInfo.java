@@ -1,34 +1,45 @@
 package cn.com.zdez.servlet;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import cn.com.zdez.service.SchoolMsgService;
-import cn.com.zdez.service.StudentService;
+import cn.com.zdez.cache.UserCache;
 
-public class Test extends HttpServlet {
+/**
+ * 缓存所有SchoolAdmin的信息，可以手动执行。在SchoolAdmin数量过多（超过2000）的时候不建议执行此servlet
+ * @author jokinryou
+ *
+ */
+public class Admin_CacheSchoolAdminInfo extends HttpServlet {
+
+	public Admin_CacheSchoolAdminInfo() {
+		super();
+	}
+
+	public void destroy() {
+		super.destroy(); // Just puts "destroy" string in log
+		// Put your code here
+	}
 
 	public void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
-//		int begin = 139738;
-//		int end = 140941;
-//		
-//		new StudentService().changePswToMd5(begin, end);
-		
-		new SchoolMsgService().cacheNotCachedMsg();
-		
+		new UserCache().cacheSchoolAdminInfoAll();
 		request.getRequestDispatcher("index.jsp").forward(request, response);
 	}
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+
 		this.doGet(request, response);
+	}
+
+	public void init() throws ServletException {
+		// Put your code here
 	}
 
 }

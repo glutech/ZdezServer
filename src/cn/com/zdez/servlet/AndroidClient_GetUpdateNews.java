@@ -62,8 +62,15 @@ public class AndroidClient_GetUpdateNews extends HttpServlet {
 		// int userId = Integer.parseInt(user_id);
 
 		NewsService ns = new NewsService();
-		ArrayList<NewsVo> newsList = (ArrayList<NewsVo>) ns
-				.getNewsToUpdate(Integer.valueOf(user_id));
+		ArrayList<NewsVo> newsList = new ArrayList<NewsVo>();
+
+		try {
+
+			newsList = (ArrayList<NewsVo>) ns.getNewsToUpdate(Integer
+					.valueOf(user_id));
+		} catch (NumberFormatException nfe) {
+			System.out.println("no id passed from client...");
+		}
 
 		PrintWriter out = response.getWriter();
 		Gson gson = new Gson();

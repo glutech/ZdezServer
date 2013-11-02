@@ -30,35 +30,28 @@ public class ZdezMsgService {
 		boolean flag = false;
 		if (dao.newZdezMsg(zMsg)) {
 			int zdezMsgId = dao.getLatestZdezMsgId();
-			if (dao.newZdezMsg_Grade(zdezMsgId, grade)
-					&& dao.newZdezMsg_Major(zdezMsgId, major)
-					&& dao.newZdezMsg_Receivers(zdezMsgId, destUsers)) {
-
-				// 将内容写入html文件，用于网页显示
-				if (new ContentOperation().SaveContent("zdezMsg", zdezMsgId,
-						zMsg.getContent(), rootPath)) {
-					flag = true;
-				}
-
-				NewZdezMsg n = new NewZdezMsg(zdezMsgId, destUsers);
-				Thread thread = new Thread(n);
-				thread.start();
-
-				// List<ZdezMsgVo> list = new ArrayList<ZdezMsgVo>();
-				// List<Integer> zdezMsgIdList = new ArrayList<Integer>();
-				// zdezMsgIdList.add(zdezMsgId);
-				// list = dao.getZdezMsgAll(zdezMsgIdList);
-				//
-				// // 给微软服务器发送
-				//
-				// // 缓存
-				// new ZdezMsgCache().cacheZdezMsg(list);
-			} else {
-				// 数据插入过程出错，进行错误信息的删除
-				dao.roll_Back(zdezMsgId);
+			// 将内容写入html文件，用于网页显示
+			if (new ContentOperation().SaveContent("zdezMsg", zdezMsgId,
+					zMsg.getContent(), rootPath)) {
+				flag = true;
 			}
+			NewZdezMsg n = new NewZdezMsg(zdezMsgId, destUsers, grade, major);
+			Thread thread = new Thread(n);
+			thread.start();
 		}
 		return flag;
+	}
+
+	public boolean newZdezMsg_Grade(int zdezMsgId, String[] grade) {
+		return dao.newZdezMsg_Grade(zdezMsgId, grade);
+	}
+
+	public boolean newZdezMsg_Major(int zdezMsgId, String[] major) {
+		return dao.newZdezMsg_Major(zdezMsgId, major);
+	}
+
+	public boolean newZdezMsg_Receivers(int zdezMsgId, List<Integer> destUsers) {
+		return dao.newZdezMsg_Receivers(zdezMsgId, destUsers);
 	}
 
 	/**

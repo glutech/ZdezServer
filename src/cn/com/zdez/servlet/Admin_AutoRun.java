@@ -3,7 +3,7 @@ package cn.com.zdez.servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 
-import cn.com.zdez.service.NewsService;
+import cn.com.zdez.service.SchoolMsgService;
 
 public class Admin_AutoRun extends HttpServlet {
 
@@ -29,7 +29,7 @@ public class Admin_AutoRun extends HttpServlet {
 	 */
 	public void init() throws ServletException {
 		// Put your code here
-		new NewsService().cacheNewsAll();
+		new SchoolMsgService().cacheNotCachedMsg();
 	}
 
 }

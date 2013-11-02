@@ -2,7 +2,9 @@ package cn.com.zdez.service;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -37,63 +39,42 @@ public class SchoolMsgService {
 	 * @param destUsers
 	 * @return true or false
 	 */
-	public synchronized boolean newSchoolMsg(SchoolMsg msg, String[] grade,
-			String[] major, List<Integer> destUsers, String rootPath) {
+	public boolean newSchoolMsg(SchoolMsg msg, String[] grade, String[] department, 
+			String[] major, String[] teachers, SchoolAdmin sAdmin, String rootPath) {
 		boolean flag = false;
 		if (dao.newSchoolMsg(msg)) {
 			// 若表schoolMsg信息写入成功
 			// 获取刚插入的校园通知的id
 			int schoolMsgId = dao.getLatestSchoolMsgId();
-			// 进行信息关联表的数据写入
-			if (dao.newSchoolMsg_Grade(schoolMsgId, grade) == true
-					&& dao.newSchoolMsg_Major(schoolMsgId, major) == true
-					&& dao.newSchoolMsg_Receivers(schoolMsgId, destUsers) == true) {
-				// 信息写入数据库成功
-
-				// 将内容写入html文件，用于网页显示
-				if (new ContentOperation().SaveContent("schoolMsg",
-						schoolMsgId, msg.getContent(), rootPath)) {
-					flag = true;
-				}
-				
-				NewSchoolMsg n = new NewSchoolMsg(msg, schoolMsgId, destUsers);
-				Thread thread = new Thread(n);
-				thread.start();
-
-//				List<SchoolMsgVo> list = new ArrayList<SchoolMsgVo>();
-//				List<Integer> schoolMsgIdList = new ArrayList<Integer>();
-//				schoolMsgIdList.add(schoolMsgId);
-//				list = dao.getSchoolMsgAll(schoolMsgIdList);
-//
-//				// 给微软服务器发送
-//				List<Student> stuList = new StudentService()
-//						.getStudentByIdList(destUsers);
-//				for (Student stu : stuList) {
-//					for (SchoolMsgVo sMsgVo : list) {
-//						if (stu.getStaus().contains("http://")) {
-//							new SchoolMsgService().sendMsgToWP(
-//									stu.getUsername(), sMsgVo, stu.getStaus());
-//						} else {
-//							// for iOS
-//						}
-//					}
-//				}
-//
-//				// 写入Redis缓存
-//				SchoolMsgCache cache = new SchoolMsgCache();
-//				cache.cacheSchoolMsg(list, msg.getSchoolAdminUsername());
-//				cache.cacheSchoolMsg_Receivers(schoolMsgId, destUsers);
-			} else {
-				// 信息写入失败，回滚
-				// roll back.
-				dao.roll_Back(schoolMsgId);
+			// 将内容写入html文件，用于网页显示
+			if (new ContentOperation().SaveContent("schoolMsg", schoolMsgId,
+					msg.getContent(), rootPath)) {
+				flag = true;
 			}
+
+			NewSchoolMsg n = new NewSchoolMsg(msg, schoolMsgId, teachers,
+					grade, department, major, sAdmin);
+			Thread thread = new Thread(n);
+			thread.start();
 
 		} else {
 			// 如果数据写入失败
 			// do nothing.
 		}
 		return flag;
+	}
+
+	public boolean newSchoolMsg_Grade(int schoolMsgId, String[] grade) {
+		return dao.newSchoolMsg_Grade(schoolMsgId, grade);
+	}
+
+	public boolean newSchoolMsg_Major(int schoolMsgId, String[] major) {
+		return dao.newSchoolMsg_Major(schoolMsgId, major);
+	}
+
+	public boolean newSchoolMsg_Receivers(int schoolMsgId,
+			List<Integer> destUsers) {
+		return dao.newSchoolMsg_Receivers(schoolMsgId, destUsers);
 	}
 
 	/**
@@ -146,8 +127,8 @@ public class SchoolMsgService {
 	public List<SchoolMsgVo> getSchoolMsgByPage(int start, int end) {
 		List<SchoolMsgVo> list = new ArrayList<SchoolMsgVo>();
 		List<Integer> schoolMsgIdList = dao.getSchoolMsgIdList(start, end);
-//		list = new SchoolMsgCache().getSchoolMsgFromCache(schoolMsgIdList);
-//		list = dao.getSchoolMsgAll(schoolMsgIdList);
+		// list = new SchoolMsgCache().getSchoolMsgFromCache(schoolMsgIdList);
+		// list = dao.getSchoolMsgAll(schoolMsgIdList);
 		list = dao.getMsgToDisplayAdmin(schoolMsgIdList);
 		return list;
 	}
@@ -165,8 +146,8 @@ public class SchoolMsgService {
 		List<SchoolMsgVo> list = new ArrayList<SchoolMsgVo>();
 		List<Integer> schoolMsgIdList = dao.getSchoolMsgIdList(start, end,
 				sAdmin);
-//		list = new SchoolMsgCache().getSchoolMsgFromCache(schoolMsgIdList);
-//		list = dao.getSchoolMsgAll(schoolMsgIdList);
+		// list = new SchoolMsgCache().getSchoolMsgFromCache(schoolMsgIdList);
+		// list = dao.getSchoolMsgAll(schoolMsgIdList);
 		list = dao.getMsgToDisplaySchoolAdmin(schoolMsgIdList);
 		return list;
 	}
@@ -184,7 +165,7 @@ public class SchoolMsgService {
 		List<SchoolMsgVo> list = new ArrayList<SchoolMsgVo>();
 		List<Integer> schoolMsgIdList = dao.getSchoolMsgIdList(start, end,
 				sAdmin, keyword);
-//		list = dao.getSchoolMsgAll(schoolMsgIdList);
+		// list = dao.getSchoolMsgAll(schoolMsgIdList);
 		list = dao.getMsgToDisplaySchoolAdmin(schoolMsgIdList);
 		return list;
 	}
@@ -202,7 +183,7 @@ public class SchoolMsgService {
 		List<SchoolMsgVo> list = new ArrayList<SchoolMsgVo>();
 		List<Integer> schoolMsgIdList = dao.getSchoolMsgIdList(start, end,
 				keyword);
-//		list = dao.getSchoolMsgAll(schoolMsgIdList);
+		// list = dao.getSchoolMsgAll(schoolMsgIdList);
 		list = dao.getMsgToDisplayAdmin(schoolMsgIdList);
 		return list;
 	}
@@ -236,6 +217,10 @@ public class SchoolMsgService {
 	public SchoolMsg getSchoolMsgById(int schoolMsgId) {
 		return dao.getSchoolMsgById(schoolMsgId);
 	}
+	
+	public List<Integer> getDepartmentIdListByMsgId(int schoolMsgId) {
+		return dao.getDepartmentIdListByMsgId(schoolMsgId);
+	}
 
 	/**
 	 * 根据通知id获得通知的目的年级
@@ -265,6 +250,15 @@ public class SchoolMsgService {
 	 */
 	public List<Integer> getDestUsersListByMsgId(int schoolMsgId) {
 		return dao.getDestUsersListByMsgId(schoolMsgId);
+	}
+	
+	/**
+	 * 根据通知id获取接收者中的老师id，用于信息重发
+	 * @param schoolMsgId
+	 * @return
+	 */
+	public List<Integer> getDestTeachersByMsgId(int schoolMsgId) {
+		return dao.getDestTeachersByMsgId(schoolMsgId);
 	}
 
 	/**
@@ -386,6 +380,32 @@ public class SchoolMsgService {
 	public void cacheSchoolMsgRecievedNum() {
 		HashMap<Integer, Integer> map = dao.getRecievedNum();
 		new SchoolMsgCache().cacheReceivedNum(map);
+	}
+	
+	public List<Integer> getMsgIdAll() {
+		return dao.getMsgIdAll();
+	}
+	
+	public List<Integer> getNotCachedMsgId() {
+		JedisPool pool = new RedisConnection().getConnection();
+		Jedis jedis = pool.getResource();
+		Set<String> cachedList = jedis.sunion("schoolMsg:idList","temp:schoolMsg:idList");
+		
+		List<Integer> tempList = new ArrayList<Integer>();
+		Iterator<String> it = cachedList.iterator();
+		while (it.hasNext()) {
+			tempList.add(Integer.parseInt(it.next()));
+		}
+		
+		List<Integer> all = dao.getMsgIdAll();
+		all.removeAll(tempList);
+		return all;
+	}
+	
+	public void cacheNotCachedMsg() {
+		List<Integer> idList = this.getNotCachedMsgId();
+		List<SchoolMsgVo> sMsgVoList = this.getSchoolMsgAll(idList);
+		new SchoolMsgCache().cacheSchoolMsg(sMsgVoList);
 	}
 
 }

@@ -30,6 +30,7 @@ public class ConnectionBroker implements BuildConnection {
 	void setUp() {
 		driver = "com.mysql.jdbc.Driver";
 		url = "jdbc:mysql://localhost:3306/zdez?useUnicode=true&characterEncoding=UTF-8";
+//		url = "jdbc:mysql://112.117.223.20:3306/zdez?useUnicode=true&characterEncoding=UTF-8";
 		// url =
 		// "jdbc:mysql://112.117.223.20:3306/zdez?useUnicode=true&characterEncoding=UTF-8";
 		username = "root";

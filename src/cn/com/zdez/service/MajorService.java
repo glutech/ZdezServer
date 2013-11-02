@@ -47,5 +47,9 @@ public class MajorService {
 	public List<Major> getAll() {
 		return dao.getAll();
 	}
+	
+	public List<String> getNameById(String[] major) {
+		return dao.getNameById(major);
+	}
 
 }

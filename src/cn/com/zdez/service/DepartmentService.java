@@ -47,5 +47,9 @@ public class DepartmentService {
 	public List<Department> getAll() {
 		return dao.getAll();
 	}
+	
+	public List<String> getNameById(String[] department) {
+		return dao.getNameById(department);
+	}
 
 }
