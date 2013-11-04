@@ -134,7 +134,7 @@
 		class="module width_full"> <header>
 	<h3>新建信息</h3>
 	</header>
-	<form action="Admin_NewNewsServlet"	method="post">
+	<form action="Admin_NewNewsServlet" method="post">
 		<div class="module_content">
 			<div class="tab_container">
 				<table style="width:100%;float:left;">
@@ -147,7 +147,14 @@
 									<p>
 										<%=genSelect(schoolList, "xuexiao[]", "school")%>
 									</p>
-								</fieldset></td>
+								</fieldset>
+							</td>
+						</tr>
+						<tr>
+							<td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input id="isTop"
+								name="isTop" type="checkbox" value="1" /> <label
+								style="font-size:12px"> 此信息是否置顶</label>
+							</td>
 						</tr>
 						<tr>
 							<td>
@@ -194,11 +201,11 @@
 				+ "/title:" + schoolmessagetitle.value + "/content:" + schoolmessagecontent.value
 				+ "/checkbox:" + checkbox1.value + "/teacher:" + teacher.value);
 		 */
-		 if(news_content == null || news_content.value.length == 0) {
+		if (news_content == null || news_content.value.length == 0) {
 			msg = "请输入消息的内容";
 			alert(msg);
 			return false;
-		 }
+		}
 		if (news_title == null || news_title.value.length == 0) {
 			msg = "请输入消息的标题";
 			alert(msg);

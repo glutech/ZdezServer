@@ -31,6 +31,7 @@ public class NewsMsgCache {
 				map.put("content", list.get(i).getContent());
 				map.put("date", list.get(i).getDate());
 				map.put("destSchool", "destSchool:" + list.get(i).getId());
+				map.put("isTop", Integer.toString(list.get(i).getIsTop()));
 				jedis.hmset("newsMsg:" + newsId, map);
 				
 				for (int n=0, count1 = list.get(i).getDestSchools().size(); n < count1;n++) {
@@ -57,6 +58,7 @@ public class NewsMsgCache {
 			String title = jedis.hget("newsMsg:" + Integer.toString(newsId), "title");
 			String content = jedis.hget("newsMsg:" + Integer.toString(newsId), "content");
 			String cover = jedis.hget("newsMsg:" + Integer.toString(newsId), "cover");
+			String isTop = jedis.hget("newsMsg:" + Integer.toString(newsId), "isTop");
 			
 			String date = jedis.hget("newsMsg:" + Integer.toString(newsId), "date");
 			
@@ -70,6 +72,7 @@ public class NewsMsgCache {
 			newsVo.setContent(content);
 			newsVo.setCoverPath(cover);
 			newsVo.setDate(date);
+			newsVo.setIsTop(Integer.parseInt(isTop));
 			newsVo.setDestSchools(temp);
 		} finally {
 			pool.returnResource(jedis);

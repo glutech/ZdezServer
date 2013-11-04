@@ -12,7 +12,14 @@ public class NewsVo {
 	private List<String> destSchools;
 	private int receiverNum;
 	private int receivedNum;
+	private int isTop;
 	
+	public int getIsTop() {
+		return isTop;
+	}
+	public void setIsTop(int isTop) {
+		this.isTop = isTop;
+	}
 	public List<String> getDestSchools() {
 		return destSchools;
 	}

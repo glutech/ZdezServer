@@ -24,6 +24,9 @@ public class Admin_NewNewsServlet extends HttpServlet {
 		String title = request.getParameter("news_title");
 		String content = request.getParameter("news_content");
 
+		String isTop = "0";
+		isTop = request.getParameter("isTop");
+
 		// 解决reload时出错
 		if (title == null || content == null || school == null) {
 			title = (String) hs.getAttribute("title");
@@ -36,7 +39,7 @@ public class Admin_NewNewsServlet extends HttpServlet {
 		// ---
 
 		// send message here.
-		boolean  flag = false;
+		boolean flag = false;
 		flag = (Boolean) hs.getAttribute("adminUserLoginSucessFlag");
 
 		if (!flag) {
@@ -45,22 +48,28 @@ public class Admin_NewNewsServlet extends HttpServlet {
 		} else {
 			title = new String(title.getBytes("ISO-8859-1"), "utf-8");
 			content = new String(content.getBytes("ISO-8859-1"), "utf-8");
-			
+
 			News n = new News();
 			n.setTitle(title);
 			n.setContent(content);
-			
+			if (isTop == null) {
+				n.setSign(0);
+			} else {
+				n.setSign(Integer.parseInt(isTop));
+			}
+
 			NewsService nService = new NewsService();
 			// 发送信息
-			if (nService.newNews(n, school, (String)request.getSession().getAttribute("rootPath"))) {
+			if (nService.newNews(n, school, (String) request.getSession()
+					.getAttribute("rootPath"))) {
 				// 发送成功
 				request.getRequestDispatcher("admin_NewNewsSuccess.jsp")
 						.forward(request, response);
 			} else {
 				// 发送失败
 				request.setAttribute("errorMsg", "信息已发送，但所选条件下无发送对象！");
-				request.getRequestDispatcher("admin_NewNewsSuccess.jsp").forward(request,
-						response);
+				request.getRequestDispatcher("admin_NewNewsSuccess.jsp")
+						.forward(request, response);
 			}
 		}
 	}

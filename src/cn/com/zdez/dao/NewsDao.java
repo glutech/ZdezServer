@@ -30,8 +30,8 @@ public class NewsDao {
 	 */
 	public boolean newNews(News n) {
 		boolean flag = false;
-		String sql = "insert into news(title, content) values(?,?)";
-		Object[] params = { n.getTitle(), n.getContent() };
+		String sql = "insert into news(title, content, sign) values(?,?,?)";
+		Object[] params = { n.getTitle(), n.getContent(), n.getSign()};
 		flag = sqlE.execSqlWithoutRS(sql, params);
 		return flag;
 	}
@@ -447,6 +447,7 @@ public class NewsDao {
 					n.setContent(rs.getString("content"));
 					n.setDate(rs.getString("date").substring(0, 19));
 					n.setCoverPath(smService.getCoverPath(rs.getString("content")));
+					n.setIsTop(rs.getInt("sign"));
 
 					List<String> destSchools = new ArrayList<String>();
 					ResultSet rsDestSchools = pstmt3.executeQuery();

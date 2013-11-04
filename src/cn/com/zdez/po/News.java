@@ -1,13 +1,20 @@
 package cn.com.zdez.po;
 
 import java.io.Serializable;
-import java.sql.Time;
 
 public class News implements Serializable{
 	private int id;
 	private String title;
 	private String content;
 	private String date;
+	private int sign;
+
+	public int getSign() {
+		return sign;
+	}
+	public void setSign(int sign) {
+		this.sign = sign;
+	}
 	public int getId() {
 		return id;
 	}

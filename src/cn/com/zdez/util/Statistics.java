@@ -55,6 +55,7 @@ public class Statistics {
 			jedis.hmset("hashmap:statistics", map);
 		} finally {
 			pool.returnResource(jedis);
+			map = null;
 		}
 		pool.destroy();
 	}

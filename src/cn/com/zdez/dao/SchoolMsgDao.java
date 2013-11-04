@@ -941,6 +941,9 @@ public class SchoolMsgDao {
 				String str = it.next();
 				toReceive.add(Integer.parseInt(str));
 			}
+			msgIdList = null;
+			receivedSet = null;
+			toReceivedSet = null;
 		} finally {
 			pool.returnResource(jedis);
 		}
