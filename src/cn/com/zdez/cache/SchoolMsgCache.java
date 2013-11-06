@@ -486,6 +486,7 @@ public class SchoolMsgCache {
 						Integer.toString(schoolMsgIdList.get(i)), 1);
 			}
 		} finally {
+			schoolMsgIdList = null;
 			pool.returnResource(jedis);
 		}
 		pool.destroy();

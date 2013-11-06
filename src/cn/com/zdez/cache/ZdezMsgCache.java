@@ -298,6 +298,7 @@ public class ZdezMsgCache {
 			}
 
 		} finally {
+			zdezMsgIdList = null;
 			pool.returnResource(jedis);
 		}
 

@@ -71,13 +71,14 @@
 
 	<section id="main" class="column">
 
+<!-- 	<h4 class="alert_warning">系统将于xxxx年xx月xx日晚xx点-xx点更新，请各位老师避免在该时段使用本系统，给您带来的不便，敬请谅解！</h4> -->
 	<h4 class="alert_info">欢迎登录校园通信息发布系统.</h4>
 
 	<div class="clear"></div>
 
 	<div class="spacer"></div>
 	</section>
-	
+
 </body>
 
 </html>

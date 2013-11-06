@@ -941,9 +941,17 @@ public class SchoolMsgDao {
 				String str = it.next();
 				toReceive.add(Integer.parseInt(str));
 			}
-			msgIdList = null;
-			receivedSet = null;
-			toReceivedSet = null;
+
+			if (msgIdList != null) {
+				msgIdList = null;
+			}
+			if (receivedSet != null) {
+				receivedSet = null;
+			}
+			if (toReceivedSet != null) {
+				toReceivedSet = null;
+			}
+
 		} finally {
 			pool.returnResource(jedis);
 		}
@@ -1208,12 +1216,18 @@ public class SchoolMsgDao {
 						}
 					}
 				}
+				if (schoolMsgIdList != null) {
+					schoolMsgIdList = null;
+				}
 			}
 			if (pstmt1 != null) {
 				pstmt1.close();
 			}
 			if (pstmt2 != null) {
 				pstmt2.close();
+			}
+			if (stuIdList != null) {
+				stuIdList = null;
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -1265,7 +1279,7 @@ public class SchoolMsgDao {
 		}
 		return map;
 	}
-	
+
 	public List<Integer> getMsgIdAll() {
 		List<Integer> list = new ArrayList<Integer>();
 		String sql = "select id from schoolMsg";

@@ -25,7 +25,8 @@ public class LoginCheckServlet extends HttpServlet {
 			if (request.getParameter("username") == null
 					|| request.getParameter("password") == null
 					|| request.getParameter("veryCode") == null
-					|| "" == request.getParameter("veryCode")) {
+					|| "" == request.getParameter("veryCode")
+					|| request.getSession().getAttribute("validateCode") == null) {
 				request.getRequestDispatcher("admin.jsp").forward(request,
 						response);
 			} else {

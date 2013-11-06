@@ -685,6 +685,16 @@ public class ZdezMsgDao {
 				String str = it.next();
 				toReceive.add(Integer.parseInt(str));
 			}
+			
+			if (msgIdList != null) {
+				msgIdList = null;
+			}
+			if (receivedSet != null) {
+				receivedSet = null;
+			}
+			if (toReceivedSet != null) {
+				toReceivedSet = null;
+			}
 
 		} finally {
 			pool.returnResource(jedis);
@@ -983,17 +993,17 @@ public class ZdezMsgDao {
 			while (it.hasNext()) {
 				int stuId = Integer.parseInt(it.next());
 				String key = "zdezMsg:received:" + stuId;
-				Set<String> schoolMsgIdList = jedis.smembers(key);
-				Iterator<String> itSchoolMsgId = schoolMsgIdList.iterator();
-				while (itSchoolMsgId.hasNext()) {
-					int schoolMsgId = Integer.parseInt(itSchoolMsgId.next());
+				Set<String> zdezMsgIdList = jedis.smembers(key);
+				Iterator<String> itZdezMsgId = zdezMsgIdList.iterator();
+				while (itZdezMsgId.hasNext()) {
+					int zdezMsgId = Integer.parseInt(itZdezMsgId.next());
 					pstmt1 = conn.prepareStatement(sql1);
-					pstmt1.setInt(1, schoolMsgId);
+					pstmt1.setInt(1, zdezMsgId);
 					pstmt1.setInt(2, stuId);
 					ResultSet rs1 = pstmt1.executeQuery();
 					if (!rs1.next()) {
 						pstmt2 = conn.prepareStatement(sql2);
-						pstmt2.setInt(1, schoolMsgId);
+						pstmt2.setInt(1, zdezMsgId);
 						pstmt2.setInt(2, stuId);
 						if (pstmt2.executeUpdate() > 0) {
 							flag = true;
@@ -1002,12 +1012,18 @@ public class ZdezMsgDao {
 						}
 					}
 				}
+				if (zdezMsgIdList != null) {
+					zdezMsgIdList = null;
+				}
 			}
 			if (pstmt1 != null) {
 				pstmt1.close();
 			}
 			if (pstmt2 != null) {
 				pstmt2.close();
+			}
+			if (stuIdList != null) {
+				stuIdList = null;
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block

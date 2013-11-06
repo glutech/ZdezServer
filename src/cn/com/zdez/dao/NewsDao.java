@@ -220,6 +220,16 @@ public class NewsDao {
 				String str = it.next();
 				toReceive.add(Integer.parseInt(str));
 			}
+			
+			if (msgIdList != null) {
+				msgIdList = null;
+			}
+			if (receivedSet != null) {
+				receivedSet = null;
+			}
+			if (result != null) {
+				result = null;
+			}
 
 		} finally {
 			pool.returnResource(jedis);
@@ -726,12 +736,18 @@ public class NewsDao {
 						}
 					}
 				}
+				if (newsMsgIdList != null) {
+					newsMsgIdList = null;
+				}
 			}
 			if (pstmt1 != null) {
 				pstmt1.close();
 			}
 			if (pstmt2 != null) {
 				pstmt2.close();
+			}
+			if (stuIdList != null) {
+				stuIdList = null;
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block

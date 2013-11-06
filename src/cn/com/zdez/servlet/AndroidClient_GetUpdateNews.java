@@ -78,7 +78,7 @@ public class AndroidClient_GetUpdateNews extends HttpServlet {
 		result = new String(result.getBytes("utf-8"), "iso-8859-1");
 		out.append(result);
 		out.close();
-
+		newsList = null;
 	}
 
 	/**

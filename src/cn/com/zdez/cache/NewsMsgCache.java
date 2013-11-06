@@ -175,6 +175,7 @@ public class NewsMsgCache {
 			}
 			
 		} finally {
+			list = null;
 			pool.returnResource(jedis);
 		}
 		
