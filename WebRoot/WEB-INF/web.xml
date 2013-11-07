@@ -3,7 +3,6 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee 
 	http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
-	<display-name></display-name>
 	<servlet>
 		<servlet-name>VerifyCodeServlet</servlet-name>
 		<servlet-class>cn.com.zdez.servlet.VerifyCodeServlet</servlet-class>
@@ -353,6 +352,10 @@
     <servlet-name>Admin_ReGenerateHtml</servlet-name>
     <servlet-class>cn.com.zdez.servlet.Admin_ReGenerateHtml</servlet-class>
   </servlet>
+  <servlet>
+    <servlet-name>IosClient_StudentLoginCheck</servlet-name>
+    <servlet-class>cn.com.zdez.servlet.IosClient_StudentLoginCheck</servlet-class>
+  </servlet>
 
 
 
@@ -689,7 +692,15 @@
     <servlet-name>Admin_ReGenerateHtml</servlet-name>
     <url-pattern>/Admin_ReGenerateHtml</url-pattern>
   </servlet-mapping>
+  <servlet-mapping>
+  	<servlet-name>IosClient_StudentLoginCheck</servlet-name>
+    <url-pattern>/IosClient_StudentLoginCheck</url-pattern>
+  </servlet-mapping>
+  
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>
+	<servlet>
+		<servlet-name>token</servlet-name>
+	</servlet>
 </web-app>
