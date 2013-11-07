@@ -90,6 +90,7 @@ public class AndroidClient_StudentLogiCheck extends HttpServlet {
 		student.setUsername(userName);
 		password = new MD5().toMD5String(password);
 		student.setPassword(password);
+		student.setStaus("106289999");
 		Gson gson = new Gson();
 		if (ls.studentLoginCheck(student)) {
 			StudentVo studentVo = ss.getStudentVoByUsername(userName);

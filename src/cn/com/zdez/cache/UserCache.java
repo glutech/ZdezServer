@@ -8,6 +8,7 @@ import redis.clients.jedis.JedisPool;
 import cn.com.zdez.dao.RedisConnection;
 import cn.com.zdez.dao.SchoolAdminDao;
 import cn.com.zdez.po.SchoolAdmin;
+import cn.com.zdez.po.Student;
 import cn.com.zdez.service.SchoolAdminService;
 import cn.com.zdez.service.StudentService;
 import cn.com.zdez.vo.StudentVo;
@@ -68,41 +69,48 @@ public class UserCache {
 	 * 
 	 * @param username
 	 */
-	public void cacheSchoolAdminInfoByUname(String username) {
+	public boolean cacheSchoolAdminInfoByUname(String username) {
+		boolean flag = false;
 		SchoolAdmin sAdmin = new SchoolAdminService()
 				.getSchoolAdminInfoFromMySQL(username);
+		if (sAdmin.getUsername() != null) {
 
-		try {
+			try {
 
-			jedis.sadd("schoolAdminList", sAdmin.getUsername());
+				jedis.sadd("schoolAdminList", sAdmin.getUsername());
 
-			ConcurrentHashMap<String, String> map = new ConcurrentHashMap<String, String>();
+				ConcurrentHashMap<String, String> map = new ConcurrentHashMap<String, String>();
 
-			map.put("username", sAdmin.getUsername());
-			map.put("password", sAdmin.getPassword());
-			map.put("telPhone",
-					(sAdmin.getTelPhone() == null ? "" : sAdmin.getTelPhone()));
-			map.put("name", (sAdmin.getName() == null ? "" : sAdmin.getName()));
-			map.put("auth", Integer.toString(sAdmin.getAuth()));
-			map.put("schoolId",
-					(Integer.toString(sAdmin.getSchoolId()) == null ? "" : Integer
-							.toString(sAdmin.getSchoolId())));
-			map.put("departmentId",
-					(Integer.toString(sAdmin.getDepartmentId()) == null ? ""
-							: Integer.toString(sAdmin.getDepartmentId())));
-			map.put("majorId",
-					(Integer.toString(sAdmin.getMajorId()) == null ? ""
-							: Integer.toString(sAdmin.getMajorId())));
-			map.put("remarks",
-					(sAdmin.getRemarks() == null ? "" : sAdmin.getRemarks()));
+				map.put("username", sAdmin.getUsername());
+				map.put("password", sAdmin.getPassword());
+				map.put("telPhone",
+						(sAdmin.getTelPhone() == null ? "" : sAdmin
+								.getTelPhone()));
+				map.put("name",
+						(sAdmin.getName() == null ? "" : sAdmin.getName()));
+				map.put("auth", Integer.toString(sAdmin.getAuth()));
+				map.put("schoolId",
+						(Integer.toString(sAdmin.getSchoolId()) == null ? ""
+								: Integer.toString(sAdmin.getSchoolId())));
+				map.put("departmentId",
+						(Integer.toString(sAdmin.getDepartmentId()) == null ? ""
+								: Integer.toString(sAdmin.getDepartmentId())));
+				map.put("majorId",
+						(Integer.toString(sAdmin.getMajorId()) == null ? ""
+								: Integer.toString(sAdmin.getMajorId())));
+				map.put("remarks",
+						(sAdmin.getRemarks() == null ? "" : sAdmin.getRemarks()));
 
-			jedis.hmset("schoolAdmin:" + sAdmin.getUsername(), map);
+				jedis.hmset("schoolAdmin:" + sAdmin.getUsername(), map);
 
-		} finally {
-			pool.returnResource(jedis);
+			} finally {
+				pool.returnResource(jedis);
+			}
+			flag = true;
 		}
 
 		pool.destroy();
+		return flag;
 	}
 
 	/**
@@ -148,6 +156,7 @@ public class UserCache {
 	/**
 	 * 缓存数据库中所有学生的信息。由于student表中记录数太多，不到万不得已不要调用。
 	 * redis清空后可以调用，但是调用此方法时最好在凌晨，要不然影响系统正常使用
+	 * 
 	 * @param list
 	 */
 	public void cacheStudentInfoAll(List<StudentVo> list) {
@@ -173,9 +182,9 @@ public class UserCache {
 				map.put("major", sVo.getMajor() == null ? "" : sVo.getMajor());
 				map.put("department",
 						sVo.getDepartment() == null ? "" : sVo.getDepartment());
+				map.put("staus", sVo.getStaus());
 
 				jedis.hmset(key, map);
-
 			}
 
 		} finally {
@@ -186,50 +195,65 @@ public class UserCache {
 
 	/**
 	 * 当缓存中没有学生信息时，从数据库中取出学生信息并写入缓存
+	 * 
 	 * @param username
 	 */
-	public void cacheStudentInfoByUname(String username) {
-		StudentVo sVo = new StudentService().getStudentVoByUsernameFromDB(username);
-		String keyAll = "studentList";
-		String key = "student:" + sVo.getUsername();
+	public boolean cacheStudentInfoByUname(Student stu) {
+		boolean flag = false;
+		StudentService sService = new StudentService();
+		if (sService.isExist(stu.getUsername())) {
 
-		try {
+			if (sService.modifyStaus(stu.getUsername(), stu.getStaus())) {
+				StudentVo sVo = sService.getStudentVoByUsernameFromDB(stu
+						.getUsername());
+				String keyAll = "studentList";
+				String key = "student:" + sVo.getUsername();
 
-			jedis.sadd(keyAll, sVo.getUsername());
+				try {
 
-			ConcurrentHashMap<String, String> map = new ConcurrentHashMap<String, String>();
-			map.put("id", Integer.toString(sVo.getId()));
-			map.put("username", sVo.getUsername());
-			map.put("password", sVo.getPassword());
-			map.put("name", sVo.getName() == null ? "" : sVo.getName());
-			map.put("gender", sVo.getGender() == null ? "" : sVo.getGender());
-			map.put("grade", sVo.getGrade() == null ? "" : sVo.getGrade());
-			map.put("major", sVo.getMajor() == null ? "" : sVo.getMajor());
-			map.put("department",
-					sVo.getDepartment() == null ? "" : sVo.getDepartment());
+					jedis.sadd(keyAll, sVo.getUsername());
 
-			jedis.hmset(key, map);
-		} finally {
-			pool.returnResource(jedis);
+					ConcurrentHashMap<String, String> map = new ConcurrentHashMap<String, String>();
+					map.put("id", Integer.toString(sVo.getId()));
+					map.put("username", sVo.getUsername());
+					map.put("password", sVo.getPassword());
+					map.put("name", sVo.getName() == null ? "" : sVo.getName());
+					map.put("gender",
+							sVo.getGender() == null ? "" : sVo.getGender());
+					map.put("grade",
+							sVo.getGrade() == null ? "" : sVo.getGrade());
+					map.put("major",
+							sVo.getMajor() == null ? "" : sVo.getMajor());
+					map.put("department", sVo.getDepartment() == null ? ""
+							: sVo.getDepartment());
+					map.put("staus", sVo.getStaus());
+
+					jedis.hmset(key, map);
+				} finally {
+					pool.returnResource(jedis);
+				}
+				flag = true;
+			}
+
+			pool.destroy();
 		}
-
-		pool.destroy();
-
+		return flag;
 	}
-	
+
 	/**
 	 * 根据用户名从缓存中获取学生信息
+	 * 
 	 * @param username
 	 * @return
 	 */
 	public StudentVo getStudentInfoFromCache(String username) {
 		StudentVo sVo = new StudentVo();
-		
+
 		try {
-			
-			String key   = "student:" + username;
+
+			String key = "student:" + username;
 			String temp = "";
-			
+
 			temp = jedis.hget(key, "id");
 			sVo.setId(Integer.parseInt(temp));
 			temp = jedis.hget(key, "username");
@@ -248,13 +272,21 @@ public class UserCache {
 			sVo.setDepartment(temp);
 			temp = jedis.hget(key, "school");
 			sVo.setSchool(temp);
-			
+			temp = jedis.hget(key, "staus");
+			sVo.setStaus(temp);
+
 		} finally {
 			pool.returnResource(jedis);
 		}
-		
+
 		pool.destroy();
 		return sVo;
+	}
+
+	public boolean modifyIosStaus(String username, String deviceId) {
+		boolean flag = false;
+		String sql = "update student set";
+		return flag;
 	}
 
 }

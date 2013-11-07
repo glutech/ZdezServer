@@ -143,8 +143,8 @@ public class StudentService {
 	 * @param staus
 	 * @return
 	 */
-	public boolean modifyStaus(int stuId, String staus) {
-		return dao.modifyStaus(stuId, staus);
+	public boolean modifyStaus(String username, String staus) {
+		return dao.modifyStaus(username, staus);
 	}
 
 	/**

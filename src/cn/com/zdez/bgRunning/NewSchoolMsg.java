@@ -157,8 +157,9 @@ public class NewSchoolMsg implements Runnable {
 					//Push.alert(testString, "zdez_dev.p12", "www.zdez.com.cn9", false, deviceid);
 					//Push.test ("zdez.p12", "www.zdez.com.cn9", false, deviceid);
 					Push.combined (content, 2, "default", "zdez_dev.p12", "www.zdez.com.cn9", false, deviceid);
+					// 由于ios的通知只会保留最后一条，所有不再需要移除usrid，防止收不到信息
 					//移除已经发送的ios用户
-					destUsers.remove(i);
+//					destUsers.remove(i);
 				} catch (CommunicationException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -167,7 +168,7 @@ public class NewSchoolMsg implements Runnable {
 					e.printStackTrace();
 				}
 			}else if(checkBrand(destUsers.get(i)) == 2){
-				destUsers.remove(i);
+//				destUsers.remove(i);
 				System.out.println("winphone process here");
 			}
 		}

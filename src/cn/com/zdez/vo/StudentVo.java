@@ -11,7 +11,14 @@ public class StudentVo {
 	private String major;
 	private String department;
 	private String school;
+	private String staus;
 
+	public String getStaus() {
+		return staus;
+	}
+	public void setStaus(String staus) {
+		this.staus = staus;
+	}
 	public int getId() {
 		return id;
 	}

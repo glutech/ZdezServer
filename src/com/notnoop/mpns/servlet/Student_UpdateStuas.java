@@ -22,7 +22,7 @@ public class Student_UpdateStuas extends HttpServlet {
 		String stuId = request.getParameter("user_id");
 		String staus = request.getParameter("Uri");
 		StudentService studentService = new StudentService();
-		studentService.modifyStaus(Integer.parseInt(stuId), staus);
+//		studentService.modifyStaus(Integer.parseInt(stuId), staus);
 	}
 
 	/**

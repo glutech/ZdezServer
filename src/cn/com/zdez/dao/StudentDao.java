@@ -233,8 +233,8 @@ public class StudentDao {
 	 */
 	public StudentVo getStudentVoByUsername(String username) {
 		StudentVo stuVo = new StudentVo();
-		String sql = "select student.id, student.username as username, student.password as password, student.name as name, student.gender, "
-				+ "grade.description as grade, major.name as major, department.name as department, school.name as school "
+		String sql = "select student.id, student.username as username, student.password as password, student.name as name, student.staus, " +
+				"student.gender, grade.description as grade, major.name as major, department.name as department, school.name as school "
 				+ "from ((((student join grade) join major) join school) join department) "
 				+ "where ((student.gradeId = grade.id) and (student.majorId = major.id) "
 				+ "and (department.schoolId = school.id) and (major.departmentId = department.id)) "
@@ -258,6 +258,7 @@ public class StudentDao {
 				stuVo.setMajor(rs.getString("major"));
 				stuVo.setDepartment(rs.getString("department"));
 				stuVo.setSchool(rs.getString("school"));
+				stuVo.setStaus(rs.getString("staus"));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -346,16 +347,16 @@ public class StudentDao {
 	}
 
 	/**
-	 * 根据用户id修改staus字段，给WP使用
+	 * 根据用户id修改staus字段
 	 * 
-	 * @param stuId
+	 * @param username
 	 * @param staus
 	 * @return
 	 */
-	public boolean modifyStaus(int stuId, String staus) {
+	public boolean modifyStaus(String username, String staus) {
 		boolean flag = false;
-		String sql = "update student set staus = ? where id = ?";
-		Object[] params = { staus, stuId };
+		String sql = "update student set staus = ? where username = ?";
+		Object[] params = { staus, username};
 		flag = sqlE.execSqlWithoutRS(sql, params);
 		return flag;
 	}
@@ -594,8 +595,8 @@ public class StudentDao {
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		String sql = "select count(id) from student";
-		String sql1 = "select student.id as id, student.username as username, student.password as password, student.name as name, student.gender, "
-				+ "grade.description as grade, major.name as major, department.name as department, school.name as school "
+		String sql1 = "select student.id as id, student.username as username, student.password as password, student.name as name, student.staus, " +
+				"student.gender, grade.description as grade, major.name as major, department.name as department, school.name as school "
 				+ "from ((((student join grade) join major) join school) join department) "
 				+ "where ((student.gradeId = grade.id) and (student.majorId = major.id) "
 				+ "and (department.schoolId = school.id) and (major.departmentId = department.id)) and isTeacher = 0 limit ?,?";
@@ -640,6 +641,7 @@ public class StudentDao {
 					stuVo.setMajor(rs1.getString("major"));
 					stuVo.setDepartment(rs1.getString("department"));
 					stuVo.setSchool(rs1.getString("school"));
+					stuVo.setStaus(rs.getString("staus"));
 					tempList.add(stuVo);
 				}
 
@@ -673,6 +675,7 @@ public class StudentDao {
 					stuVo.setMajor(rs1.getString("major"));
 					stuVo.setDepartment(rs1.getString("department"));
 					stuVo.setSchool(rs1.getString("school"));
+					stuVo.setStaus(rs.getString("staus"));
 					tempList.add(stuVo);
 				}
 

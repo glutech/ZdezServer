@@ -75,7 +75,7 @@ public class IosClient_StudentLoginCheck extends HttpServlet {
 		String deviceid = request.getParameter("deviceid");
 
 		System.out.println("用户请求登陆验证，用户名和密码为：" + userName + "~~" + password
-				+ ",客户端版本名称为：" + deviceid);
+				+ ",设备id为：" + deviceid);
 
 		String result = "";
 		LoginService ls = new LoginService();
@@ -85,6 +85,7 @@ public class IosClient_StudentLoginCheck extends HttpServlet {
 		student.setUsername(userName);
 		password = new MD5().toMD5String(password);
 		student.setPassword(password);
+		student.setStaus(deviceid);
 		Gson gson = new Gson();
 		if (ls.studentLoginCheck(student)) {
 			StudentVo studentVo = ss.getStudentVoByUsername(userName);

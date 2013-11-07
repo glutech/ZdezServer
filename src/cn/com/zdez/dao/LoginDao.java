@@ -91,8 +91,9 @@ public class LoginDao {
 				}
 			} else {
 				// 缓存中没有相关数据，则从数据库中取出数据并写入缓存
-				cache.cacheSchoolAdminInfoByUname(schoolAdmin.getUsername());
-				flag = this.checkPsw(schoolAdmin);
+				if (cache.cacheSchoolAdminInfoByUname(schoolAdmin.getUsername())) {
+					flag = this.checkPsw(schoolAdmin);
+				}
 			}
 
 		} finally {
@@ -143,7 +144,7 @@ public class LoginDao {
 	}
 
 	/**
-	 * 验证客户端传入的用户名和密码，缓存中有数据则验证缓存，没有则从数据库中取数据并写入缓存
+	 * 验证客户端传入的用户名、密码和设备号，缓存中有数据则验证缓存，没有则从数据库中取数据并写入缓存
 	 * 
 	 * @param student
 	 * @return
@@ -164,8 +165,9 @@ public class LoginDao {
 				}
 			} else {
 				// 缓存中没有数据时，从数据库中取出并放进缓存
-				cache.cacheStudentInfoByUname(student.getUsername());
-				flag = this.checkPsw(student);
+				if (cache.cacheStudentInfoByUname(student)) {
+					flag = this.checkPsw(student);
+				}
 			}
 
 		} finally {

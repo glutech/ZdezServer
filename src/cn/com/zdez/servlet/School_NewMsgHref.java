@@ -33,7 +33,8 @@ public class School_NewMsgHref extends HttpServlet {
 			List<Department> departmentList = new ArrayList<Department>();
 			List<Major> majorList = new ArrayList<Major>();
 			List<Student> teacherList = new ArrayList<Student>();
-			HashMap<Integer, List<Student>> dptStu = new HashMap<Integer, List<Student>>();
+			// 用于分组显示教职人员
+//			HashMap<Integer, List<Student>> dptStu = new HashMap<Integer, List<Student>>();
 			// SchoolAdmin sAdmin = (SchoolAdmin) request.getSession()
 			// .getAttribute("schoolAdmin");
 			// 把之前从session中获取管理员信息改为从缓存中获取，不知道对西南林大权限失灵的问题会不会有帮助...
@@ -61,14 +62,14 @@ public class School_NewMsgHref extends HttpServlet {
 			// 获取教师列表
 			teacherList = service.getTeacherList(sAdmin);
 			// 获取部门id和老师列表的hashmap
-			dptStu = service.getDepartmentStudentByAuth(sAdmin);
+//			dptStu = service.getDepartmentStudentByAuth(sAdmin);
 
 			request.getSession().setAttribute("schoolSysList", schoolSysList);
 			request.getSession().setAttribute("gradeList", gradeList);
 			request.getSession().setAttribute("departmentList", departmentList);
 			request.getSession().setAttribute("majorList", majorList);
 			request.getSession().setAttribute("teacherList", teacherList);
-			request.getSession().setAttribute("dptStu", dptStu);
+//			request.getSession().setAttribute("dptStu", dptStu);
 
 			request.getRequestDispatcher("school_NewMsg.jsp").forward(request,
 					response);
