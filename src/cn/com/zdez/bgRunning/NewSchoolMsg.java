@@ -1,6 +1,7 @@
 package cn.com.zdez.bgRunning;
 
 import java.text.SimpleDateFormat;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -15,6 +16,11 @@ import cn.com.zdez.service.SchoolMsgService;
 import cn.com.zdez.service.SchoolService;
 import cn.com.zdez.service.StudentService;
 import cn.com.zdez.vo.SchoolMsgVo;
+
+/*导入ios发送所需的包*/
+import javapns.Push;
+import javapns.communication.exceptions.CommunicationException;
+import javapns.communication.exceptions.KeystoreException;
 
 public class NewSchoolMsg implements Runnable {
 
@@ -139,10 +145,58 @@ public class NewSchoolMsg implements Runnable {
 		// 写入Redis缓存
 		SchoolMsgCache cache = new SchoolMsgCache();
 		cache.cacheSchoolMsg(list);
+		
+		//此处开始分设备发送,先通过循环筛选出ios及winphone设备
+ 		for(int i = 0; i < destUsers.size(); i++){
+			if(checkBrand(destUsers.get(i)) == 1){
+				String content = "";
+				int usrid = destUsers.get(i);
+				//String deviceid = "0d10908d98e72c5e5f57cd3b7e3720463c05ea3119ba2e2a5fff45606190c1c5";
+				String deviceid = getDeviceId(usrid);
+				try {
+					//Push.alert(testString, "zdez_dev.p12", "www.zdez.com.cn9", false, deviceid);
+					//Push.test ("zdez.p12", "www.zdez.com.cn9", false, deviceid);
+					Push.combined (content, 2, "default", "zdez_dev.p12", "www.zdez.com.cn9", false, deviceid);
+					//移除已经发送的ios用户
+					destUsers.remove(i);
+				} catch (CommunicationException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (KeystoreException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}else if(checkBrand(destUsers.get(i)) == 2){
+				destUsers.remove(i);
+				System.out.println("winphone process here");
+			}
+		}
+
+			
 		cache.cacheSchoolMsg_Receivers(schoolMsgId, destUsers);
 		
 		destUsers = null;
 		list = null;
+	}
+	
+	/**
+	 * 用于获取设备型号，ios返回1，winphone返回2, android返回0
+	 * @param id
+	 * @return
+	 */
+	public int checkBrand(int id){
+		
+		return 0;
+	}
+	
+	/**
+	 * 用于从缓存获取用户的设备id
+	 * @param id
+	 * @return
+	 */
+	public String getDeviceId(int id){
+		
+		return "stub";
 	}
 
 	public void run() {
