@@ -1,6 +1,7 @@
 package cn.com.zdez.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import cn.com.zdez.cache.UserCache;
@@ -223,4 +224,7 @@ public class SchoolAdminService {
 		return dao.newSchoolAdmin(sAdmin);
 	}
 
+	public HashMap<Integer,List<Student>> getDepartmentStudentByAuth(SchoolAdmin sAdmin){
+		return dao.getDepartmentStudent(sAdmin);
+	}
 }

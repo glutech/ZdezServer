@@ -72,6 +72,7 @@
 	List<Department> departmentList = null;
 	List<Major> majorList = null;
 	List<Student> teacherList = null;
+	HashMap<Integer,List<Student>> dptStu = null;
 	SchoolAdmin sAdmin = new SchoolAdmin();
 	
 	schoolSysList = (List<SchoolSys>)session.getAttribute("schoolSysList");
@@ -80,6 +81,7 @@
 	majorList = (List<Major>)session.getAttribute("majorList");
 	teacherList = (List<Student>)session.getAttribute("teacherList");
 	sAdmin = (SchoolAdmin)session.getAttribute("schoolAdmin");
+	dptStu = (HashMap<Integer,List<Student>>)session.getAttribute("dptStu");
 	int auth = sAdmin.getAuth();
 	String rootPath = pageContext.getServletContext().getRealPath("/") + "attached/";
 	session.setAttribute("rootPath", rootPath);
@@ -225,7 +227,8 @@
 									<p>
 										<%=genSelect(gradeList, "nianji[]", "grade", auth)%>
 									</p>
-								</fieldset></td>
+								</fieldset>
+							</td>
 						</tr>
 						<tr>
 							<td>
@@ -244,22 +247,33 @@
 									<p>
 										<%=genSelect(majorList, "zhuanye[]", "major", auth)%>
 									</p>
-								</fieldset></td>
+								</fieldset>
+							</td>
 						</tr>
 						<tr>
-							<td colspan="2">&nbsp&nbsp&nbsp&nbsp&nbsp<input
+							<!-- <td colspan="2">&nbsp&nbsp&nbsp&nbsp&nbsp<input
 								id="checkbox1" name="checkbox" type="checkbox" onClick="show()"
 								value="1" /> <label style="font-size:12px">
-									是否同时发送给指定的教职人员</label>
+									是否同时发送给指定的教职人员</label> </td> --><%
+ 							Iterator<Map.Entry<Integer, List<Student>>> it = dptStu.entrySet().iterator();
+  							while (it.hasNext()) {
+  								Map.Entry<Integer, List<Student>> entry = (Map.Entry<Integer, List<Student>>) it.next();
+  								int dptId = entry.getKey();
+  								List<Student> stuList = entry.getValue();
+ %><td colspan="1">
 
-								<div id="teachers" style="display: none">
+								<div id="aaa" >
 									<fieldset
 										style="width: 45%; height:100%; float: left; margin-left: 2%;">
+										<label style="font-size:12px"> <%=dptId %></label>
 										<p align="left">
-											<%=genSelect(teacherList, "teacher[]", "teacher", auth)%>
+											<%=genSelect(stuList, dptId +"[]", ""+dptId, auth)%>
 										</p>
 									</fieldset>
-								</div></td>
+								</div></td> <%
+ 	}
+ %>
+							
 						</tr>
 						<tr>
 							<td colspan="2">
@@ -267,7 +281,8 @@
 									<label style="font-size:12px"> 信息标题 </label> <input type="text"
 										style="width: 96%;" name="schoolmessagetitle"
 										id="schoolmessagetitle" />
-								</fieldset></td>
+								</fieldset>
+							</td>
 						</tr>
 						<tr>
 							<td colspan="2">
@@ -277,7 +292,8 @@
 									<textarea rows="20" name="schoolmessagecontent"
 										id="schoolmessagecontent" style="font-size:12px">
 							</textarea>
-								</fieldset></td>
+								</fieldset>
+							</td>
 						</tr>
 					</tbody>
 				</table>
