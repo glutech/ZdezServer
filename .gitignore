@@ -5,5 +5,5 @@
 *.class
 *.apk
 *.DS_Store
-
+WebRoot/WEB-INF/classes
 
