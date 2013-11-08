@@ -192,7 +192,7 @@ public class NewSchoolMsg implements Runnable {
 				i = 0;
 			}else if(pattern.startsWith("http")){
 				i = 2;
-			}else if(pattern != null){
+			}else {
 				i = 1;
 			}
 		}
@@ -209,7 +209,7 @@ public class NewSchoolMsg implements Runnable {
 			if(checkBrand(tempusr) == 1){
 				System.out.println("destIosUsrs: "+destIosUsers.toString());
 				destIosUsers.add(tempusr);
-			}else if(checkBrand(destUsers.get(i)) == 2){
+			}else if(checkBrand(tempusr) == 2){
 				destWpUsers.add(tempusr);
 			}
 		}
