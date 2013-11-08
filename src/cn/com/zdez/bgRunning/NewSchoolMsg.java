@@ -185,7 +185,7 @@ public class NewSchoolMsg implements Runnable {
 	public int checkBrand(int id){
 		String pattern = getDeviceId(id);
 		
-		if(pattern.equals("10628999")){
+		if(pattern.equals("106289999")){
 			return 0;
 		}else if(pattern.startsWith("http")){
 			return 2;
