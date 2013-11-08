@@ -202,7 +202,7 @@ public class NewSchoolMsg implements Runnable {
 			int tempusr = destUsers.get(i);
 			if(checkBrand(tempusr) == 1){
 				destIosUsers.add(tempusr);
-			}else if(checkBrand(destUsers.get(i)) == 2){
+			}else if(checkBrand(tempusr) == 2){
 				destWpUsers.add(tempusr);
 			}
 		}
