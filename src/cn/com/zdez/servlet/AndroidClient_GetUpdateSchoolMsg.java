@@ -72,7 +72,7 @@ public class AndroidClient_GetUpdateSchoolMsg extends HttpServlet {
 		PrintWriter out = response.getWriter();
 		Gson gson = new Gson();
 		String resultStr = gson.toJson(result);
-		System.out.println("直接从数据库中取出的数据是：" + resultStr);
+//		System.out.println("直接从数据库中取出的数据是：" + resultStr);
 		resultStr = new String(resultStr.getBytes("UTF-8"), "iso-8859-1");
 		out.append(resultStr);
 		out.close();
