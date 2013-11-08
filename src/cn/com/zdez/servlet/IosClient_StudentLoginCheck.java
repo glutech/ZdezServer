@@ -96,7 +96,7 @@ public class IosClient_StudentLoginCheck extends HttpServlet {
 		}
 
 		PrintWriter out = response.getWriter();
-		result = new String(result.getBytes("utf-8"), "8859-1");
+		result = new String(result.getBytes("utf-8"), "iso-8859-1");
 		out.append(result);
 		out.close();
 	}
