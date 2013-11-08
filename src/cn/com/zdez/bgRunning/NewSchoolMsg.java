@@ -6,7 +6,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.json.JSONException;
+
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+
 import cn.com.zdez.cache.SchoolMsgCache;
+import cn.com.zdez.dao.RedisConnection;
 import cn.com.zdez.po.SchoolAdmin;
 import cn.com.zdez.po.SchoolMsg;
 import cn.com.zdez.service.DepartmentService;
@@ -19,8 +25,10 @@ import cn.com.zdez.vo.SchoolMsgVo;
 
 /*导入ios发送所需的包*/
 import javapns.Push;
-import javapns.communication.exceptions.CommunicationException;
 import javapns.communication.exceptions.KeystoreException;
+import javapns.devices.exceptions.InvalidDeviceTokenFormatException;
+import javapns.notification.PushNotificationPayload;
+import javapns.notification.transmission.PushQueue;
 
 public class NewSchoolMsg implements Runnable {
 
@@ -31,6 +39,11 @@ public class NewSchoolMsg implements Runnable {
 	private String[] major;
 	private String[] teachers;
 	private SchoolAdmin schoolAdmin;
+	List<Integer> destIosUsers;
+	List<Integer> destWpUsers;
+	
+	private JedisPool pool = new RedisConnection().getConnection();
+	private Jedis jedis = pool.getResource();
 
 	public NewSchoolMsg() {
 
@@ -46,6 +59,9 @@ public class NewSchoolMsg implements Runnable {
 		this.department = department;
 		this.major = major;
 		this.schoolAdmin = sAdmin;
+		
+		List<Integer> destIosUsers = new ArrayList<Integer>();
+		List<Integer> destWpUsers = new ArrayList<Integer>();
 	}
 
 	private void NewMsg() {
@@ -145,36 +161,17 @@ public class NewSchoolMsg implements Runnable {
 		// 写入Redis缓存
 		SchoolMsgCache cache = new SchoolMsgCache();
 		cache.cacheSchoolMsg(list);
-		
-		//此处开始分设备发送,先通过循环筛选出ios及winphone设备
- 		for(int i = 0; i < destUsers.size(); i++){
-			if(checkBrand(destUsers.get(i)) == 1){
-				String content = "";
-				int usrid = destUsers.get(i);
-				//String deviceid = "0d10908d98e72c5e5f57cd3b7e3720463c05ea3119ba2e2a5fff45606190c1c5";
-				String deviceid = getDeviceId(usrid);
-				try {
-					//Push.alert(testString, "zdez_dev.p12", "www.zdez.com.cn9", false, deviceid);
-					//Push.test ("zdez.p12", "www.zdez.com.cn9", false, deviceid);
-					Push.combined (content, 2, "default", "zdez_dev.p12", "www.zdez.com.cn9", false, deviceid);
-					// 由于ios的通知只会保留最后一条，所有不再需要移除usrid，防止收不到信息
-					//移除已经发送的ios用户
-//					destUsers.remove(i);
-				} catch (CommunicationException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (KeystoreException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}else if(checkBrand(destUsers.get(i)) == 2){
-//				destUsers.remove(i);
-				System.out.println("winphone process here");
-			}
-		}
 
-			
 		cache.cacheSchoolMsg_Receivers(schoolMsgId, destUsers);
+		
+		//区分设备类型，填充ios, wp列表
+		fillIosWpLists(destUsers);
+		
+		//发送ios信息给ios用户
+		sendIosMessage(msg.getTitle(),msg.getId(),destIosUsers);
+		
+		//发送wp信息给wp用户
+		sendWpMessage();
 		
 		destUsers = null;
 		list = null;
@@ -186,8 +183,88 @@ public class NewSchoolMsg implements Runnable {
 	 * @return
 	 */
 	public int checkBrand(int id){
+		String pattern = getDeviceId(id);
 		
-		return 0;
+		if(pattern.equals("10628999")){
+			return 0;
+		}else if(pattern.startsWith("http")){
+			return 2;
+		}else{
+			return 1;
+		}
+	}
+	
+	/**
+	 * 用于对设备进行分类，同是对两个组别ios, wp进行列表进行赋值
+	 */
+	public void fillIosWpLists(List<Integer> destUsers){
+		for(int i = 1; i < destUsers.size(); i++){
+			int tempusr = destUsers.get(i);
+			if(checkBrand(tempusr) == 1){
+				destIosUsers.add(tempusr);
+			}else if(checkBrand(destUsers.get(i)) == 2){
+				destWpUsers.add(tempusr);
+			}
+		}
+	}
+	
+	/**
+	 * 用于发送苹果通知的方法
+	 * @param title
+	 * @param msg_id
+	 * @param destIosUsers
+	 */
+	public void sendIosMessage(String title, int msg_id, List<Integer> destIosUsers){
+		/* Build a blank payload to customize 准备苹果发送消息*/ 
+		String keystore = "zdez_dev.p12";
+		String password = "www.zdez.com.cn9";
+		boolean production = false;
+		
+		try{
+	        PushNotificationPayload payload = PushNotificationPayload.complex();
+	 
+	       /* Customize the payload */ 
+			payload.addAlert(title);
+			payload.addBadge(1);
+			payload.addSound("default");
+		    payload.addCustomDictionary(String.valueOf(msg_id), "1234567");
+			
+	       /* Decide how many threads you want your queue to use */ 
+	        int threads = 30;	 
+	
+	       /* Create the queue */ 
+	        PushQueue queue = Push.queue(keystore, password, production, threads);
+	        
+		    /* Start the queue (all threads and connections and initiated) */ 
+	        queue.start();	
+	        
+			//此处开始分设备发送,先通过循环筛选出ios及winphone设备
+	 		for(int i = 0; i < destIosUsers.size(); i++){
+				int usrid = destIosUsers.get(i);
+				//String deviceid = "0d10908d98e72c5e5f57cd3b7e3720463c05ea3119ba2e2a5fff45606190c1c5";
+				String deviceid = getDeviceId(usrid); 
+	
+				/* Add a notification for the queue to push */ 
+				queue.add(payload, deviceid);
+			}
+ 		
+	    } catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (KeystoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvalidDeviceTokenFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * 用于发送wp通知的方法
+	 */
+	public void sendWpMessage(){
+		
 	}
 	
 	/**
@@ -196,8 +273,12 @@ public class NewSchoolMsg implements Runnable {
 	 * @return
 	 */
 	public String getDeviceId(int id){
+		String key = "stu:id:username";
+		String username = jedis.hget(key, String.valueOf(id));
+		key = "student:"+ username;
+		String pattern = jedis.hget(key, "staus");
 		
-		return "stub";
+		return pattern;
 	}
 
 	public void run() {
