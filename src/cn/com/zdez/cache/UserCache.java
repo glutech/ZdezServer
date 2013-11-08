@@ -1,11 +1,18 @@
 package cn.com.zdez.cache;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.naming.spi.DirStateFactory.Result;
+
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+import cn.com.zdez.dao.ConnectionFactory;
 import cn.com.zdez.dao.RedisConnection;
+import cn.com.zdez.dao.SQLExecution;
 import cn.com.zdez.dao.SchoolAdminDao;
 import cn.com.zdez.po.SchoolAdmin;
 import cn.com.zdez.po.Student;
@@ -283,10 +290,23 @@ public class UserCache {
 		return sVo;
 	}
 
-	public boolean modifyIosStaus(String username, String deviceId) {
-		boolean flag = false;
-		String sql = "update student set";
-		return flag;
+	public void cacheStuIdUnameAll() {
+		String sql = "select id, username from student";
+		Object[] params = {};
+		ResultSet rs = new SQLExecution().execSqlWithRS(sql, params);
+		String key = "stu:id:username";
+		try {
+			while (rs.next()) {
+				jedis.hset(key, Integer.toString(rs.getInt("id")), rs.getString("username"));
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			pool.returnResource(jedis);
+		}
+		
+		pool.destroy();
 	}
 
 }

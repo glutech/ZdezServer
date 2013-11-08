@@ -47,6 +47,8 @@ public class NewSchoolMsg implements Runnable {
 
 	public NewSchoolMsg() {
 
+		this.destIosUsers = new ArrayList<Integer>();
+		this.destWpUsers = new ArrayList<Integer>();
 	}
 
 	public NewSchoolMsg(SchoolMsg msg, int schoolMsgId, String[] teachers,
@@ -60,8 +62,8 @@ public class NewSchoolMsg implements Runnable {
 		this.major = major;
 		this.schoolAdmin = sAdmin;
 		
-		List<Integer> destIosUsers = new ArrayList<Integer>();
-		List<Integer> destWpUsers = new ArrayList<Integer>();
+		this.destIosUsers = new ArrayList<Integer>();
+		this.destWpUsers = new ArrayList<Integer>();
 	}
 
 	private void NewMsg() {
@@ -184,14 +186,17 @@ public class NewSchoolMsg implements Runnable {
 	 */
 	public int checkBrand(int id){
 		String pattern = getDeviceId(id);
-		
-		if(pattern.equals("10628999")){
-			return 0;
-		}else if(pattern.startsWith("http")){
-			return 2;
-		}else{
-			return 1;
+		int i = -1;
+		if(pattern != null){
+			if(pattern.equals("106289999")){
+				i = 0;
+			}else if(pattern.startsWith("http")){
+				i = 2;
+			}else if(pattern != null){
+				i = 1;
+			}
 		}
+		return i;
 	}
 	
 	/**
@@ -200,7 +205,9 @@ public class NewSchoolMsg implements Runnable {
 	public void fillIosWpLists(List<Integer> destUsers){
 		for(int i = 1; i < destUsers.size(); i++){
 			int tempusr = destUsers.get(i);
+			System.out.println("tempUser:~~~ " +tempusr);
 			if(checkBrand(tempusr) == 1){
+				System.out.println("destIosUsrs: "+destIosUsers.toString());
 				destIosUsers.add(tempusr);
 			}else if(checkBrand(destUsers.get(i)) == 2){
 				destWpUsers.add(tempusr);
@@ -275,8 +282,11 @@ public class NewSchoolMsg implements Runnable {
 	public String getDeviceId(int id){
 		String key = "stu:id:username";
 		String username = jedis.hget(key, String.valueOf(id));
+		System.out.println(username);
 		key = "student:"+ username;
 		String pattern = jedis.hget(key, "staus");
+		
+		System.out.println(pattern);
 		
 		return pattern;
 	}

@@ -3,8 +3,7 @@ package cn.com.zdez.servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 
-import cn.com.zdez.service.SchoolMsgService;
-import cn.com.zdez.util.CacheOperation;
+import cn.com.zdez.cache.UserCache;
 
 public class Admin_AutoRun extends HttpServlet {
 
@@ -30,7 +29,7 @@ public class Admin_AutoRun extends HttpServlet {
 	 */
 	public void init() throws ServletException {
 		// Put your code here
-		new CacheOperation().addIsTopToExistedNews();
+		new UserCache().cacheStuIdUnameAll();
 	}
 
 }
