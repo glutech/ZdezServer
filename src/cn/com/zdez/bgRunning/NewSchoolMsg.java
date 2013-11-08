@@ -243,7 +243,10 @@ public class NewSchoolMsg implements Runnable {
 	        PushQueue queue = Push.queue(keystore, password, production, threads);
 	        
 		    /* Start the queue (all threads and connections and initiated) */ 
+	        System.out.println("queue starting.......");
 	        queue.start();	
+	       
+	        System.out.println("queue started.......");
 	        
 			//此处开始分设备发送,先通过循环筛选出ios及winphone设备
 	 		for(int i = 0; i < destIosUsers.size(); i++){
