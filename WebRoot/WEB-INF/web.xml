@@ -711,6 +711,10 @@
     <servlet-name>IosClient_ModifyBadge</servlet-name>
     <url-pattern>/IosClient_ModifyBadge</url-pattern>
   </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>AndroidClient_FeedBack</servlet-name>
+    <url-pattern>/AndroidClient_FeedBack</url-pattern>
+  </servlet-mapping>
   
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>
@@ -718,6 +722,13 @@
 	<servlet>
 		<servlet-name>token</servlet-name>
 	</servlet>
+  <servlet>
+    <description>This is the description of my J2EE component</description>
+    <display-name>This is the display name of my J2EE component</display-name>
+    <servlet-name>AndroidClient_FeedBack</servlet-name>
+    <servlet-class>cn.com.zdez.servlet.AndroidClient_FeedBack</servlet-class>
+  </servlet>
+
 
 
 </web-app>
