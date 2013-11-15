@@ -360,7 +360,10 @@
     <servlet-name>Ios_Client_NoNotificationAnyMore</servlet-name>
     <servlet-class>cn.com.zdez.servlet.Ios_Client_NoNotificationAnyMore</servlet-class>
   </servlet>
-
+  <servlet>
+    <servlet-name>IosClient_ModifyBadge</servlet-name>
+    <servlet-class>cn.com.zdez.servlet.IosClient_ModifyBadge</servlet-class>
+  </servlet>
 
 
 
@@ -715,10 +718,6 @@
 	<servlet>
 		<servlet-name>token</servlet-name>
 	</servlet>
-  <servlet>
-    <servlet-name>IosClient_ModifyBadge</servlet-name>
-    <servlet-class>cn.com.zdez.servlet.IosClient_ModifyBadge</servlet-class>
-  </servlet>
 
 
 </web-app>
