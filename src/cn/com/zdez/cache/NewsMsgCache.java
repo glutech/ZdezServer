@@ -1,6 +1,7 @@
 package cn.com.zdez.cache;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,6 +23,14 @@ public class NewsMsgCache {
 			
 			for (int i=0, count = list.size(); i <count; i++) {
 				int newsId = list.get(i).getId();
+				
+				if (list.get(i).getIsTop() == 1) {
+					Set<String> newsIdListStr = jedis.smembers("newsMsg:idList");
+					Iterator<String> it = newsIdListStr.iterator();
+					while (it.hasNext()) {
+						jedis.hset("newsMsg:" + it.next(), "isTop", "0");
+					}
+				}
 				
 				jedis.sadd("newsMsg:idList", Integer.toString(newsId));
 				ConcurrentHashMap<String, String> map = new ConcurrentHashMap<String, String>();
@@ -86,6 +95,7 @@ public class NewsMsgCache {
 		List<Integer> idListGetMsgFromDB = new ArrayList<Integer>();
 		
 		try {
+			
 			for (int i=0, count = idList.size(); i<count; i++) {
 				int newsId = idList.get(i);
 				if (jedis.sismember("newsMsg:idList", Integer.toString(newsId))) {

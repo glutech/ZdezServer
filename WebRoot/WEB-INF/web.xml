@@ -356,6 +356,10 @@
     <servlet-name>IosClient_StudentLoginCheck</servlet-name>
     <servlet-class>cn.com.zdez.servlet.IosClient_StudentLoginCheck</servlet-class>
   </servlet>
+  <servlet>
+    <servlet-name>Ios_Client_NoNotificationAnyMore</servlet-name>
+    <servlet-class>cn.com.zdez.servlet.Ios_Client_NoNotificationAnyMore</servlet-class>
+  </servlet>
 
 
 
@@ -696,6 +700,14 @@
   	<servlet-name>IosClient_StudentLoginCheck</servlet-name>
     <url-pattern>/IosClient_StudentLoginCheck</url-pattern>
   </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>Ios_Client_NoNotificationAnyMore</servlet-name>
+    <url-pattern>/Ios_Client_NoNotificationAnyMore</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>IosClient_ModifyBadge</servlet-name>
+    <url-pattern>/IosClient_ModifyBadge</url-pattern>
+  </servlet-mapping>
   
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>
@@ -703,4 +715,10 @@
 	<servlet>
 		<servlet-name>token</servlet-name>
 	</servlet>
+  <servlet>
+    <servlet-name>IosClient_ModifyBadge</servlet-name>
+    <servlet-class>cn.com.zdez.servlet.IosClient_ModifyBadge</servlet-class>
+  </servlet>
+
+
 </web-app>

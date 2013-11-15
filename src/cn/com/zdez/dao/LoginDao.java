@@ -161,6 +161,7 @@ public class LoginDao {
 			if (jedis.sismember("studentList", student.getUsername())) {
 				if (jedis.hget("student:" + student.getUsername(), "password")
 						.equals(student.getPassword())) {
+					jedis.hset("student:" + student.getUsername(), "staus", student.getStaus());
 					flag = true;
 				}
 			} else {

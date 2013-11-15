@@ -41,7 +41,7 @@ public class NewSchoolMsg implements Runnable {
 	private SchoolAdmin schoolAdmin;
 	List<Integer> destIosUsers;
 	List<Integer> destWpUsers;
-	
+
 	private JedisPool pool = new RedisConnection().getConnection();
 	private Jedis jedis = pool.getResource();
 
@@ -61,7 +61,7 @@ public class NewSchoolMsg implements Runnable {
 		this.department = department;
 		this.major = major;
 		this.schoolAdmin = sAdmin;
-		
+
 		this.destIosUsers = new ArrayList<Integer>();
 		this.destWpUsers = new ArrayList<Integer>();
 	}
@@ -90,17 +90,17 @@ public class NewSchoolMsg implements Runnable {
 		// 到此处为止，destUsers已经全部处理完毕
 
 		SchoolMsgVo sMsgVo = new SchoolMsgVo();
-		
+
 		// 设置msgId
 		sMsgVo.setSchoolMsgId(schoolMsgId);
-		
+
 		// 设置缩略图路径
 		sMsgVo.setCoverPath(new SchoolMsgService().getCoverPath(msg
 				.getContent()));
-		
+
 		// 设置标题
 		sMsgVo.setTitle(msg.getTitle());
-		
+
 		// 设置内容
 		sMsgVo.setContent(msg.getContent());
 
@@ -111,33 +111,34 @@ public class NewSchoolMsg implements Runnable {
 		// 设置信息的发送学校
 		sMsgVo.setSchoolName(new SchoolService().getSchoolNameById(schoolAdmin
 				.getSchoolId()));
-		
+
 		// 设置信息的发送者姓名
 		sMsgVo.setSenderName(schoolAdmin.getName());
 
 		// 设置目的年级
-		
+
 		sMsgVo.setDestGrade(new GradeService().getDescriptionById(grade));
 
 		// 设置目的学院
-		
-		sMsgVo.setDestDepartment(new DepartmentService().getNameById(department));
+
+		sMsgVo.setDestDepartment(new DepartmentService()
+				.getNameById(department));
 
 		// 设置目的专业
-		
+
 		sMsgVo.setDestMajor(new MajorService().getNameById(major));
 
 		// 设置已接收数
 		sMsgVo.setReceivedNum(0);
 
 		// 设置receiverNum
-		
+
 		sMsgVo.setReceiverNum(destUsers.size());
 
 		// remarks
-		
+
 		sMsgVo.setRemarks(schoolAdmin.getRemarks());
-		
+
 		list.add(sMsgVo);
 
 		// 进行相关数据表的写入
@@ -165,100 +166,117 @@ public class NewSchoolMsg implements Runnable {
 		cache.cacheSchoolMsg(list);
 
 		cache.cacheSchoolMsg_Receivers(schoolMsgId, destUsers);
-		
-		//区分设备类型，填充ios, wp列表
+
+		// 区分设备类型，填充ios, wp列表
 		fillIosWpLists(destUsers);
-		
-		//发送ios信息给ios用户
-		sendIosMessage(msg.getTitle(),msg.getId(),destIosUsers);
-		
-		//发送wp信息给wp用户
+
+		// 发送ios信息给ios用户
+		sendIosMessage(msg.getTitle(), msg.getId(), destIosUsers);
+
+		// 发送wp信息给wp用户
 		sendWpMessage();
-		
+
 		destUsers = null;
 		list = null;
 	}
-	
+
 	/**
 	 * 用于获取设备型号，ios返回1，winphone返回2, android返回0
+	 * 
 	 * @param id
 	 * @return
 	 */
-	public int checkBrand(int id){
+	public int checkBrand(int id) {
 		String pattern = getDeviceId(id);
 		int i = -1;
-		if(pattern != null){
-			if(pattern.equals("106289999")){
+		if (pattern != null) {
+			if (pattern.equals("106289999")) {
 				i = 0;
-			}else if(pattern.startsWith("http")){
+			} else if (pattern.startsWith("http")) {
 				i = 2;
-			}else {
+			} else {
 				i = 1;
 			}
 		}
 		return i;
 	}
-	
+
 	/**
 	 * 用于对设备进行分类，同是对两个组别ios, wp进行列表进行赋值
 	 */
-	public void fillIosWpLists(List<Integer> destUsers){
-		for(int i = 1; i < destUsers.size(); i++){
+	public void fillIosWpLists(List<Integer> destUsers) {
+		for (int i = 1; i < destUsers.size(); i++) {
 			int tempusr = destUsers.get(i);
-			System.out.println("tempUser:~~~ " +tempusr);
-			if(checkBrand(tempusr) == 1){
-				System.out.println("destIosUsrs: "+destIosUsers.toString());
+			System.out.println("tempUser:~~~ " + tempusr);
+			if (checkBrand(tempusr) == 1) {
+				System.out.println("destIosUsrs: " + destIosUsers.toString());
 				destIosUsers.add(tempusr);
-			}else if(checkBrand(tempusr) == 2){
+			} else if (checkBrand(tempusr) == 2) {
 				destWpUsers.add(tempusr);
 			}
 		}
 	}
-	
+
 	/**
 	 * 用于发送苹果通知的方法
+	 * 
 	 * @param title
 	 * @param msg_id
 	 * @param destIosUsers
 	 */
-	public void sendIosMessage(String title, int msg_id, List<Integer> destIosUsers){
-		/* Build a blank payload to customize 准备苹果发送消息*/ 
+	public void sendIosMessage(String title, int msg_id,
+			List<Integer> destIosUsers) {
+		/* Build a blank payload to customize 准备苹果发送消息 */
 		String keystore = "zdez_dev.p12";
 		String password = "www.zdez.com.cn9";
 		boolean production = false;
-		
-		try{
-	        PushNotificationPayload payload = PushNotificationPayload.complex();
-	 
-	       /* Customize the payload */ 
+
+		try {
+			PushNotificationPayload payload = PushNotificationPayload.complex();
+
+			/* Customize the payload */
 			payload.addAlert(title);
-			payload.addBadge(1);
 			payload.addSound("default");
-		    payload.addCustomDictionary(String.valueOf(msg_id), "1234567");
-			
-	       /* Decide how many threads you want your queue to use */ 
-	        int threads = 30;	 
-	
-	       /* Create the queue */ 
-	        PushQueue queue = Push.queue(keystore, password, production, threads);
-	        
-		    /* Start the queue (all threads and connections and initiated) */ 
-	        System.out.println("queue starting.......");
-	        queue.start();	
-	       
-	        System.out.println("queue started.......");
-	        
-			//此处开始分设备发送,先通过循环筛选出ios及winphone设备
-	 		for(int i = 0; i < destIosUsers.size(); i++){
+			payload.addCustomDictionary(String.valueOf(msg_id), "1234567");
+
+			/* Decide how many threads you want your queue to use */
+			int threads = 30;
+
+			/* Create the queue */
+			PushQueue queue = Push.queue(keystore, password, production,
+					threads);
+
+			/* Start the queue (all threads and connections and initiated) */
+			System.out.println("queue starting.......");
+			queue.start();
+
+			System.out.println("queue started.......");
+
+			// 此处开始分设备发送,先通过循环筛选出ios及winphone设备
+			for (int i = 0; i < destIosUsers.size(); i++) {
 				int usrid = destIosUsers.get(i);
-				//String deviceid = "0d10908d98e72c5e5f57cd3b7e3720463c05ea3119ba2e2a5fff45606190c1c5";
-				String deviceid = getDeviceId(usrid); 
-	
-				/* Add a notification for the queue to push */ 
+				// String deviceid =
+				// "0d10908d98e72c5e5f57cd3b7e3720463c05ea3119ba2e2a5fff45606190c1c5";
+				String deviceid = getDeviceId(usrid);
+
+				// different user different badge
+				try {
+					if (jedis.hget("unReadCount", Integer.toString(usrid)) != null) {
+						int badge = Integer.parseInt(jedis.hget("unReadCount",
+								Integer.toString(usrid)));
+						payload.addBadge(badge);
+					} else {
+						payload.addBadge(1);
+					}
+				} finally {
+					pool.returnResource(jedis);
+				}
+
+				/* Add a notification for the queue to push */
 				queue.add(payload, deviceid);
 			}
- 		
-	    } catch (JSONException e) {
+
+		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (KeystoreException e) {
@@ -269,28 +287,29 @@ public class NewSchoolMsg implements Runnable {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * 用于发送wp通知的方法
 	 */
-	public void sendWpMessage(){
-		
+	public void sendWpMessage() {
+
 	}
-	
+
 	/**
 	 * 用于从缓存获取用户的设备id
+	 * 
 	 * @param id
 	 * @return
 	 */
-	public String getDeviceId(int id){
+	public String getDeviceId(int id) {
 		String key = "stu:id:username";
 		String username = jedis.hget(key, String.valueOf(id));
 		System.out.println(username);
-		key = "student:"+ username;
+		key = "student:" + username;
 		String pattern = jedis.hget(key, "staus");
-		
+
 		System.out.println(pattern);
-		
+
 		return pattern;
 	}
 

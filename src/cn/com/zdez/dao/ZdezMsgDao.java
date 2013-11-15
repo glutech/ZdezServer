@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -305,9 +306,9 @@ public class ZdezMsgDao {
 			pstmt1 = conn.prepareStatement(sql);
 			pstmt2 = conn.prepareStatement(getReceivedNumSql);
 			pstmt3 = conn.prepareStatement(getReceiverNumSql);
-			
+
 			SchoolMsgService smService = new SchoolMsgService();
-			
+
 			for (int i = 0, count = zdezMsgIdList.size(); i < count; i++) {
 				pstmt1.setInt(1, zdezMsgIdList.get(i));
 				ResultSet rs = pstmt1.executeQuery();
@@ -317,7 +318,8 @@ public class ZdezMsgDao {
 					zMsgVo.setTitle(rs.getString("title"));
 					zMsgVo.setContent(rs.getString("content"));
 					zMsgVo.setDate(rs.getString("date").substring(0, 19));
-					zMsgVo.setCoverPath(smService.getCoverPath(rs.getString("content")));
+					zMsgVo.setCoverPath(smService.getCoverPath(rs
+							.getString("content")));
 
 					// 获取已接收数
 
@@ -597,7 +599,16 @@ public class ZdezMsgDao {
 		List<ZdezMsgVo> list = new ArrayList<ZdezMsgVo>();
 
 		// 根据用户id获取需要更新的通知id列表
-		List<Integer> idList = this.getMsgIdListtoUpdate(stuId);
+		List<Integer> tempList = this.getMsgIdListtoUpdate(stuId);
+		List<Integer> idList = new ArrayList<Integer>();
+		// 限制每次最多取10条信息
+		if (tempList.size() > 10) {
+			for (int i = 0; i < 10; i++) {
+				idList.add(tempList.get(i));
+			}
+		} else {
+			idList = tempList;
+		}
 
 		// 根据通知id，从缓存或者数据库中取相关数据
 		list = new ZdezMsgCache().getZdezMsgFromCache(idList);
@@ -668,7 +679,7 @@ public class ZdezMsgDao {
 
 			// 缓存中没有数据时，从数据库中获取并写入缓存
 			// 以未拉取过数据为准
-			
+
 			Set<String> receivedSet = jedis.smembers(key2);
 			if (receivedSet.size() == 0) {
 				msgIdList = this.getReceivedMsgIdsByStuId(stuId);
@@ -676,16 +687,20 @@ public class ZdezMsgDao {
 				msgIdList = this.getToReceiveMsgIdsByStuId(stuId);
 				cache.cacheZdezMsg_toReceive(stuId, msgIdList);
 			}
-			
+
 			// 对比获得要更新的信息id
-			
+
 			Set<String> toReceivedSet = jedis.sdiff(key1, key2);
-			Iterator<String> it = toReceivedSet.iterator();
+			TreeSet<String> ts = new TreeSet<String>(toReceivedSet);
+			ts.comparator();
+			Iterator<String> it = ts.iterator();
 			while (it.hasNext()) {
 				String str = it.next();
 				toReceive.add(Integer.parseInt(str));
 			}
 			
+			jedis.hincrBy("unReadCount", Integer.toString(stuId), toReceive.size());
+
 			if (msgIdList != null) {
 				msgIdList = null;
 			}
@@ -695,6 +710,9 @@ public class ZdezMsgDao {
 			if (toReceivedSet != null) {
 				toReceivedSet = null;
 			}
+			if (ts != null) {
+				ts = null;
+			}
 
 		} finally {
 			pool.returnResource(jedis);
@@ -702,16 +720,17 @@ public class ZdezMsgDao {
 		pool.destroy();
 		return toReceive;
 	}
-	
+
 	/**
 	 * 获取某个学生的待接收信息id列表，用于缓存
+	 * 
 	 * @param stuId
 	 * @return
 	 */
 	public List<Integer> getToReceiveMsgIdsByStuId(int stuId) {
 		List<Integer> list = new ArrayList<Integer>();
 		String sql = "select zdezMsgId from zdezMsg_receivers where receiverId = ? order by zdezMsgId desc";
-		Object[] params = {stuId};
+		Object[] params = { stuId };
 		ResultSet rs = sqlE.execSqlWithRS(sql, params);
 		try {
 			while (rs.next()) {
@@ -723,16 +742,17 @@ public class ZdezMsgDao {
 		}
 		return list;
 	}
-	
+
 	/**
 	 * 获取某个学生的已接收信息列表，用于缓存
+	 * 
 	 * @param stuId
 	 * @return
 	 */
 	public List<Integer> getReceivedMsgIdsByStuId(int stuId) {
 		List<Integer> list = new ArrayList<Integer>();
 		String sql = "select zdezMsgId from zdezMsg_receivedStu where receivedStuId = ? order by zdezMsgId desc";
-		Object[] params = {stuId};
+		Object[] params = { stuId };
 		ResultSet rs = sqlE.execSqlWithRS(sql, params);
 		try {
 			while (rs.next()) {

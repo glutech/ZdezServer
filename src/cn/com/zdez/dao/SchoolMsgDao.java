@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -936,11 +937,15 @@ public class SchoolMsgDao {
 			// 对比获得要更新的信息id
 
 			Set<String> toReceivedSet = jedis.sdiff(key1, key2);
-			Iterator<String> it = toReceivedSet.iterator();
+			TreeSet<String> ts = new TreeSet<String>(toReceivedSet);
+			ts.comparator();
+			Iterator<String> it = ts.iterator();
 			while (it.hasNext()) {
 				String str = it.next();
 				toReceive.add(Integer.parseInt(str));
 			}
+			
+			jedis.hincrBy("unReadCount", Integer.toString(stuId), toReceive.size());
 
 			if (msgIdList != null) {
 				msgIdList = null;
@@ -950,6 +955,9 @@ public class SchoolMsgDao {
 			}
 			if (toReceivedSet != null) {
 				toReceivedSet = null;
+			}
+			if (ts != null) {
+				ts = null;
 			}
 
 		} finally {
@@ -1019,7 +1027,17 @@ public class SchoolMsgDao {
 		new SchoolStudentCache().CacheStuSchool(stuId);
 
 		// 根据用户id获取需要更新的通知id列表
-		List<Integer> idList = this.getMsgIdListtoUpdate(stuId);
+		// 限制最多取10条信息
+		List<Integer> tempList = this.getMsgIdListtoUpdate(stuId);
+		List<Integer> idList = new ArrayList<Integer>();
+		// 限制每次最多取10条信息
+		if (tempList.size() > 10) {
+			for (int i = 0; i < 10; i++) {
+				idList.add(tempList.get(i));
+			}
+		} else {
+			idList = tempList;
+		}
 		list = new SchoolMsgCache().getSchoolMsgFromCache(idList);
 		return list;
 	}

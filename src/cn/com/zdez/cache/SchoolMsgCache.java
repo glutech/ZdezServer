@@ -381,8 +381,8 @@ public class SchoolMsgCache {
 			List<SchoolMsgVo> schoolMsgToCacheList = new ArrayList<SchoolMsgVo>();
 			if (idListGetMsgFromDB.size() > 0) {
 				System.out.println("get schoolMsg from MySQL!");
-				schoolMsgToCacheList = new SchoolMsgService()
-						.getSchoolMsgAll(idListGetMsgFromDB);
+//				schoolMsgToCacheList = new SchoolMsgService()
+//						.getSchoolMsgAll(idListGetMsgFromDB);
 				this.cacheSchoolMsgTemp(schoolMsgToCacheList);
 				list.addAll(schoolMsgToCacheList);
 			}

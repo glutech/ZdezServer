@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -30,8 +31,14 @@ public class NewsDao {
 	 */
 	public boolean newNews(News n) {
 		boolean flag = false;
-		String sql = "insert into news(title, content, sign) values(?,?,?)";
-		Object[] params = { n.getTitle(), n.getContent(), n.getSign()};
+		String sql = "";
+		if (n.getSign() == 1) {
+			sql = "update news set sign = 0";
+			Object[] p = {};
+			sqlE.execSqlWithoutRS(sql, p);
+		}
+		sql = "insert into news(title, content, sign) values(?,?,?)";
+		Object[] params = { n.getTitle(), n.getContent(), n.getSign() };
 		flag = sqlE.execSqlWithoutRS(sql, params);
 		return flag;
 	}
@@ -136,8 +143,17 @@ public class NewsDao {
 	 */
 	public List<NewsVo> getNewsToUpdate(int stuId) {
 		List<NewsVo> list = new ArrayList<NewsVo>();
-		List<Integer> idList = this.getNewsIdListtoUpdate(stuId);
-
+		List<Integer> tempList = this.getNewsIdListtoUpdate(stuId);
+		List<Integer> idList = new ArrayList<Integer>();
+		// 限制每次最多取10条信息
+		if (tempList.size() > 10) {
+			for (int i = 0; i < 10; i++) {
+				idList.add(tempList.get(i));
+			}
+		} else {
+			idList = tempList;
+		}
+		
 		list = new NewsMsgCache().getNewsMsgFromCache(idList);
 		return list;
 	}
@@ -215,12 +231,16 @@ public class NewsDao {
 			}
 
 			Set<String> result = jedis.sdiff(key1, key2);
-			Iterator<String> it = result.iterator();
+			TreeSet<String> ts = new TreeSet<String>(result);
+			ts.comparator();
+			Iterator<String> it = ts.iterator();
 			while (it.hasNext()) {
 				String str = it.next();
 				toReceive.add(Integer.parseInt(str));
 			}
 			
+			jedis.hincrBy("unReadCount", Integer.toString(stuId), toReceive.size());
+
 			if (msgIdList != null) {
 				msgIdList = null;
 			}
@@ -229,6 +249,9 @@ public class NewsDao {
 			}
 			if (result != null) {
 				result = null;
+			}
+			if (ts != null) {
+				ts = null;
 			}
 
 		} finally {
@@ -329,7 +352,9 @@ public class NewsDao {
 								receivedNum = rsReceived.getInt(1);
 							}
 							n.setReceivedNum(receivedNum);
-							jedis.hset("newsMsg:receivedNum", Integer.toString(newsIdList.get(i)), Integer.toString(receivedNum));
+							jedis.hset("newsMsg:receivedNum",
+									Integer.toString(newsIdList.get(i)),
+									Integer.toString(receivedNum));
 						} else {
 							n.setReceivedNum(Integer.parseInt(num));
 						}
@@ -337,7 +362,7 @@ public class NewsDao {
 					} finally {
 						pool.returnResource(jedis);
 					}
-					
+
 					pool.destroy();
 
 					int receiverNum = -1;
@@ -441,9 +466,9 @@ public class NewsDao {
 					+ "(select majorId from student where id = any"
 					+ "(select receiverStuId from news_receivers where newsId = ?))))";
 			pstmt3 = conn.prepareStatement(getSchoolIdsSql);
-			
+
 			SchoolMsgService smService = new SchoolMsgService();
-			
+
 			for (int i = 0, count = newsIdList.size(); i < count; i++) {
 				pstmt.setInt(1, newsIdList.get(i));
 				pstmt1.setInt(1, newsIdList.get(i));
@@ -456,7 +481,8 @@ public class NewsDao {
 					n.setTitle(rs.getString("title"));
 					n.setContent(rs.getString("content"));
 					n.setDate(rs.getString("date").substring(0, 19));
-					n.setCoverPath(smService.getCoverPath(rs.getString("content")));
+					n.setCoverPath(smService.getCoverPath(rs
+							.getString("content")));
 					n.setIsTop(rs.getInt("sign"));
 
 					List<String> destSchools = new ArrayList<String>();
@@ -485,7 +511,9 @@ public class NewsDao {
 								receivedNum = rsReceived.getInt(1);
 							}
 							n.setReceivedNum(receivedNum);
-							jedis.hset("newsMsg:receivedNum", Integer.toString(newsIdList.get(i)), Integer.toString(receivedNum));
+							jedis.hset("newsMsg:receivedNum",
+									Integer.toString(newsIdList.get(i)),
+									Integer.toString(receivedNum));
 						} else {
 							n.setReceivedNum(Integer.parseInt(num));
 						}
@@ -493,7 +521,7 @@ public class NewsDao {
 					} finally {
 						pool.returnResource(jedis);
 					}
-					
+
 					pool.destroy();
 
 					int receiverNum = -1;
@@ -524,37 +552,39 @@ public class NewsDao {
 	 * @param stuId
 	 * @param newsIdList
 	 */
-//	public void updateNewsReceived(int stuId, List<Integer> newsIdList) {
-//		ConnectionFactory factory = ConnectionFactory.getInstatnce();
-//		PreparedStatement pstmt = null;
-//		PreparedStatement pstmt1 = null;
-//		Connection conn = null;
-//		try {
-//			conn = factory.getConnection();
-//			String sql = "insert into news_received (newsId, receivedStuId) values (?,?)";
-//			String sqlIsReceived = "select * from news_received where newsId = ? and receivedStuId = ?";
-//			pstmt = conn.prepareStatement(sql);
-//			pstmt1 = conn.prepareStatement(sqlIsReceived);
-//			pstmt.setInt(2, stuId);
-//			pstmt1.setInt(2, stuId);
-//			for (int i = 0, count = newsIdList.size(); i < count; i++) {
-//				pstmt.setInt(1, newsIdList.get(i));
-//				pstmt1.setInt(1, newsIdList.get(i));
-//				ResultSet rs = pstmt1.executeQuery();
-//				// 防止数据冗余
-//				if (!rs.next()) {
-//					pstmt.executeUpdate();
-//				}
-//			}
-//			pstmt.close();
-//			pstmt1.close();
-//		} catch (SQLException e) {
-//			e.printStackTrace();
-//		} finally {
-//			factory.freeConnection(conn);
-//		}
-//	}
-	
+	// public void updateNewsReceived(int stuId, List<Integer> newsIdList) {
+	// ConnectionFactory factory = ConnectionFactory.getInstatnce();
+	// PreparedStatement pstmt = null;
+	// PreparedStatement pstmt1 = null;
+	// Connection conn = null;
+	// try {
+	// conn = factory.getConnection();
+	// String sql =
+	// "insert into news_received (newsId, receivedStuId) values (?,?)";
+	// String sqlIsReceived =
+	// "select * from news_received where newsId = ? and receivedStuId = ?";
+	// pstmt = conn.prepareStatement(sql);
+	// pstmt1 = conn.prepareStatement(sqlIsReceived);
+	// pstmt.setInt(2, stuId);
+	// pstmt1.setInt(2, stuId);
+	// for (int i = 0, count = newsIdList.size(); i < count; i++) {
+	// pstmt.setInt(1, newsIdList.get(i));
+	// pstmt1.setInt(1, newsIdList.get(i));
+	// ResultSet rs = pstmt1.executeQuery();
+	// // 防止数据冗余
+	// if (!rs.next()) {
+	// pstmt.executeUpdate();
+	// }
+	// }
+	// pstmt.close();
+	// pstmt1.close();
+	// } catch (SQLException e) {
+	// e.printStackTrace();
+	// } finally {
+	// factory.freeConnection(conn);
+	// }
+	// }
+
 	public void updateNewsReceived(int stuId, List<Integer> newsIdList) {
 		new NewsMsgCache().cacheNewsMsg_ReceivedStu(stuId, newsIdList);
 	}
@@ -690,7 +720,7 @@ public class NewsDao {
 		}
 		return list;
 	}
-	
+
 	/**
 	 * 将有关news_received的数据从redis中取出，并写入MySQL中
 	 * 
@@ -759,7 +789,7 @@ public class NewsDao {
 		pool.destroy();
 		return flag;
 	}
-	
+
 	public List<NewsVo> getNewsAll() {
 		List<NewsVo> list = new ArrayList<NewsVo>();
 		List<Integer> idList = new ArrayList<Integer>();

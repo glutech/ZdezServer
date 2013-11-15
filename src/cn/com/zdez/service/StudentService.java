@@ -100,9 +100,9 @@ public class StudentService {
 		// return dao.getStudentVoByUsername(username);
 		return new UserCache().getStudentInfoFromCache(username);
 	}
-	
+
 	public StudentVo getStudentVoByUsernameFromDB(String username) {
-		 return dao.getStudentVoByUsername(username);
+		return dao.getStudentVoByUsername(username);
 	}
 
 	/**
@@ -137,13 +137,22 @@ public class StudentService {
 	}
 
 	/**
-	 * 根据用户id修改staus字段，给WP使用
+	 * 根据用户id修改staus字段
 	 * 
 	 * @param stuId
 	 * @param staus
 	 * @return
 	 */
 	public boolean modifyStaus(String username, String staus) {
+		JedisPool pool = new RedisConnection().getConnection();
+		Jedis jedis = pool.getResource();
+		try {
+			jedis.hset("student:" + username, "staus", staus);
+		} finally {
+			pool.returnResource(jedis);
+		}
+		pool.destroy();
+
 		return dao.modifyStaus(username, staus);
 	}
 
@@ -167,7 +176,8 @@ public class StudentService {
 
 			// 修改缓存中的密码
 			try {
-				jedis.hset("student:" + username, "password", new MD5().toMD5String(newPassword));
+				jedis.hset("student:" + username, "password",
+						new MD5().toMD5String(newPassword));
 			} finally {
 				pool.returnResource(jedis);
 			}
@@ -247,7 +257,7 @@ public class StudentService {
 	public List<Integer> getTopStudentIds(int num) {
 		return dao.getTopStudentIds(num);
 	}
-	
+
 	public void cacheStudentInfoAll() {
 		dao.cacheStudentAll();
 	}
