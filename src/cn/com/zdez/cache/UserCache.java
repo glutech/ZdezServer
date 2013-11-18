@@ -1,16 +1,12 @@
 package cn.com.zdez.cache;
 
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.naming.spi.DirStateFactory.Result;
-
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
-import cn.com.zdez.dao.ConnectionFactory;
 import cn.com.zdez.dao.RedisConnection;
 import cn.com.zdez.dao.SQLExecution;
 import cn.com.zdez.dao.SchoolAdminDao;
@@ -307,6 +303,16 @@ public class UserCache {
 		}
 		
 		pool.destroy();
+	}
+	
+	public void modifyBadge(String stuIdStr) {
+		try {
+			
+			jedis.hincrBy("unReadCount", stuIdStr, -1);
+			
+		} finally {
+			pool.returnResource(jedis);
+		}
 	}
 
 }
