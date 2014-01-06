@@ -213,6 +213,8 @@ public class UserCache {
 				String key = "student:" + sVo.getUsername();
 
 				try {
+					
+//					jedis.hset("stu:id:username", Integer.toString(sVo.getId()), sVo.getUsername());
 
 					jedis.sadd(keyAll, sVo.getUsername());
 
@@ -313,6 +315,15 @@ public class UserCache {
 		} finally {
 			pool.returnResource(jedis);
 		}
+	}
+	
+	public void saveUsersFeedback(String userIdStr, String content) {
+		try {
+			jedis.sadd("feedback:" + userIdStr, content);
+		} finally {
+			pool.returnResource(jedis);
+		}
+		pool.destroy();
 	}
 
 }

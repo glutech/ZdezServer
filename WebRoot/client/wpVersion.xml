@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AppVersion>
+  <ZdezClientForWP version="1.0.0.1">
+    <Target>http://baidu.com</Target>
+    <Message>为获得更好的体验，请升级至最新版本！</Message>
+  </ZdezClientForWP>
+</AppVersion>

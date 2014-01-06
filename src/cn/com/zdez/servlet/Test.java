@@ -16,12 +16,12 @@ public class Test extends HttpServlet {
 	public void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
-//		int begin = 139738;
-//		int end = 140941;
-//		
-//		new StudentService().changePswToMd5(begin, end);
+		int begin = 125810;
+		int end = 129275;
 		
-		new SchoolMsgService().cacheNotCachedMsg();
+		new StudentService().changePswToMd5(begin, end);
+		
+//		new SchoolMsgService().cacheNotCachedMsg();
 		
 		request.getRequestDispatcher("index.jsp").forward(request, response);
 	}

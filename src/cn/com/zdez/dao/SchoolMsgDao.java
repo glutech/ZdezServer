@@ -945,7 +945,7 @@ public class SchoolMsgDao {
 				toReceive.add(Integer.parseInt(str));
 			}
 			
-			jedis.hincrBy("unReadCount", Integer.toString(stuId), toReceive.size());
+//			jedis.hincrBy("unReadCount", Integer.toString(stuId), toReceive.size());
 
 			if (msgIdList != null) {
 				msgIdList = null;
@@ -1039,6 +1039,7 @@ public class SchoolMsgDao {
 			idList = tempList;
 		}
 		list = new SchoolMsgCache().getSchoolMsgFromCache(idList);
+//		System.out.println("list size: " + list.size());
 		return list;
 	}
 

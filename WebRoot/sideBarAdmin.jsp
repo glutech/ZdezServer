@@ -3,6 +3,15 @@
 </section>
 <!-- end of secondary bar -->
 <aside id="sidebar" class="column">
+	<h3>公告管理</h3>
+	<ul class="toggle">
+		<li class="icn_categories"><a
+			href="admin_NewAnnouncement.jsp">发布公告</a>
+		</li>
+		<%--<li class="icn_new_article"><a href="Admin_UnitInfor.do">企业信息</a>
+		</li>--%>
+	</ul>
+
 	<h3>信息管理</h3>
 	<ul class="toggle">
 		<li class="icn_categories"><a

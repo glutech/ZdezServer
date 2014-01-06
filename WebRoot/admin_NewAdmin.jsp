@@ -14,7 +14,6 @@
 <script src="js/jquery.tablesorter.min.js" type="text/javascript"></script>
 <script type="text/javascript" src="js/jquery.equalHeight.js"></script>
 <link rel="stylesheet" type="text/css" href="css/layer.css" />
-<script type="text/javascript">
 <link rel="stylesheet" type="text/css" href="css/jquery.multiselect.css" />
 <link rel="stylesheet" type="text/css" href="css/style2.css" />
 <link rel="stylesheet" type="text/css" href="css/prettify.css" />

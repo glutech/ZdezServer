@@ -87,62 +87,65 @@ public class DateConvert {
 
 	/**
 	 * 根据当前时间，计算本月起始时间，用于月用户数统计
+	 * 不需要计算本月的数据了，需要的是系统运行开始之后的在线人数
+	 * 把时间直接设置为2000-01-01 00:00:00
 	 * 
 	 * @param date
 	 * @return
 	 */
 	public String MonthDateConvert(String date) {
-		String monthDate = "";
-		String year = date.substring(0, 4);
-		String month = date.substring(5, 7);
-		String day = date.substring(8, 10);
-		String hour = date.substring(11, 13);
-		String minute = date.substring(14, 16);
-		String second = date.substring(17, 19);
-
-		int yearInt = Integer.parseInt(year);
-		int monthInt = Integer.parseInt(month);
-		int dayInt = Integer.parseInt(day);
-
-		// month date
-		// 如果当前月份是1月
-		monthInt = monthInt - 1;
-		if (monthInt == 0) {
-			yearInt = yearInt - 1;
-			monthInt = 12;
-		} else {
-			// 如果当前月份是5、7、10、12
-			if (monthInt == 4 || monthInt == 6 || monthInt == 9
-					|| monthInt == 11) {
-				if (dayInt == 31) {
-					dayInt = 30;
-				}
-			} else if (monthInt == 2) { // 如果当前月份是3月
-				if (dayInt > 29) {
-					if (yearInt % 4 == 0) {
-						dayInt = 29;
-					} else {
-						dayInt = 28;
-					}
-				}
-			}
-		}
-
-		if (monthInt < 10) {
-			month = "0" + monthInt;
-		} else {
-			month = Integer.toString(monthInt);
-		}
-		if (dayInt < 10) {
-			day = "0" + dayInt;
-		} else {
-			day = Integer.toString(dayInt);
-		}
-
-		monthDate = yearInt + "-" + month + "-" + day + " " + hour + ":"
-				+ minute + ":" + second;
-
-		return monthDate;
+//		String monthDate = "";
+//		String year = date.substring(0, 4);
+//		String month = date.substring(5, 7);
+//		String day = date.substring(8, 10);
+//		String hour = date.substring(11, 13);
+//		String minute = date.substring(14, 16);
+//		String second = date.substring(17, 19);
+//
+//		int yearInt = Integer.parseInt(year);
+//		int monthInt = Integer.parseInt(month);
+//		int dayInt = Integer.parseInt(day);
+//
+//		// month date
+//		// 如果当前月份是1月
+//		monthInt = monthInt - 1;
+//		if (monthInt == 0) {
+//			yearInt = yearInt - 1;
+//			monthInt = 12;
+//		} else {
+//			// 如果当前月份是5、7、10、12
+//			if (monthInt == 4 || monthInt == 6 || monthInt == 9
+//					|| monthInt == 11) {
+//				if (dayInt == 31) {
+//					dayInt = 30;
+//				}
+//			} else if (monthInt == 2) { // 如果当前月份是3月
+//				if (dayInt > 29) {
+//					if (yearInt % 4 == 0) {
+//						dayInt = 29;
+//					} else {
+//						dayInt = 28;
+//					}
+//				}
+//			}
+//		}
+//
+//		if (monthInt < 10) {
+//			month = "0" + monthInt;
+//		} else {
+//			month = Integer.toString(monthInt);
+//		}
+//		if (dayInt < 10) {
+//			day = "0" + dayInt;
+//		} else {
+//			day = Integer.toString(dayInt);
+//		}
+//
+//		monthDate = yearInt + "-" + month + "-" + day + " " + hour + ":"
+//				+ minute + ":" + second;
+//
+//		return monthDate;
+		return "2010-01-01 00:00:00";
 	}
 
 }

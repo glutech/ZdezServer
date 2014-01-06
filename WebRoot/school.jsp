@@ -1,17 +1,22 @@
 <%@ page language="java" import="java.util.*" pageEncoding="utf-8"%>
 <%@ page import="cn.com.zdez.po.SchoolAdmin"%>
+<%!
+	String filePath = "";
+%>
 <%
     if (session.getAttribute("schoolUserLoginSucessFlag") == null) {
 %>
 <jsp:forward page="index.jsp"></jsp:forward>
 <%
-    }
+	} else {
+		filePath = "/zdezServer/attached/html/anno";
+	}
 %>
 
-<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 
-<!DOCTYPE html>
-<html lang="zh-cn">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
 <head>
 <meta charset="utf-8" />
 <title>首页</title>
@@ -22,13 +27,12 @@
     <link rel="stylesheet" href="css/ie.css" type="text/css" media="screen" />
     <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-<!-- 
-<script src="js/jquery-1.5.2.min.js" type="text/javascript"></script>
--->
-<script src="js/jquery-1.7.2.min.js" type="text/javascript"></script>
+
+<script src="js/jquery-1.8.0.min.js" type="text/javascript"></script>
 <script src="js/hideshow.js" type="text/javascript"></script>
 <script src="js/jquery.tablesorter.min.js" type="text/javascript"></script>
 <script type="text/javascript" src="js/jquery.equalHeight.js"></script>
+<script type="text/javascript" src="js/layer.min.js"></script>
 <script type="text/javascript">
     $(document).ready(function() {
         $(".tablesorter").tablesorter();
@@ -60,15 +64,6 @@
         // $('.column').equalHeight();
     });
 </script>
-<style type="text/css">
-/* 废弃
-section#main.column>article.module.width_quarter {
-    float: none;
-    margin: 10% auto;
-    width: 50%;
-}
-*/
-</style>
 <!-- 一些基于兼容性考虑和效果，一些调整 wu.kui2@gmail.com -->
 <script type="text/javascript">
     /* 根据窗口大小自适应左右栏大小，需渲染完成后才能取得正确的高，故用window.onload做为触发时机 */
@@ -167,6 +162,23 @@ section#main > article.module {
 }
 </style>
 <!-- 一些基于兼容性考虑和效果，一些调整  -->
+
+<script type="text/javascript">
+	$(function() {
+		$('.announcementList').on('click', function() {
+			var $this = $(this);
+			$.layer({
+				type   : 2,
+				title  : $this.attr('title'),
+				iframe : { src : $this.attr('href') },
+				area   : ['640px', '480px'],
+				offset : ['100px', '']
+			});
+			return false;
+		});
+	});
+</script>
+
 </head>
 
 <body>
@@ -188,27 +200,36 @@ section#main > article.module {
     <%@ include file="sideBarSchool.jsp"%>
 
     <section id="main" class="column"> <!--     <h4 class="alert_info">欢迎登录校园通信息发布系统.</h4> -->
-    <!--    <div align="center"> --> <article class="module width_quarter">
+    <!--    <div align="center"> --> 
+    
+    <article class="module width_quarter">
     <header>
     <h3>博客公告</h3>
     </header>
     <div class="message_list">
         <div class="module_content">
-        <c:forEach var="anno" items="${annoList}">
-            <div class="message">
-                <p><c:out value="${anno.content}"></c:out></p>
-                <p align="right">
-                    <strong><c:out value="${anno.sign}"></c:out>&nbsp;&nbsp;<c:out value="${anno.date}"></c:out></strong>
-                </p>
-            </div>
+            <c:forEach var="anno" items="${annoList}">
+                <div class="message" style="display: block;">
+                    <p style="margin-top: 1.5em;">
+                        <a style="font-size: 1.2em; color: #333;" href="<%=filePath %><c:out value="${anno.id}"></c:out>.html"
+                            title="<c:out
+                                value="${anno.title}"></c:out>"
+                            class="announcementList"
+                            id="viewAnnoDetails_<c:out value="${anno.id }"></c:out>"><c:out
+                                value="${anno.title}"></c:out></a>
+                    </p>
+                    <p align="right" style="margin-bottom: 0.5em;">
+                        <c:out value="${anno.sign}"></c:out>&nbsp;&nbsp;<c:out
+                                value="${anno.date}"></c:out>
+                    </p>
+                </div>
             </c:forEach>
         </div>
     </div>
-    </article> <!-- end of messages article --> 
+    </article> <!-- end of messages article --> <!--    </div> -->
 
     </section>
 </div>
-
 </body>
 
 </html>

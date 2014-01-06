@@ -55,7 +55,7 @@ public class AndroidClient_GetUpdateSchoolMsg extends HttpServlet {
 			e.printStackTrace();
 		}
 
-		System.out.println("用户请求校园通知信息，用户id为: " + user_id + ",客户端版本名称为："
+		System.out.println("Android用户id为: " + user_id + ",客户端版本名称为："
 				+ versionName);
 
 		SchoolMsgService schoolMsgService = new SchoolMsgService();
@@ -66,7 +66,7 @@ public class AndroidClient_GetUpdateSchoolMsg extends HttpServlet {
 			result = (ArrayList<SchoolMsgVo>) schoolMsgService
 					.getMsgToUpdate(Integer.valueOf(user_id));
 		} catch (NumberFormatException nfe) {
-			System.out.println("no id passed from client...");
+//			System.out.println("no id passed from client...");
 		}
 
 		PrintWriter out = response.getWriter();
