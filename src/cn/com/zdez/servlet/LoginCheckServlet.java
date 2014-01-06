@@ -126,8 +126,10 @@ public class LoginCheckServlet extends HttpServlet {
 						hs.setAttribute("schoolUserLoginSucessFlag", true);
 						// ---
 
-						request.getRequestDispatcher("school.jsp").forward(
-								request, response);
+						//request.getRequestDispatcher("school.jsp").forward(
+								//request, response);
+						
+						response.sendRedirect("school.jsp");
 
 					} else {
 						request.setAttribute("message", "用户名或密码不正确");
