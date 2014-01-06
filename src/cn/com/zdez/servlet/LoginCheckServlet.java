@@ -22,7 +22,7 @@ public class LoginCheckServlet extends HttpServlet {
 
 	public void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-
+		
 		String errorMsg = "";
 		try {
 			if (request.getParameter("username") == null
