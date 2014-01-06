@@ -28,19 +28,19 @@ public class SchoolMsgCache {
 		try {
 			for (int i = 0, count = list.size(); i < count; i++) {
 				// 利用list控制每个发送帐号缓存的信息为40条
-//				jedis.rpush("idList:" + schoolAdminUsername,
-//						Integer.toString(list.get(i).getSchoolMsgId()));
-//				if (jedis.llen("idList:" + schoolAdminUsername) > 40) {
-//					// delete some data
-//					// 移除最早存储的数据
-//					String schoolMsgId = jedis.lpop("idList:"
-//							+ schoolAdminUsername);
-//					jedis.srem("schoolMsg:idList", schoolMsgId);
-//					jedis.del("schoolMsg:" + schoolMsgId);
-//					jedis.del("destGrade:" + schoolMsgId);
-//					jedis.del("destMajor:" + schoolMsgId);
-//					jedis.del("destDepartment:" + schoolMsgId);
-//				}
+				// jedis.rpush("idList:" + schoolAdminUsername,
+				// Integer.toString(list.get(i).getSchoolMsgId()));
+				// if (jedis.llen("idList:" + schoolAdminUsername) > 40) {
+				// // delete some data
+				// // 移除最早存储的数据
+				// String schoolMsgId = jedis.lpop("idList:"
+				// + schoolAdminUsername);
+				// jedis.srem("schoolMsg:idList", schoolMsgId);
+				// jedis.del("schoolMsg:" + schoolMsgId);
+				// jedis.del("destGrade:" + schoolMsgId);
+				// jedis.del("destMajor:" + schoolMsgId);
+				// jedis.del("destDepartment:" + schoolMsgId);
+				// }
 
 				jedis.sadd("schoolMsg:idList",
 						Integer.toString(list.get(i).getSchoolMsgId()));
@@ -381,10 +381,10 @@ public class SchoolMsgCache {
 			List<SchoolMsgVo> schoolMsgToCacheList = new ArrayList<SchoolMsgVo>();
 			if (idListGetMsgFromDB.size() > 0) {
 				System.out.println("get schoolMsg from MySQL!");
-//				schoolMsgToCacheList = new SchoolMsgService()
-//						.getSchoolMsgAll(idListGetMsgFromDB);
-				this.cacheSchoolMsgTemp(schoolMsgToCacheList);
-				list.addAll(schoolMsgToCacheList);
+				// schoolMsgToCacheList = new SchoolMsgService()
+				// .getSchoolMsgAll(idListGetMsgFromDB);
+//				this.cacheSchoolMsgTemp(schoolMsgToCacheList);
+//				list.addAll(schoolMsgToCacheList);
 			}
 		} finally {
 			pool.returnResource(jedis);
@@ -481,9 +481,12 @@ public class SchoolMsgCache {
 			for (int i = 0, count = schoolMsgIdList.size(); i < count; i++) {
 				String key = "schoolMsg:received:";
 				key = key + Integer.toString(stuId);
-				jedis.sadd(key, Integer.toString(schoolMsgIdList.get(i)));
-				jedis.hincrBy("schoolMsg:receivedNum",
-						Integer.toString(schoolMsgIdList.get(i)), 1);
+				if (!jedis.sismember(key,
+						Integer.toString(schoolMsgIdList.get(i)))) {
+					jedis.sadd(key, Integer.toString(schoolMsgIdList.get(i)));
+					jedis.hincrBy("schoolMsg:receivedNum",
+							Integer.toString(schoolMsgIdList.get(i)), 1);
+				}
 			}
 		} finally {
 			schoolMsgIdList = null;

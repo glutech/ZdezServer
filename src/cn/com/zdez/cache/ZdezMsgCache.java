@@ -258,9 +258,10 @@ public class ZdezMsgCache {
 
 		pool.destroy();
 	}
-	
+
 	/**
 	 * 缓存每个学生的信息接收列表，用于缓存中没有学生信息接收列表的时候
+	 * 
 	 * @param stuId
 	 * @param list
 	 */
@@ -268,7 +269,7 @@ public class ZdezMsgCache {
 		try {
 			String key = "zdezMsg:toReceive:" + stuId;
 			int count = list.size();
-			for (int i=0; i<count; i++) {
+			for (int i = 0; i < count; i++) {
 				jedis.sadd(key, Integer.toString(list.get(i)));
 			}
 		} finally {
@@ -292,9 +293,12 @@ public class ZdezMsgCache {
 			for (int i = 0; i < count; i++) {
 				String key = "zdezMsg:received:";
 				key = key + Integer.toString(stuId);
-				jedis.sadd(key, Integer.toString(zdezMsgIdList.get(i)));
-				jedis.hincrBy("zdezMsg:receivedNum",
-						Integer.toString(zdezMsgIdList.get(i)), 1);
+				if (!jedis.sismember(key,
+						Integer.toString(zdezMsgIdList.get(i)))) {
+					jedis.sadd(key, Integer.toString(zdezMsgIdList.get(i)));
+					jedis.hincrBy("zdezMsg:receivedNum",
+							Integer.toString(zdezMsgIdList.get(i)), 1);
+				}
 			}
 
 		} finally {
@@ -311,8 +315,7 @@ public class ZdezMsgCache {
 	 * @param map
 	 *            存储学生id与已接收信息id的对应关系
 	 */
-	public void cacheZdezMsg_ReceivedStuAll(
-			HashMap<Integer, List<Integer>> map) {
+	public void cacheZdezMsg_ReceivedStuAll(HashMap<Integer, List<Integer>> map) {
 		try {
 
 			Iterator<Map.Entry<Integer, List<Integer>>> it = map.entrySet()
@@ -339,28 +342,31 @@ public class ZdezMsgCache {
 
 		pool.destroy();
 	}
-	
+
 	/**
 	 * 从数据库中取出每条信息的接收数， 写入redis，只在redis清空后调用一次
 	 * 由ZdezMsgService.cacheZdezMsgReceivedNum调用
+	 * 
 	 * @param map
 	 */
 	public void cacheReceivedNum(HashMap<Integer, Integer> map) {
 		try {
-			
+
 			String key = "zdezMsg:receivedNum";
-			Iterator<Map.Entry<Integer, Integer>> it = map.entrySet().iterator();
+			Iterator<Map.Entry<Integer, Integer>> it = map.entrySet()
+					.iterator();
 			while (it.hasNext()) {
-				Map.Entry<Integer, Integer> entry = (Map.Entry<Integer, Integer>) it.next();
+				Map.Entry<Integer, Integer> entry = (Map.Entry<Integer, Integer>) it
+						.next();
 				String zdezMsgId = Integer.toString(entry.getKey());
 				String receivedNum = Integer.toString(entry.getValue());
 				jedis.hset(key, zdezMsgId, receivedNum);
 			}
-			
+
 		} finally {
 			pool.returnResource(jedis);
 		}
-		
+
 		pool.destroy();
 	}
 }

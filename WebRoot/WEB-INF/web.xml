@@ -364,12 +364,64 @@
     <servlet-name>IosClient_ModifyBadge</servlet-name>
     <servlet-class>cn.com.zdez.servlet.IosClient_ModifyBadge</servlet-class>
   </servlet>
-
-
-
-
-
-
+  <servlet>
+    <description>This is the description of my J2EE component</description>
+    <display-name>This is the display name of my J2EE component</display-name>
+    <servlet-name>AndroidClient_FeedBack</servlet-name>
+    <servlet-class>cn.com.zdez.servlet.AndroidClient_FeedBack</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>WPClient_GetUpdateNews</servlet-name>
+    <servlet-class>cn.com.zdez.servlet.WPClient_GetUpdateNews</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>WPClient_GetUpdateSchoolMsg</servlet-name>
+    <servlet-class>cn.com.zdez.servlet.WPClient_GetUpdateSchoolMsg</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>WPClient_GetUpdateZdezMsg</servlet-name>
+    <servlet-class>cn.com.zdez.servlet.WPClient_GetUpdateZdezMsg</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>WPClient_ModifyPsw</servlet-name>
+    <servlet-class>cn.com.zdez.servlet.WPClient_ModifyPsw</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>WPClient_StudentLogiCheck</servlet-name>
+    <servlet-class>cn.com.zdez.servlet.WPClient_StudentLogiCheck</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>WPClient_UpdateNewsReceived</servlet-name>
+    <servlet-class>cn.com.zdez.servlet.WPClient_UpdateNewsReceived</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>WPClient_UpdateSchoolMsgReceived</servlet-name>
+    <servlet-class>cn.com.zdez.servlet.WPClient_UpdateSchoolMsgReceived</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>WPClient_UpdateZdezMsgReceived</servlet-name>
+    <servlet-class>cn.com.zdez.servlet.WPClient_UpdateZdezMsgReceived</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>WPClient_ModifyStaus</servlet-name>
+    <servlet-class>cn.com.zdez.servlet.WPClient_ModifyStaus</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>WPClient_NoNotificationAnymore</servlet-name>
+    <servlet-class>cn.com.zdez.servlet.WPClient_NoNotificationAnymore</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>WPClient_Feedback</servlet-name>
+    <servlet-class>cn.com.zdez.servlet.WPClient_Feedback</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>WPClient_GetPollingResult</servlet-name>
+    <servlet-class>cn.com.zdez.servlet.WPClient_GetPollingResult</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>Admin_NewAnnouncement</servlet-name>
+    <servlet-class>cn.com.zdez.servlet.Admin_NewAnnouncement</servlet-class>
+  </servlet>
 
 
 
@@ -715,6 +767,58 @@
     <servlet-name>AndroidClient_FeedBack</servlet-name>
     <url-pattern>/AndroidClient_FeedBack</url-pattern>
   </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>WPClient_GetUpdateNews</servlet-name>
+    <url-pattern>/WPClient_GetUpdateNews</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>WPClient_GetUpdateSchoolMsg</servlet-name>
+    <url-pattern>/WPClient_GetUpdateSchoolMsg</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>WPClient_GetUpdateZdezMsg</servlet-name>
+    <url-pattern>/WPClient_GetUpdateZdezMsg</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>WPClient_ModifyPsw</servlet-name>
+    <url-pattern>/WPClient_ModifyPsw</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>WPClient_StudentLogiCheck</servlet-name>
+    <url-pattern>/WPClient_StudentLogiCheck</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>WPClient_UpdateNewsReceived</servlet-name>
+    <url-pattern>/WPClient_UpdateNewsReceived</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>WPClient_UpdateSchoolMsgReceived</servlet-name>
+    <url-pattern>/WPClient_UpdateSchoolMsgReceived</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>WPClient_UpdateZdezMsgReceived</servlet-name>
+    <url-pattern>/WPClient_UpdateZdezMsgReceived</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>WPClient_ModifyStaus</servlet-name>
+    <url-pattern>/WPClient_ModifyStaus</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>WPClient_NoNotificationAnymore</servlet-name>
+    <url-pattern>/WPClient_NoNotificationAnymore</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>WPClient_Feedback</servlet-name>
+    <url-pattern>/WPClient_Feedback</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>WPClient_GetPollingResult</servlet-name>
+    <url-pattern>/WPClient_GetPollingResult</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>Admin_NewAnnouncement</servlet-name>
+    <url-pattern>/Admin_NewAnnouncement</url-pattern>
+  </servlet-mapping>
   
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>
@@ -722,12 +826,7 @@
 	<servlet>
 		<servlet-name>token</servlet-name>
 	</servlet>
-  <servlet>
-    <description>This is the description of my J2EE component</description>
-    <display-name>This is the display name of my J2EE component</display-name>
-    <servlet-name>AndroidClient_FeedBack</servlet-name>
-    <servlet-class>cn.com.zdez.servlet.AndroidClient_FeedBack</servlet-class>
-  </servlet>
+
 
 
 

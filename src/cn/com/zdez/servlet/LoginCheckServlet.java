@@ -1,6 +1,7 @@
 package cn.com.zdez.servlet;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
@@ -10,7 +11,9 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import cn.com.zdez.po.Admin;
+import cn.com.zdez.po.Announcement;
 import cn.com.zdez.po.SchoolAdmin;
+import cn.com.zdez.service.AnnouncementService;
 import cn.com.zdez.service.LoginService;
 import cn.com.zdez.service.SchoolAdminService;
 import cn.com.zdez.util.MD5;
@@ -102,6 +105,8 @@ public class LoginCheckServlet extends HttpServlet {
 						// getSchoolAdmin object by username
 						SchoolAdmin sAdmin = new SchoolAdminService()
 								.getSchoolAdminInfo(schoolAdmin.getUsername());
+						
+						List<Announcement> annoList = new AnnouncementService().getAll();
 
 						// set up cookie
 						String keep = request.getParameter("keep");
@@ -122,6 +127,9 @@ public class LoginCheckServlet extends HttpServlet {
 						hs.setAttribute("uname", u);// used to display the
 													// username in the pages
 						hs.setAttribute("schoolAdmin", sAdmin);
+						
+						hs.setAttribute("annoList", annoList);
+						
 						// --- compulsory-login flag
 						hs.setAttribute("schoolUserLoginSucessFlag", true);
 						// ---

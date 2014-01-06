@@ -239,7 +239,7 @@ public class NewsDao {
 				toReceive.add(Integer.parseInt(str));
 			}
 			
-			jedis.hincrBy("unReadCount", Integer.toString(stuId), toReceive.size());
+//			jedis.hincrBy("unReadCount", Integer.toString(stuId), toReceive.size());
 
 			if (msgIdList != null) {
 				msgIdList = null;

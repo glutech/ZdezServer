@@ -1,6 +1,5 @@
 package cn.com.zdez.service;
 
-import java.util.HashMap;
 import java.util.List;
 
 import cn.com.zdez.dao.SchoolDao;

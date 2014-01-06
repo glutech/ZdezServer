@@ -89,6 +89,7 @@ public class IosClient_StudentLoginCheck extends HttpServlet {
 		Gson gson = new Gson();
 		if (ls.studentLoginCheck(student)) {
 			StudentVo studentVo = ss.getStudentVoByUsername(userName);
+			ls.newIosUser(studentVo);
 			System.out.println("用户登陆成功，用户id为：" + studentVo.getId());
 			result = gson.toJson(studentVo);
 		} else {

@@ -67,7 +67,7 @@
 					<td></td>
 					<td>本日</td>
 					<td>7天内</td>
-					<td>30天内</td>
+					<td>系统运行以来</td>
 				</tr>
 				<%
 					Iterator<Map.Entry<String, HashMap<String, Integer>>> it = statisticsMap

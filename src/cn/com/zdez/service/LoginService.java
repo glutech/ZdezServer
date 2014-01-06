@@ -1,11 +1,19 @@
 package cn.com.zdez.service;
 
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 import cn.com.zdez.dao.LoginDao;
+import cn.com.zdez.dao.RedisConnection;
 import cn.com.zdez.po.Admin;
 import cn.com.zdez.po.SchoolAdmin;
 import cn.com.zdez.po.Student;
+import cn.com.zdez.vo.StudentVo;
 
 public class LoginService {
+	
+	private JedisPool pool = new RedisConnection().getConnection();
+	private Jedis jedis = pool.getResource();
+	
 	LoginDao dao = new LoginDao();
 
 	/**
@@ -36,6 +44,26 @@ public class LoginService {
 	 */
 	public boolean studentLoginCheck(Student student) {
 		return dao.studentLoginCheck(student);
+	}
+	
+	public void newIosUser(StudentVo stuVo) {
+		try {
+			jedis.hset("stu:id:username", Integer.toString(stuVo.getId()), stuVo.getUsername());
+		} finally {
+			pool.returnResource(jedis);
+		}
+		
+		pool.destroy();
+	}
+
+	public void newWPUser(StudentVo stuVo) {
+		try {
+			jedis.hset("stu:id:username", Integer.toString(stuVo.getId()), stuVo.getUsername());
+		} finally {
+			pool.returnResource(jedis);
+		}
+		
+		pool.destroy();
 	}
 
 }

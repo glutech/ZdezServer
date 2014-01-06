@@ -21,6 +21,7 @@ import cn.com.zdez.service.MajorService;
 import cn.com.zdez.service.SchoolMsgService;
 import cn.com.zdez.service.SchoolService;
 import cn.com.zdez.service.StudentService;
+import cn.com.zdez.service.WindowsPhoneNotification;
 import cn.com.zdez.vo.SchoolMsgVo;
 
 /*导入ios发送所需的包*/
@@ -41,6 +42,8 @@ public class NewSchoolMsg implements Runnable {
 	private SchoolAdmin schoolAdmin;
 	List<Integer> destIosUsers;
 	List<Integer> destWpUsers;
+
+	private WindowsPhoneNotification wpn = new WindowsPhoneNotification();
 
 	private JedisPool pool = new RedisConnection().getConnection();
 	private Jedis jedis = pool.getResource();
@@ -171,10 +174,10 @@ public class NewSchoolMsg implements Runnable {
 		fillIosWpLists(destUsers);
 
 		// 发送ios信息给ios用户
-		sendIosMessage(msg.getTitle(), msg.getId(), destIosUsers);
+		sendIosMessage(msg.getTitle(), schoolMsgId, destIosUsers);
 
 		// 发送wp信息给wp用户
-		sendWpMessage();
+		sendWpMessage(destWpUsers, schoolMsgId, msg.getTitle());
 
 		destUsers = null;
 		list = null;
@@ -194,7 +197,7 @@ public class NewSchoolMsg implements Runnable {
 				i = 0;
 			} else if (pattern.startsWith("http")) {
 				i = 2;
-			} else {
+			} else if(pattern.length() == 64){
 				i = 1;
 			}
 		}
@@ -207,14 +210,15 @@ public class NewSchoolMsg implements Runnable {
 	public void fillIosWpLists(List<Integer> destUsers) {
 		for (int i = 1; i < destUsers.size(); i++) {
 			int tempusr = destUsers.get(i);
-			System.out.println("tempUser:~~~ " + tempusr);
+			// System.out.println("tempUser:~~~ " + tempusr);
 			if (checkBrand(tempusr) == 1) {
-				System.out.println("destIosUsrs: " + destIosUsers.toString());
 				destIosUsers.add(tempusr);
 			} else if (checkBrand(tempusr) == 2) {
 				destWpUsers.add(tempusr);
 			}
 		}
+		System.out.println("destIosUsrs: " + destIosUsers.toString());
+		System.out.println("destWPUsers: " + destWpUsers.toString());
 	}
 
 	/**
@@ -227,20 +231,21 @@ public class NewSchoolMsg implements Runnable {
 	public void sendIosMessage(String title, int msg_id,
 			List<Integer> destIosUsers) {
 		/* Build a blank payload to customize 准备苹果发送消息 */
-		String keystore = "zdez_dev.p12";
+		String keystore = "zdez_production.p12";
 		String password = "www.zdez.com.cn9";
-		boolean production = false;
+		boolean production = true;
 
 		try {
 			PushNotificationPayload payload = PushNotificationPayload.complex();
 
 			/* Customize the payload */
 			payload.addAlert(title);
+			// payload.addBadge(0);
 			payload.addSound("default");
 			payload.addCustomDictionary(String.valueOf(msg_id), "1234567");
 
 			/* Decide how many threads you want your queue to use */
-			int threads = 30;
+			int threads = 10;
 
 			/* Create the queue */
 			PushQueue queue = Push.queue(keystore, password, production,
@@ -250,8 +255,6 @@ public class NewSchoolMsg implements Runnable {
 			System.out.println("queue starting.......");
 			queue.start();
 
-			System.out.println("queue started.......");
-
 			// 此处开始分设备发送,先通过循环筛选出ios及winphone设备
 			for (int i = 0; i < destIosUsers.size(); i++) {
 				int usrid = destIosUsers.get(i);
@@ -259,22 +262,11 @@ public class NewSchoolMsg implements Runnable {
 				// "0d10908d98e72c5e5f57cd3b7e3720463c05ea3119ba2e2a5fff45606190c1c5";
 				String deviceid = getDeviceId(usrid);
 
-				// different user different badge
-				try {
-					if (jedis.hget("unReadCount", Integer.toString(usrid)) != null) {
-						int badge = Integer.parseInt(jedis.hget("unReadCount",
-								Integer.toString(usrid)));
-						payload.addBadge(badge);
-					} else {
-						payload.addBadge(1);
-					}
-				} finally {
-					pool.returnResource(jedis);
-				}
-
 				/* Add a notification for the queue to push */
 				queue.add(payload, deviceid);
 			}
+
+			System.out.println("queue started.......");
 
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
@@ -291,7 +283,10 @@ public class NewSchoolMsg implements Runnable {
 	/**
 	 * 用于发送wp通知的方法
 	 */
-	public void sendWpMessage() {
+	public void sendWpMessage(List<Integer> destWPUsers, int msgId, String msgTitle) {
+		for (int i=0; i<destWpUsers.size(); i++) {
+			wpn.toastOnSync(this.getDeviceId(destWPUsers.get(i)), msgId, msgTitle);
+		}
 
 	}
 
@@ -304,11 +299,9 @@ public class NewSchoolMsg implements Runnable {
 	public String getDeviceId(int id) {
 		String key = "stu:id:username";
 		String username = jedis.hget(key, String.valueOf(id));
-		System.out.println(username);
+		// System.out.println(username);
 		key = "student:" + username;
 		String pattern = jedis.hget(key, "staus");
-
-		System.out.println(pattern);
 
 		return pattern;
 	}

@@ -7,6 +7,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import cn.com.zdez.cache.UserCache;
+
 public class AndroidClient_FeedBack extends HttpServlet {
 
 	/**
@@ -65,8 +67,8 @@ public class AndroidClient_FeedBack extends HttpServlet {
 		String userId = request.getParameter("user_id");
 		String feedback = request.getParameter("feedback");
 
-		System.out.println("Getted user id : " + userId
-				+ " And getted feedback is : " + feedback);
+		UserCache cache = new UserCache();
+		cache.saveUsersFeedback(userId, feedback);
 	}
 
 	/**
