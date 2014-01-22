@@ -30,7 +30,7 @@ public class LoginCheckServlet extends HttpServlet {
 					|| request.getParameter("veryCode") == null
 					|| "" == request.getParameter("veryCode")
 					|| request.getSession().getAttribute("validateCode") == null) {
-				request.getRequestDispatcher("admin.jsp").forward(request,
+				request.getRequestDispatcher("index.jsp").forward(request,
 						response);
 			} else {
 				// get validateCode

@@ -204,7 +204,7 @@ section#main > article.module {
     
     <article class="module width_quarter">
     <header>
-    <h3>博客公告</h3>
+    <h3>找得着公告</h3>
     </header>
     <div class="message_list">
         <div class="module_content">
