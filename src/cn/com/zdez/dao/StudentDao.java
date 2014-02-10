@@ -688,4 +688,32 @@ public class StudentDao {
 
 	}
 
+	/*
+	 * 用于新建信息时抄送列表的对象选择。从数据库中获取学生处、就业处、团委与保卫处的老师列表
+	 */
+	public List<Student> getTeacherByMajor(int majorId) {
+		List<Student> list = new ArrayList<Student>();
+		ConnectionFactory factory = ConnectionFactory.getInstatnce();
+		PreparedStatement pstmt = null;
+		Connection conn = null;
+		try {
+			conn = factory.getConnection();
+			String sql = "select id, name from student where majorId=? and isTeacher=1";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, majorId);
+			ResultSet rs = pstmt.executeQuery();
+			while(rs.next()) {
+				Student stu = new Student();
+				stu.setId(rs.getInt("id"));
+				stu.setName(rs.getString("name"));
+				list.add(stu);
+			}
+			pstmt.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			factory.freeConnection(conn);
+		}
+		return list;
+	}
 }

@@ -261,4 +261,11 @@ public class StudentService {
 	public void cacheStudentInfoAll() {
 		dao.cacheStudentAll();
 	}
+	
+	/*
+	 * 用于新建信息时抄送列表的对象选择。从数据库中获取学生处、就业处、团委与保卫处的老师列表
+	 */
+	public List<Student> getTeacherByMajor(int majorId) {
+		return dao.getTeacherByMajor(majorId);
+	}
 }

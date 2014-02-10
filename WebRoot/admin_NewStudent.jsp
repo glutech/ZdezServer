@@ -215,7 +215,7 @@ List<Grade> gradeList = new ArrayList<Grade>();
 					<td>
 						<fieldset
 							style="width: 90%; height:100%; float: left; margin-left: 5%;">
-							<label style="font-size:12px">毕业年度</label>
+							<label style="font-size:12px">毕业年度（教职人员此处任意选择）</label>
 							<p>
 								<select id="grade" name="grade" style="width: 200px">
 									<%=genSelect(gradeList, "grade", "grade")%>
@@ -228,7 +228,7 @@ List<Grade> gradeList = new ArrayList<Grade>();
 					<td>
 						<fieldset
 							style="width: 90%; height:100%; float: left; margin-left: 5%;">
-							<label style="font-size:12px">学院</label>
+							<label style="font-size:12px">学院（部门）</label>
 							<p>
 								<select id="department" name="department" style="width: 200px"
 									onchange="buildSelect(this.value, 'major', '2')">
@@ -240,7 +240,7 @@ List<Grade> gradeList = new ArrayList<Grade>();
 					<td>
 						<fieldset
 							style="width: 90%; height:100%; float: left; margin-left: 5%;">
-							<label style="font-size:12px">专业</label>
+							<label style="font-size:12px">专业（部门）</label>
 							<p>
 								<select id="major" name="major" style="width: 200px">
 									<%=genSelect(majorList, "major", "major")%>

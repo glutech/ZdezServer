@@ -1,5 +1,6 @@
 package cn.com.zdez.service;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,6 +14,7 @@ import cn.com.zdez.po.SchoolAdmin;
 import cn.com.zdez.po.SchoolSys;
 import cn.com.zdez.po.Student;
 import cn.com.zdez.util.GetSchoolSys;
+import cn.com.zdez.util.ParseXmlService;
 import cn.com.zdez.vo.SchoolAdminVo;
 
 public class SchoolAdminService {
@@ -226,5 +228,56 @@ public class SchoolAdminService {
 
 	public HashMap<Integer,List<Student>> getDepartmentStudentByAuth(SchoolAdmin sAdmin){
 		return dao.getDepartmentStudent(sAdmin);
+	}
+
+	/*
+	 * 获取该schooladmin所在的学校的学生处、就业处、团委、保卫处老师列表
+	 */
+	public List<Student> getDptTeacherList(SchoolAdmin sAdmin, String teacherType) {
+		List<Student> stuList = new ArrayList<Student>();
+		
+		int majorId = this.getStuAffairsId(sAdmin, teacherType);
+		
+		stuList = new StudentService().getTeacherByMajor(majorId);
+		
+		return stuList;
+	}
+	
+	private int getStuAffairsId(SchoolAdmin sAdmin, String teacherType) {
+		int i = 0;
+		
+		HashMap<String, String> temp = this.getCCDepartmentMap(sAdmin.getSchoolId());
+		String majorIdStr = temp.get(teacherType);
+		
+		i = Integer.parseInt(majorIdStr);
+		
+		return i;
+	}
+	
+	private HashMap<String, String> getCCDepartmentMap(int schoolId) {
+		HashMap<String, String> result = new HashMap<String, String>();
+		
+		// 通过xml和sAdmin.getSchoolId获得该学校的学生处Id
+		InputStream is = this.getCCDepartmentXMLIS();
+		ParseXmlService pxService = new ParseXmlService();
+		HashMap<String, HashMap<String, String>> hashmap = new HashMap<String, HashMap<String,String>>();
+
+		try {
+			hashmap = pxService.parseCCDptXml(is);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		// 通过学生处Id（majorId）获取stuList
+		result = hashmap.get(Integer.toString(schoolId));
+		return result;
+	}
+	
+	private InputStream getCCDepartmentXMLIS() {
+
+		InputStream is = SchoolAdminService.class.getClassLoader().getResourceAsStream("CCDepartment.xml");
+
+		return is;
 	}
 }

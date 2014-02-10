@@ -1,5 +1,6 @@
 package cn.com.zdez.dao;
 
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -16,6 +17,7 @@ import cn.com.zdez.po.SchoolAdmin;
 import cn.com.zdez.po.SchoolSys;
 import cn.com.zdez.po.Student;
 import cn.com.zdez.util.AuthConvert;
+import cn.com.zdez.util.ParseXmlService;
 import cn.com.zdez.vo.SchoolAdminVo;
 
 public class SchoolAdminDao {
@@ -667,4 +669,5 @@ public class SchoolAdminDao {
 		}
 		return department;
 	}
+	
 }

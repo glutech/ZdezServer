@@ -33,6 +33,10 @@ public class School_NewMsgHref extends HttpServlet {
 			List<Department> departmentList = new ArrayList<Department>();
 			List<Major> majorList = new ArrayList<Major>();
 			List<Student> teacherList = new ArrayList<Student>();
+			List<Student> stuAffairsTeacherList = new ArrayList<Student>();
+			List<Student> empTeacherList = new ArrayList<Student>();
+			List<Student> yccTeacherList = new ArrayList<Student>();
+			List<Student> sdTeacherList = new ArrayList<Student>();
 			// 用于分组显示教职人员
 //			HashMap<Integer, List<Student>> dptStu = new HashMap<Integer, List<Student>>();
 			// SchoolAdmin sAdmin = (SchoolAdmin) request.getSession()
@@ -41,15 +45,6 @@ public class School_NewMsgHref extends HttpServlet {
 			SchoolAdmin sAdmin = new SchoolAdminService()
 					.getSchoolAdminInfo((String) request.getSession()
 							.getAttribute("uname"));
-
-			// System.out.println(sAdmin.getUsername());
-			// System.out.println(sAdmin.getPassword());
-			// System.out.println(sAdmin.getTelPhone());
-			// System.out.println(sAdmin.getName());
-			// System.out.println(sAdmin.getSchoolId());
-			// System.out.println(sAdmin.getDepartmentId());
-			// System.out.println(sAdmin.getMajorId());
-			// System.out.println(sAdmin.getRemarks());
 
 			// 获取学业层次
 			schoolSysList = service.getSchoolSysList(sAdmin);
@@ -63,12 +58,34 @@ public class School_NewMsgHref extends HttpServlet {
 			teacherList = service.getTeacherList(sAdmin);
 			// 获取部门id和老师列表的hashmap
 //			dptStu = service.getDepartmentStudentByAuth(sAdmin);
+			
+			String idTag = "";
+			
+			// 获取学生处老师列表
+			idTag = "stuAffairsId";
+			stuAffairsTeacherList = service.getDptTeacherList(sAdmin, idTag);
+			
+			// 获取就业处老师列表
+			idTag = "employmentId";
+			empTeacherList = service.getDptTeacherList(sAdmin, idTag);
+			
+			// 获取团委老师列表
+			idTag = "youthCorpsCommitteeId";
+			yccTeacherList = service.getDptTeacherList(sAdmin, idTag);
+			
+			// 获取保卫处老师列表
+			idTag = "securityDeptId";
+			sdTeacherList = service.getDptTeacherList(sAdmin, idTag);
 
 			request.getSession().setAttribute("schoolSysList", schoolSysList);
 			request.getSession().setAttribute("gradeList", gradeList);
 			request.getSession().setAttribute("departmentList", departmentList);
 			request.getSession().setAttribute("majorList", majorList);
-			request.getSession().setAttribute("teacherList", teacherList);
+//			request.getSession().setAttribute("teacherList", teacherList);
+			request.getSession().setAttribute("stuAffairsTeacherList", stuAffairsTeacherList);
+			request.getSession().setAttribute("empTeacherList", empTeacherList);
+			request.getSession().setAttribute("yccTeacherList", yccTeacherList);
+			request.getSession().setAttribute("sdTeacherList", sdTeacherList);
 //			request.getSession().setAttribute("dptStu", dptStu);
 
 			request.getRequestDispatcher("school_NewMsg.jsp").forward(request,

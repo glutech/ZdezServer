@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CCDepartment>
+	<school id="1">
+		<!-- 学生处id -->
+		<stuAffairsId>451</stuAffairsId>
+		<!-- 就业处id -->
+		<employmentId>452</employmentId>
+		<!-- 团委id -->
+		<youthCorpsCommitteeId>453</youthCorpsCommitteeId>
+		<!-- 保卫处id -->
+		<securityDeptId>454</securityDeptId>
+	</school>
+	<school id="2">
+		<!-- 学生处id -->
+		<stuAffairsId>455</stuAffairsId>
+		<!-- 就业处id -->
+		<employmentId>456</employmentId>
+		<!-- 团委id -->
+		<youthCorpsCommitteeId>457</youthCorpsCommitteeId>
+		<!-- 保卫处id -->
+		<securityDeptId>458</securityDeptId>
+	</school>
+	<school id="3">
+		<!-- 学生处id -->
+		<stuAffairsId>459</stuAffairsId>
+		<!-- 就业处id -->
+		<employmentId>460</employmentId>
+		<!-- 团委id -->
+		<youthCorpsCommitteeId>461</youthCorpsCommitteeId>
+		<!-- 保卫处id -->
+		<securityDeptId>462</securityDeptId>
+	</school>
+	<school id="4">
+		<!-- 学生处id -->
+		<stuAffairsId>463</stuAffairsId>
+		<!-- 就业处id -->
+		<employmentId>170</employmentId>
+		<!-- 团委id -->
+		<youthCorpsCommitteeId>464</youthCorpsCommitteeId>
+		<!-- 保卫处id -->
+		<securityDeptId>465</securityDeptId>
+	</school>
+	<school id="5">
+		<!-- 学生处id -->
+		<stuAffairsId>466</stuAffairsId>
+		<!-- 就业处id -->
+		<employmentId>0</employmentId>
+		<!-- 团委id -->
+		<youthCorpsCommitteeId>467</youthCorpsCommitteeId>
+		<!-- 保卫处id -->
+		<securityDeptId>468</securityDeptId>
+	</school>
+	<school id="6">
+		<!-- 学生处id -->
+		<stuAffairsId>318</stuAffairsId>
+		<!-- 就业处id -->
+		<employmentId>452</employmentId>
+		<!-- 团委id -->
+		<youthCorpsCommitteeId>448</youthCorpsCommitteeId>
+		<!-- 保卫处id -->
+		<securityDeptId>470</securityDeptId>
+	</school>
+	<school id="10">
+		<!-- 学生处id -->
+		<stuAffairsId>471</stuAffairsId>
+		<!-- 就业处id -->
+		<employmentId>435</employmentId>
+		<!-- 团委id -->
+		<youthCorpsCommitteeId>472</youthCorpsCommitteeId>
+		<!-- 保卫处id -->
+		<securityDeptId>434</securityDeptId>
+	</school>
+</CCDepartment>
