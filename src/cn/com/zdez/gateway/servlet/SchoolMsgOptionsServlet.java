@@ -22,6 +22,8 @@ public class SchoolMsgOptionsServlet extends BaseServlet {
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		response.setCharacterEncoding("utf-8");
+		request.setCharacterEncoding("utf-8");
 		// 取得约定参数
 		String token = request.getParameter("token");
 		String api = request.getParameter("api");

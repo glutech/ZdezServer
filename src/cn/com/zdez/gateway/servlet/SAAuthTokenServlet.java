@@ -20,6 +20,8 @@ public class SAAuthTokenServlet extends BaseServlet {
 
 	public void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+		response.setCharacterEncoding("utf-8");
+		request.setCharacterEncoding("utf-8");
 		// 取得约定参数
 		String username = request.getParameter("username");
 		String password = request.getParameter("password");

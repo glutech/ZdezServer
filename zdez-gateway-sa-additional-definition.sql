@@ -28,7 +28,7 @@ CREATE TABLE `gateway_sa_auth_map` (
   PRIMARY KEY (`auth_id`),
   UNIQUE KEY `auth_token` (`auth_token`) USING BTREE,
   UNIQUE KEY `school_admin_username` (`school_admin_username`) USING BTREE,
-  CONSTRAINT `gateway_sa_auth_map_ibfk_1` FOREIGN KEY (`school_admin_username`) REFERENCES `schooladmin` (`username`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `gateway_sa_auth_map_ibfk_1` FOREIGN KEY (`school_admin_username`) REFERENCES `schoolAdmin` (`username`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
@@ -45,5 +45,5 @@ CREATE TABLE `gateway_school_msg_records` (
   KEY `auth_id_nullabled` (`auth_id_nullabled`),
   KEY `school_msg_id` (`school_msg_id`),
   CONSTRAINT `gateway_school_msg_records_ibfk_1` FOREIGN KEY (`auth_id_nullabled`) REFERENCES `gateway_sa_auth_map` (`auth_id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `gateway_school_msg_records_ibfk_2` FOREIGN KEY (`school_msg_id`) REFERENCES `schoolmsg` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  CONSTRAINT `gateway_school_msg_records_ibfk_2` FOREIGN KEY (`school_msg_id`) REFERENCES `schoolMsg` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
