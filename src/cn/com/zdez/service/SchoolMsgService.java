@@ -63,6 +63,13 @@ public class SchoolMsgService {
 		}
 		return flag;
 	}
+	
+	/**
+	 * 获取刚插入的校园通知的id
+	 */
+	public int getLatestSchoolMsgId() {
+		return dao.getLatestSchoolMsgId();
+	}
 
 	public boolean newSchoolMsg_Grade(int schoolMsgId, String[] grade) {
 		return dao.newSchoolMsg_Grade(schoolMsgId, grade);
