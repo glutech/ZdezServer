@@ -1,0 +1,74 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{C997FADB-25E7-4FC3-98D9-9F070705E961}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Zdez.Gateway.SDK</RootNamespace>
+    <AssemblyName>Zdez.Gateway.SDK</AssemblyName>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.1\lib\net20\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Web" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Helper\HttpHelper.cs" />
+    <Compile Include="Helper\JsonHelper.cs" />
+    <Compile Include="Model\CarbonCopy.cs" />
+    <Compile Include="Model\Degree.cs" />
+    <Compile Include="Model\Department.cs" />
+    <Compile Include="Model\Grade.cs" />
+    <Compile Include="Model\IdNamePair.cs" />
+    <Compile Include="Model\Major.cs" />
+    <Compile Include="Model\PostSchoolMsgResponseType.cs" />
+    <Compile Include="Model\SaAutuTokenResponseType.cs" />
+    <Compile Include="Model\SaCancelTokenResponseType.cs" />
+    <Compile Include="Model\SchoolMsgOptionsMap.cs" />
+    <Compile Include="Model\SchoolMsgOptionsMapCarbonCopy.cs" />
+    <Compile Include="Model\SchoolMsgOptionsResponseType.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SDK.cs" />
+    <Compile Include="Service\ContactsSetting.cs" />
+    <Compile Include="Service\PostSchoolMsgService.cs" />
+    <Compile Include="Service\SaAuthTokenService.cs" />
+    <Compile Include="Service\SaCancelTokenService.cs" />
+    <Compile Include="Service\SchoolMsgOptionsService.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

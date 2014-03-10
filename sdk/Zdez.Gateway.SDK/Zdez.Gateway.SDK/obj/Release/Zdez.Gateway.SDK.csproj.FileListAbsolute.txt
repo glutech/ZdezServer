@@ -1,0 +1,6 @@
+D:\Java\Project\Zdez.Gateway.SDK\Zdez.Gateway.SDK\bin\Release\Zdez.Gateway.SDK.dll
+D:\Java\Project\Zdez.Gateway.SDK\Zdez.Gateway.SDK\bin\Release\Zdez.Gateway.SDK.pdb
+D:\Java\Project\Zdez.Gateway.SDK\Zdez.Gateway.SDK\bin\Release\Newtonsoft.Json.dll
+D:\Java\Project\Zdez.Gateway.SDK\Zdez.Gateway.SDK\bin\Release\Newtonsoft.Json.xml
+D:\Java\Project\Zdez.Gateway.SDK\Zdez.Gateway.SDK\obj\Release\Zdez.Gateway.SDK.dll
+D:\Java\Project\Zdez.Gateway.SDK\Zdez.Gateway.SDK\obj\Release\Zdez.Gateway.SDK.pdb

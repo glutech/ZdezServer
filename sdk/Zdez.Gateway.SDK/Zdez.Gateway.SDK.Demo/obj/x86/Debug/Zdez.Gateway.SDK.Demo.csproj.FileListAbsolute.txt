@@ -1,0 +1,9 @@
+D:\Java\Project\Zdez.Gateway.SDK\Zdez.Gateway.SDK.Demo\bin\Debug\Zdez.Gateway.SDK.Demo.exe
+D:\Java\Project\Zdez.Gateway.SDK\Zdez.Gateway.SDK.Demo\bin\Debug\Zdez.Gateway.SDK.Demo.pdb
+D:\Java\Project\Zdez.Gateway.SDK\Zdez.Gateway.SDK.Demo\bin\Debug\Zdez.Gateway.SDK.dll
+D:\Java\Project\Zdez.Gateway.SDK\Zdez.Gateway.SDK.Demo\bin\Debug\Newtonsoft.Json.dll
+D:\Java\Project\Zdez.Gateway.SDK\Zdez.Gateway.SDK.Demo\bin\Debug\Zdez.Gateway.SDK.pdb
+D:\Java\Project\Zdez.Gateway.SDK\Zdez.Gateway.SDK.Demo\bin\Debug\Newtonsoft.Json.xml
+D:\Java\Project\Zdez.Gateway.SDK\Zdez.Gateway.SDK.Demo\obj\x86\Debug\Zdez.Gateway.SDK.Demo.csprojResolveAssemblyReference.cache
+D:\Java\Project\Zdez.Gateway.SDK\Zdez.Gateway.SDK.Demo\obj\x86\Debug\Zdez.Gateway.SDK.Demo.exe
+D:\Java\Project\Zdez.Gateway.SDK\Zdez.Gateway.SDK.Demo\obj\x86\Debug\Zdez.Gateway.SDK.Demo.pdb
