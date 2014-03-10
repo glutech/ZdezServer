@@ -12,6 +12,7 @@ import cn.com.zdez.gateway.po.GatewaySAAuth;
 import cn.com.zdez.gateway.service.GatewaySAAuthService;
 import cn.com.zdez.po.SchoolAdmin;
 import cn.com.zdez.service.SchoolAdminService;
+import cn.com.zdez.util.MD5;
 
 @SuppressWarnings("serial")
 public class SACancelTokenServlet extends BaseServlet {
@@ -34,7 +35,7 @@ public class SACancelTokenServlet extends BaseServlet {
 				|| Util.isStringNullOrEmpty(password)
 				|| Util.isStringNullOrEmpty(api)
 				|| !Util.isStringLengthRange(username, 1, 20)
-				|| !Util.isStringLengthEqual(password, 32)) {
+				|| !Util.isStringLengthRange(password, 1, 20)) {
 			// 参数格式错误
 			resultStatus = 0;
 			resultMsg = "参数格式错误";
@@ -47,12 +48,13 @@ public class SACancelTokenServlet extends BaseServlet {
 					.getSchoolAdminInfoFromMySQL(username);
 			if (!Util.isStringEquals(dbSchoolAdmin.getUsername(), username)
 					|| !Util.isStringEquals(dbSchoolAdmin.getPassword(),
-							password)) {
+							new MD5().toMD5String(password))) {
 				// 账号密码错误
 				resultStatus = 2;
 				resultMsg = "账号密码不匹配";
 			} else {
-				GatewaySAAuth dbAuth = service.getAuthBySchoolUsername(username);
+				GatewaySAAuth dbAuth = service
+						.getAuthBySchoolUsername(username);
 				if (dbAuth == null) {
 					// 账号还未绑定授权
 					resultStatus = -1;
