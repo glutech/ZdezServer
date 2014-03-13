@@ -1,6 +1,6 @@
 package cn.com.zdez.activity.po;
 
-import java.sql.Date;
+import java.sql.Timestamp;
 
 public class Audit {
 	public static enum AdtStateEnum {
@@ -8,7 +8,7 @@ public class Audit {
 	}
 
 	private int adtId;
-	private Date adtTime;
+	private Timestamp adtTime;
 	private String adtContent;
 	private int adtoId;
 	private int noteId;
@@ -24,11 +24,11 @@ public class Audit {
 		this.adtId = adtId;
 	}
 
-	public Date getAdtTime() {
+	public Timestamp getAdtTime() {
 		return adtTime;
 	}
 
-	public void setAdtTime(Date adtTime) {
+	public void setAdtTime(Timestamp adtTime) {
 		this.adtTime = adtTime;
 	}
 

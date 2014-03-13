@@ -37,7 +37,7 @@ public class NoticeDao extends BaseDao<Notice> {
 				+ "(note_time, note_content, note_state_enum, act_id) "
 				+ "values(?, ?, ?, ?, ?)";
 		Object[] params = { note.getNoteTime(), note.getNoteContent(),
-				note.getNoteState(), note.getActId() };
+				note.getNoteState().toString(), note.getActId() };
 		return getSqlExecution().execSqlWithoutRS(sql, params);
 	}
 
@@ -57,7 +57,7 @@ public class NoticeDao extends BaseDao<Notice> {
 	public boolean modifyNotice(Notice note) {
 		String sql = "update a_notices set note_time=?, note_content=?, note_state_enum=?, act_id=? where note_id=?";
 		Object[] params = { note.getNoteTime(), note.getNoteContent(),
-				note.getNoteState(), note.getActId(), note.getNoteId() };
+				note.getNoteState().toString(), note.getActId(), note.getNoteId() };
 		return getSqlExecution().execSqlWithoutRS(sql, params);
 	}
 
@@ -66,7 +66,7 @@ public class NoticeDao extends BaseDao<Notice> {
 	 */
 	public boolean modifyNoticeState(Notice note) {
 		String sql = "update a_notice set note_state_enum = ? where note_id= ?";
-		Object[] params = { note.getNoteState(), note.getNoteId() };
+		Object[] params = { note.getNoteState().toString(), note.getNoteId() };
 		return getSqlExecution().execSqlWithoutRS(sql, params);
 	}
 

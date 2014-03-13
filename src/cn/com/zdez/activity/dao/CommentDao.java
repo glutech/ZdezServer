@@ -14,10 +14,13 @@ public class CommentDao extends BaseDao<Comment> {
 		cmt.setActId(rs.getInt("act_id"));
 		cmt.setUsrId(rs.getInt("usr_id"));
 		cmt.setCmtContent(rs.getString("cmt_content"));
-		cmt.setCmtParentIdNullabled(rs.getInt("cmt_parent_id_nullabled"));
-		cmt.setCmtTime(rs.getDate("cmt_time"));
+		cmt.setCmtTime(rs.getTimestamp("cmt_time"));
 		cmt.setCmtTypeEnum(Comment.CmtTypeEnum.valueOf(rs
 				.getString("cmt_state_enum")));
+		if (rs.getInt("cmt_parent_id_nullabled") == 0)
+			cmt.setCmtParentIdNullabled(null);
+		else
+			cmt.setCmtParentIdNullabled(rs.getInt("cmt_parent_id_nullabled"));
 		return cmt;
 	}
 
@@ -29,7 +32,7 @@ public class CommentDao extends BaseDao<Comment> {
 				+ "cmt_time, cmt_state_enum)";
 		Object[] params = { cmt.getActId(), cmt.getUsrId(),
 				cmt.getCmtContent(), cmt.getCmtParentIdNullabled(),
-				cmt.getCmtTime(), cmt.getCmtTypeEnum() };
+				cmt.getCmtTime(), cmt.getCmtTypeEnum().toString() };
 		ResultSet rs = getSqlExecution().execSqlWithRS(sql, params);
 		return parseRsToPo(rs);
 	}
@@ -60,7 +63,7 @@ public class CommentDao extends BaseDao<Comment> {
 	 */
 	public boolean modifyCommentState(Comment cmt) {
 		String sql = "update a_comment set cmt_state_enum=? where cmt_id=?";
-		Object[] params = { cmt.getCmtId() };
+		Object[] params = { cmt.getCmtTypeEnum().toString(),cmt.getCmtId() };
 		return getSqlExecution().execSqlWithoutRS(sql, params);
 
 		/**

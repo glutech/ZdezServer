@@ -15,9 +15,9 @@ public class UserDao extends BaseDao<User> {
 		usr.setUsrSignature(rs.getString("usr_signature"));
 		usr.setUsrAvatar(rs.getString("usr_avatar"));
 		usr.setStuId(rs.getInt("stu_id"));
-		usr.setUsrAbleStateEnum(User.UsrAbleStateEnum.valueOf(rs
+		usr.setUsrAbleState(User.UsrAbleStateEnum.valueOf(rs
 				.getString("usr_able_state_enum")));
-		usr.setUsrTypeEnum(User.UsrTypeEnum.valueOf(rs
+		usr.setUsrType(User.UsrTypeEnum.valueOf(rs
 				.getString("usr_type_enum")));
 		return usr;
 	}
@@ -61,7 +61,7 @@ public class UserDao extends BaseDao<User> {
 				+ " usr_able_state_enum, usr_type_enum )";
 		Object[] params = { usr.getUsrNickname(), usr.getUsrPhone(),
 				usr.getUsrSignature(), usr.getUsrAvatar(), usr.getStuId(),
-				usr.getUsrAbleStateEnum(), usr.getUsrTypeEnum() };
+				usr.getUsrAbleState().toString(), usr.getUsrType().toString() };
 		return getSqlExecution().execSqlWithoutRS(sql, params);
 	}
 
@@ -82,7 +82,7 @@ public class UserDao extends BaseDao<User> {
 				+ " usr_able_state_enum=?, usr_type_enum=?_";
 		Object[] params = { usr.getUsrNickname(), usr.getUsrPhone(),
 				usr.getUsrSignature(), usr.getUsrAvatar(), usr.getStuId(),
-				usr.getUsrAbleStateEnum(), usr.getUsrTypeEnum() };
+				usr.getUsrAbleState().toString(), usr.getUsrType().toString() };
 		return getSqlExecution().execSqlWithoutRS(sql, params);
 	}
 
@@ -91,7 +91,7 @@ public class UserDao extends BaseDao<User> {
 	 */
 	public boolean modifyUserAbleState(User usr) {
 		String sql = "update a_users set usr_able_state_enum = ? where usr_id=?";
-		Object[] params = { usr.getUsrId() };
+		Object[] params = { usr.getUsrAbleState().toString(),usr.getUsrId() };
 		return getSqlExecution().execSqlWithoutRS(sql, params);
 	}
 
@@ -100,7 +100,7 @@ public class UserDao extends BaseDao<User> {
 	 */
 	public boolean modifyUserType(User usr) {
 		String sql = "update a_users set usr_type_enum = ? where usr_id = ?";
-		Object[] params = { usr.getUsrId() };
+		Object[] params = { usr.getUsrType().toString(),usr.getUsrId() };
 		return getSqlExecution().execSqlWithoutRS(sql, params);
 	}
 }

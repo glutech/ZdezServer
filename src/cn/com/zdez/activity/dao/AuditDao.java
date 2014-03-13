@@ -11,7 +11,7 @@ public class AuditDao extends BaseDao<Audit> {
 		adt.setAdtId(rs.getInt("adt_id"));
 		adt.setAdtoId(rs.getInt("adto_id"));
 		adt.setAdtContent(rs.getString("adt_content"));
-		adt.setAdtTime(rs.getDate("adt_time"));
+		adt.setAdtTime(rs.getTimestamp("adt_time"));
 		adt.setCmtId(rs.getInt("cmt_id"));
 		adt.setNoteId(rs.getInt("note_id"));
 		adt.setUsrId(rs.getInt("usr_id"));
@@ -35,7 +35,7 @@ public class AuditDao extends BaseDao<Audit> {
 	public boolean insertAudit(Audit adt) {
 		String sql = "insert into a_audit (adt_time, adt_state_enum, adt_content, adto_id, note_id, cmt_id, usr_id) values"
 				+ " (?,?,?,?,?,?,?)";
-		Object[] params = { adt.getAdtTime(), adt.getAdtState(),
+		Object[] params = { adt.getAdtTime(), adt.getAdtState().toString(),
 				adt.getAdtContent(), adt.getAdtoId(), adt.getNoteId(),
 				adt.getCmtId(), adt.getUsrId() };
 		return getSqlExecution().execSqlWithoutRS(sql, params);
@@ -55,7 +55,7 @@ public class AuditDao extends BaseDao<Audit> {
 	 */
 	public boolean modifyAudit(Audit adt) {
 		String sql = "update a_audit set adt_time=?, adt_state_enum=?, adt_conten=?, adto_id=?, note_id=?, cmt_id=? , usr_id=? where adt_id =?";
-		Object[] params = { adt.getAdtTime(), adt.getAdtState(),
+		Object[] params = { adt.getAdtTime(), adt.getAdtState().toString(),
 				adt.getAdtContent(), adt.getAdtoId(), adt.getAdtoId(),
 				adt.getCmtId(), adt.getUsrId() };
 		return getSqlExecution().execSqlWithoutRS(sql, params);
@@ -66,7 +66,7 @@ public class AuditDao extends BaseDao<Audit> {
 	 */
 	public boolean modifyAuditState(Audit adt) {
 		String sql = "update a_audit set adt_state_enum=? where adt_id = ?";
-		Object[] params = { adt.getAdtState(), adt.getAdtId() };
+		Object[] params = { adt.getAdtState().toString(), adt.getAdtId() };
 		return getSqlExecution().execSqlWithoutRS(sql, params);
 	}
 }

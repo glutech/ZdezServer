@@ -16,7 +16,7 @@ public class User {
 	private String usrNickname;
 	private int stuId;
 	private UsrAbleStateEnum usrAbleState;
-	private UsrTypeEnum usrTypeEnum;
+	private UsrTypeEnum usrType;
 
 	public int getUsrId() {
 		return usrId;
@@ -66,19 +66,19 @@ public class User {
 		this.stuId = stuId;
 	}
 
-	public UsrAbleStateEnum getUsrAbleStateEnum() {
+	public UsrAbleStateEnum getUsrAbleState() {
 		return usrAbleState;
 	}
 
-	public void setUsrAbleStateEnum(UsrAbleStateEnum usrAbleState) {
+	public void setUsrAbleState(UsrAbleStateEnum usrAbleState) {
 		this.usrAbleState = usrAbleState;
 	}
 
-	public UsrTypeEnum getUsrTypeEnum() {
-		return usrTypeEnum;
+	public UsrTypeEnum getUsrType() {
+		return usrType;
 	}
 
-	public void setUsrTypeEnum(UsrTypeEnum usrTypeEnum) {
-		this.usrTypeEnum = usrTypeEnum;
+	public void setUsrType(UsrTypeEnum usrType) {
+		this.usrType = usrType;
 	}
 }

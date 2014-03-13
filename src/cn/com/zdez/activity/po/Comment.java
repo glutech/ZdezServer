@@ -1,6 +1,6 @@
 package cn.com.zdez.activity.po;
 
-import java.sql.Date;
+import java.sql.Timestamp;
 
 public class Comment {
 	public static enum CmtTypeEnum {
@@ -8,9 +8,9 @@ public class Comment {
 	}
 
 	private int cmtId;
-	private Date cmtTime;
+	private Timestamp cmtTime;
 	private String cmtContent;
-	private int cmtParentIdNullabled;
+	private Integer cmtParentIdNullabled;
 	private int actId;
 	private int usrId;
 	private CmtTypeEnum cmtType;
@@ -23,11 +23,11 @@ public class Comment {
 		this.cmtId = cmtId;
 	}
 
-	public Date getCmtTime() {
+	public Timestamp getCmtTime() {
 		return cmtTime;
 	}
 
-	public void setCmtTime(Date cmtTime) {
+	public void setCmtTime(Timestamp cmtTime) {
 		this.cmtTime = cmtTime;
 	}
 
@@ -39,11 +39,11 @@ public class Comment {
 		this.cmtContent = cmtContent;
 	}
 
-	public int getCmtParentIdNullabled() {
+	public Integer getCmtParentIdNullabled() {
 		return cmtParentIdNullabled;
 	}
 
-	public void setCmtParentIdNullabled(int cmtParentIdNullabled) {
+	public void setCmtParentIdNullabled(Integer cmtParentIdNullabled) {
 		this.cmtParentIdNullabled = cmtParentIdNullabled;
 	}
 
