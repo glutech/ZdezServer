@@ -25,7 +25,7 @@ public abstract class BaseDao<T> {
 
 	protected abstract T parseRS(ResultSet rs) throws SQLException;
 
-	protected T parseRsToModel(ResultSet rs) {
+	protected T parseRsToPo(ResultSet rs) {
 		try {
 			if (rs.next()) {
 				return parseRS(rs);
