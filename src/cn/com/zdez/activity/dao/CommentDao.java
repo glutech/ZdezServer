@@ -17,10 +17,8 @@ public class CommentDao extends BaseDao<Comment> {
 		cmt.setCmtTime(rs.getTimestamp("cmt_time"));
 		cmt.setCmtTypeEnum(Comment.CmtTypeEnum.valueOf(rs
 				.getString("cmt_state_enum")));
-		if (rs.getInt("cmt_parent_id_nullabled") == 0)
-			cmt.setCmtParentIdNullabled(null);
-		else
-			cmt.setCmtParentIdNullabled(rs.getInt("cmt_parent_id_nullabled"));
+		cmt.setCmtParentIdNullabled(getIntegerFromRS(rs,
+				"cmt_parent_id_nullabled"));
 		return cmt;
 	}
 

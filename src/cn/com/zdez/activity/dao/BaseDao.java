@@ -78,4 +78,10 @@ public abstract class BaseDao<T> {
 		Object[] params = {};
 		return parseInt(getSqlExecution().execSqlWithRS(sql, params));
 	}
+
+	protected Integer getIntegerFromRS(ResultSet rs, String field)
+			throws SQLException {
+		int ableNull = rs.getInt(field);
+		return ableNull == 0 ? null : (Integer) ableNull;
+	}
 }

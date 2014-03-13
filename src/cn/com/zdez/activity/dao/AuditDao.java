@@ -12,9 +12,9 @@ public class AuditDao extends BaseDao<Audit> {
 		adt.setAdtoId(rs.getInt("adto_id"));
 		adt.setAdtContent(rs.getString("adt_content"));
 		adt.setAdtTime(rs.getTimestamp("adt_time"));
-		adt.setCmtId(rs.getInt("cmt_id"));
-		adt.setNoteId(rs.getInt("note_id"));
-		adt.setUsrId(rs.getInt("usr_id"));
+		adt.setCmtId(getIntegerFromRS(rs,"cmt_id"));
+		adt.setNoteId(getIntegerFromRS(rs,"note_id"));
+		adt.setUsrId(getIntegerFromRS(rs,"usr_id"));
 		adt.setAdtState(Audit.AdtStateEnum.valueOf(rs
 				.getString("adt_state_enum")));
 		return adt;

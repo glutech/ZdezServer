@@ -11,9 +11,9 @@ public class Audit {
 	private Timestamp adtTime;
 	private String adtContent;
 	private int adtoId;
-	private int noteId;
-	private int cmtId;
-	private int usrId;
+	private Integer noteId;
+	private Integer cmtId;
+	private Integer usrId;
 	private AdtStateEnum adtState;
 
 	public int getAdtId() {
@@ -48,27 +48,27 @@ public class Audit {
 		this.adtoId = adtoId;
 	}
 
-	public int getNoteId() {
+	public Integer getNoteId() {
 		return noteId;
 	}
 
-	public void setNoteId(int noteId) {
+	public void setNoteId(Integer noteId) {
 		this.noteId = noteId;
 	}
 
-	public int getCmtId() {
+	public Integer getCmtId() {
 		return cmtId;
 	}
 
-	public void setCmtId(int cmtId) {
+	public void setCmtId(Integer cmtId) {
 		this.cmtId = cmtId;
 	}
 
-	public int getUsrId() {
+	public Integer getUsrId() {
 		return usrId;
 	}
 
-	public void setUsrId(int usrId) {
+	public void setUsrId(Integer usrId) {
 		this.usrId = usrId;
 	}
 
