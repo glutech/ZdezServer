@@ -42,22 +42,23 @@ public class NoticeDao extends BaseDao<Notice> {
 	}
 
 	/**
+	 * 更新通知
+	 */
+	public boolean updateNotice(Notice note) {
+		String sql = "update a_notices set note_time=?, note_content=?, note_state_enum=?, act_id=? where note_id=?";
+		Object[] params = { note.getNoteTime(), note.getNoteContent(),
+				note.getNoteState().toString(), note.getActId(),
+				note.getNoteId() };
+		return getSqlExecution().execSqlWithoutRS(sql, params);
+	}
+
+	/**
 	 * 删除通知
 	 */
 	public boolean delNoticeByNoteId(Notice note) {
 		String sql = "delete from notices where note_id=?";
 		int noteId = note.getNoteId();
 		Object[] params = { noteId };
-		return getSqlExecution().execSqlWithoutRS(sql, params);
-	}
-
-	/**
-	 * 更新通知
-	 */
-	public boolean modifyNotice(Notice note) {
-		String sql = "update a_notices set note_time=?, note_content=?, note_state_enum=?, act_id=? where note_id=?";
-		Object[] params = { note.getNoteTime(), note.getNoteContent(),
-				note.getNoteState().toString(), note.getActId(), note.getNoteId() };
 		return getSqlExecution().execSqlWithoutRS(sql, params);
 	}
 

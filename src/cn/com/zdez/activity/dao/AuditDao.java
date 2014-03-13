@@ -12,9 +12,9 @@ public class AuditDao extends BaseDao<Audit> {
 		adt.setAdtoId(rs.getInt("adto_id"));
 		adt.setAdtContent(rs.getString("adt_content"));
 		adt.setAdtTime(rs.getTimestamp("adt_time"));
-		adt.setCmtId(getIntegerFromRS(rs,"cmt_id"));
-		adt.setNoteId(getIntegerFromRS(rs,"note_id"));
-		adt.setUsrId(getIntegerFromRS(rs,"usr_id"));
+		adt.setCmtIdNullabled(getIntegerFromRS(rs, "cmt_id"));
+		adt.setNoteIdNullabled(getIntegerFromRS(rs, "note_id"));
+		adt.setUsrIdNullabled(getIntegerFromRS(rs, "usr_id"));
 		adt.setAdtState(Audit.AdtStateEnum.valueOf(rs
 				.getString("adt_state_enum")));
 		return adt;
@@ -36,8 +36,19 @@ public class AuditDao extends BaseDao<Audit> {
 		String sql = "insert into a_audit (adt_time, adt_state_enum, adt_content, adto_id, note_id, cmt_id, usr_id) values"
 				+ " (?,?,?,?,?,?,?)";
 		Object[] params = { adt.getAdtTime(), adt.getAdtState().toString(),
-				adt.getAdtContent(), adt.getAdtoId(), adt.getNoteId(),
-				adt.getCmtId(), adt.getUsrId() };
+				adt.getAdtContent(), adt.getAdtoId(), adt.getNoteIdNullabled(),
+				adt.getCmtIdNullabled(), adt.getUsrIdNullabled() };
+		return getSqlExecution().execSqlWithoutRS(sql, params);
+	}
+
+	/**
+	 * 更新审核信息
+	 */
+	public boolean updateAudit(Audit adt) {
+		String sql = "update a_audit set adt_time=?, adt_state_enum=?, adt_conten=?, adto_id=?, note_id=?, cmt_id=? , usr_id=? where adt_id =?";
+		Object[] params = { adt.getAdtTime(), adt.getAdtState().toString(),
+				adt.getAdtContent(), adt.getAdtoId(), adt.getNoteIdNullabled(),
+				adt.getCmtIdNullabled(), adt.getUsrIdNullabled() };
 		return getSqlExecution().execSqlWithoutRS(sql, params);
 	}
 
@@ -47,17 +58,6 @@ public class AuditDao extends BaseDao<Audit> {
 	public boolean deleteAudit(Audit adt) {
 		String sql = "delete from a_audit where adt_id=?";
 		Object[] params = { adt.getAdtId() };
-		return getSqlExecution().execSqlWithoutRS(sql, params);
-	}
-
-	/**
-	 * 更新审核信息
-	 */
-	public boolean modifyAudit(Audit adt) {
-		String sql = "update a_audit set adt_time=?, adt_state_enum=?, adt_conten=?, adto_id=?, note_id=?, cmt_id=? , usr_id=? where adt_id =?";
-		Object[] params = { adt.getAdtTime(), adt.getAdtState().toString(),
-				adt.getAdtContent(), adt.getAdtoId(), adt.getAdtoId(),
-				adt.getCmtId(), adt.getUsrId() };
 		return getSqlExecution().execSqlWithoutRS(sql, params);
 	}
 

@@ -17,8 +17,7 @@ public class UserDao extends BaseDao<User> {
 		usr.setStuId(rs.getInt("stu_id"));
 		usr.setUsrAbleState(User.UsrAbleStateEnum.valueOf(rs
 				.getString("usr_able_state_enum")));
-		usr.setUsrType(User.UsrTypeEnum.valueOf(rs
-				.getString("usr_type_enum")));
+		usr.setUsrType(User.UsrTypeEnum.valueOf(rs.getString("usr_type_enum")));
 		return usr;
 	}
 
@@ -91,7 +90,7 @@ public class UserDao extends BaseDao<User> {
 	 */
 	public boolean modifyUserAbleState(User usr) {
 		String sql = "update a_users set usr_able_state_enum = ? where usr_id=?";
-		Object[] params = { usr.getUsrAbleState().toString(),usr.getUsrId() };
+		Object[] params = { usr.getUsrAbleState().toString(), usr.getUsrId() };
 		return getSqlExecution().execSqlWithoutRS(sql, params);
 	}
 
@@ -100,7 +99,7 @@ public class UserDao extends BaseDao<User> {
 	 */
 	public boolean modifyUserType(User usr) {
 		String sql = "update a_users set usr_type_enum = ? where usr_id = ?";
-		Object[] params = { usr.getUsrType().toString(),usr.getUsrId() };
+		Object[] params = { usr.getUsrType().toString(), usr.getUsrId() };
 		return getSqlExecution().execSqlWithoutRS(sql, params);
 	}
 }

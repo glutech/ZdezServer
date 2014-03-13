@@ -11,9 +11,9 @@ public class Audit {
 	private Timestamp adtTime;
 	private String adtContent;
 	private int adtoId;
-	private Integer noteId;
-	private Integer cmtId;
-	private Integer usrId;
+	private Integer noteIdNullabled;
+	private Integer cmtIdNullabled;
+	private Integer usrIdNullabled;
 	private AdtStateEnum adtState;
 
 	public int getAdtId() {
@@ -48,28 +48,28 @@ public class Audit {
 		this.adtoId = adtoId;
 	}
 
-	public Integer getNoteId() {
-		return noteId;
+	public Integer getNoteIdNullabled() {
+		return noteIdNullabled;
 	}
 
-	public void setNoteId(Integer noteId) {
-		this.noteId = noteId;
+	public void setNoteIdNullabled(Integer noteIdNullabled) {
+		this.noteIdNullabled = noteIdNullabled;
 	}
 
-	public Integer getCmtId() {
-		return cmtId;
+	public Integer getCmtIdNullabled() {
+		return cmtIdNullabled;
 	}
 
-	public void setCmtId(Integer cmtId) {
-		this.cmtId = cmtId;
+	public void setCmtIdNullabled(Integer cmtIdNullabled) {
+		this.cmtIdNullabled = cmtIdNullabled;
 	}
 
-	public Integer getUsrId() {
-		return usrId;
+	public Integer getUsrIdNullabled() {
+		return usrIdNullabled;
 	}
 
-	public void setUsrId(Integer usrId) {
-		this.usrId = usrId;
+	public void setUsrIdNullabled(Integer usrIdNullabled) {
+		this.usrIdNullabled = usrIdNullabled;
 	}
 
 	public AdtStateEnum getAdtState() {

@@ -63,11 +63,11 @@ public class Comment {
 		this.usrId = usrId;
 	}
 
-	public CmtTypeEnum getCmtTypeEnum() {
+	public CmtTypeEnum getCmtType() {
 		return cmtType;
 	}
 
-	public void setCmtTypeEnum(CmtTypeEnum cmtType) {
+	public void setCmtType(CmtTypeEnum cmtType) {
 		this.cmtType = cmtType;
 	}
 

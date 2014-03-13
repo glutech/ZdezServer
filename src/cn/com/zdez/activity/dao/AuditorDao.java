@@ -46,6 +46,15 @@ public class AuditorDao extends BaseDao<Auditor> {
 	}
 
 	/**
+	 * 修改审核人员信息
+	 */
+	public boolean updateAuditor(Auditor adto) {
+		String sql = "update a_auditor set adto_name =? where adto_id =?";
+		Object[] params = { adto.getAdtoName() };
+		return getSqlExecution().execSqlWithoutRS(sql, params);
+	}
+
+	/**
 	 * 删除一条审核人员信息
 	 */
 	public boolean delAuditor(Auditor adto) {
@@ -54,14 +63,6 @@ public class AuditorDao extends BaseDao<Auditor> {
 		return getSqlExecution().execSqlWithoutRS(sql, params);
 	}
 
-	/**
-	 * 修改审核人员信息
-	 */
-	public boolean modifyAuditor(Auditor adto) {
-		String sql = "update a_auditor set adto_name =? where adto_id =?";
-		Object[] params = { adto.getAdtoName() };
-		return getSqlExecution().execSqlWithoutRS(sql, params);
-	}
 	/**
 	 * 通过外键关联查询
 	 */
