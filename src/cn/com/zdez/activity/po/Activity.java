@@ -13,7 +13,7 @@ public class Activity {
 	private String actName;
 	private String actAddr;
 	private String actInfo;
-	private int actgId;
+	private int catgId;
 	private int tmId;
 	private ActStateEnum actState;
 	private ActTypeEnum actType;
@@ -50,12 +50,12 @@ public class Activity {
 		this.actInfo = actInfo;
 	}
 
-	public int getActgId() {
-		return actgId;
+	public int getCatgId() {
+		return catgId;
 	}
 
-	public void setActgId(int actgId) {
-		this.actgId = actgId;
+	public void setCatgId(int catgId) {
+		this.catgId = catgId;
 	}
 
 	public int getTmId() {
@@ -66,19 +66,19 @@ public class Activity {
 		this.tmId = tmId;
 	}
 
-	public ActStateEnum getActStateEnum() {
+	public ActStateEnum getActState() {
 		return actState;
 	}
 
-	public void setActStateEnum(ActStateEnum actState) {
+	public void setActState(ActStateEnum actState) {
 		this.actState = actState;
 	}
 
-	public ActTypeEnum getActTypeEnum() {
+	public ActTypeEnum getActType() {
 		return actType;
 	}
 
-	public void setActTypeEnum(ActTypeEnum actType) {
+	public void setActType(ActTypeEnum actType) {
 		this.actType = actType;
 	}
 
