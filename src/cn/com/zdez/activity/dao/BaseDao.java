@@ -11,11 +11,21 @@ import cn.com.zdez.dao.SQLExecution;
  * dao包的统一基类 <br />
  * 提供了基础的读取逻辑封装
  * 
- * @param <T>
+ * @param <PO_TYPE>
  *            具体的dao类所对应的po层实体
  * @author wu.kui2@gmail.com
  */
-public abstract class BaseDao<T> {
+public abstract class BaseDao<PO_TYPE> {
+
+	/**
+	 * 非PO的通用解析接口
+	 * 
+	 * @param <T>
+	 *            其他类型
+	 */
+	public static interface TParser<T> {
+		public T parseRS(ResultSet rs) throws SQLException;
+	}
 
 	private SQLExecution sqlE = new SQLExecution();
 
@@ -23,9 +33,9 @@ public abstract class BaseDao<T> {
 		return sqlE;
 	}
 
-	protected abstract T parseRS(ResultSet rs) throws SQLException;
+	protected abstract PO_TYPE parseRS(ResultSet rs) throws SQLException;
 
-	protected T parseRsToPo(ResultSet rs) {
+	protected PO_TYPE parseRsToPo(ResultSet rs) {
 		try {
 			if (rs.next()) {
 				return parseRS(rs);
@@ -38,11 +48,37 @@ public abstract class BaseDao<T> {
 		}
 	}
 
-	protected List<T> parseRsToList(ResultSet rs) {
-		List<T> result = new LinkedList<T>();
+	protected List<PO_TYPE> parseRsToList(ResultSet rs) {
+		List<PO_TYPE> result = new LinkedList<PO_TYPE>();
 		try {
 			while (rs.next()) {
 				result.add(parseRS(rs));
+			}
+			return result;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	protected <T> T parseRsToT(ResultSet rs, TParser<T> parser) {
+		try {
+			if (rs.next()) {
+				return parser.parseRS(rs);
+			} else {
+				return null;
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	protected <T> List<T> parseRsToTList(ResultSet rs, TParser<T> parser) {
+		List<T> result = new LinkedList<T>();
+		try {
+			while (rs.next()) {
+				result.add(parser.parseRS(rs));
 			}
 			return result;
 		} catch (SQLException e) {
